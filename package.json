@@ -1,0 +1,35 @@
+{
+  "name": "FileBrowser",
+  "config": {
+    "js_debug": "filebrowser.js",
+    "js_minified": "filebrowser.min.js",
+    "css_combined": "filebrowser.css",
+    "css_minified": "filebrowser.min.css"
+  },
+  "devDependencies": {
+    "jshint": "latest",
+    "uglify-js": "latest",
+    "clean-css": "latest",
+    "postcss": "latest",
+    "nodemon": "latest",
+    "parallelshell": "latest"
+  },
+  "scripts": {
+    "prelint": "node combine.js js",
+    "lint": "jshint build/$npm_package_config_js_debug",
+    
+    "preuglify": "npm run lint",
+    "uglify": "uglifyjs build/$npm_package_config_js_debug --mangle --mangle-regex --screw-ie8 -c warnings=false -o build/$npm_package_config_js_minified",
+    "build:js": "npm run uglify",
+    "watch:js": "nodemon --on-change-only --watch 'src' --ext 'js' --exec 'npm run build:js'",
+    
+    "postcss": "node combine.js css && postcss --use autoprefixer -b 'last 2 versions' build/$npm_package_config_css_combined -o build/$npm_package_config_css_combined",
+    "precss": "npm run postcss",
+    "css": "cleancss --skip-restructuring -o build/$npm_package_config_css_minified build/$npm_package_config_css_combined",
+    "build:css": "npm run css",
+    "watch:css": "nodemon --on-change-only --watch 'src' --ext 'css' --exec 'npm run build:css'",
+    
+    "build": "npm run build:css && npm run build:js",
+    "build:watch": "npm run build && parallelshell 'npm run watch:js' 'npm run watch:css'"
+  }
+}
