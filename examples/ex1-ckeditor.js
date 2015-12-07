@@ -13,9 +13,10 @@
     root_http = getRootPath(),
     browser_plugin = 'filebrowser_upload',
     plugin_dir = root_http + '/externs/ckeditor/plugins/',
+    openshift = 'http://filebrowser4openshift-jwalker.rhcloud.com',
     browser = new FileBrowser({
-      root_http: root_http + '/server-side/writable',
-      server_http: root_http + '/server-side/filebrowser.php',
+      root_http: openshift + '/server-side/writable',
+      server_http: openshift + '/server-side/filebrowser.php',
     })
   ;
   CKEDITOR.plugins.addExternal(browser_plugin, plugin_dir + browser_plugin + '/');
