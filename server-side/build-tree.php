@@ -94,7 +94,7 @@ class buildTreeFromDirectory {
           $filemtime = $fileinfo->getMTime();
         }
         
-        $file_path = (empty($it->getSubPath())) ? '/' : '/'.$it->getSubPath().'/';
+        $file_path = $it->getSubPath() == '' ? '/' : '/'.$it->getSubPath().'/';
         
         $parentArr['files'][] = array(
           'filename'      => $name,
