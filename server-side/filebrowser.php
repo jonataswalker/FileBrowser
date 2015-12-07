@@ -1,8 +1,9 @@
 <?php
 ini_set("display_errors", 1);
 error_reporting(E_ALL ^ E_NOTICE);
-require('./build-tree.php');
+header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
+require('./build-tree.php');
 
 $allow_ext = array('gif','jpg','png','bmp');
 $root = dirname('.') . '/writable';
