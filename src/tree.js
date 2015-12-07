@@ -1,4 +1,4 @@
-(function(FileBrowser, win, doc){
+(function(FileBrowser){
   
   FileBrowser.Tree = function(browser){
     this.browser = browser;
@@ -194,9 +194,6 @@
       var
         text = '<p>Esta pasta será criada em: </p>'
           + '<p class="folder-path">'+path+'</p>',
-        msg_input = 'Preenchimento mínimo: 1 - máximo: 10;<br>Apenas '
-          + '<strong>letras</strong>, <strong>números</strong>'
-          + ' e os seguintes caracteres: <span class="destaque">. - _</span>',
         html = {
           title: 'Nova Pasta',
           text: text
@@ -628,5 +625,4 @@
       return utils.template(str, row);
     }
   };
-})(FileBrowser, win, doc);
-
+})(FileBrowser);

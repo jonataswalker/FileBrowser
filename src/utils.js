@@ -17,18 +17,9 @@
     }
     return xhr;
   };
-  var toQueryString = function(obj){
-    return Object.keys(obj).reduce(function(a, k) {
-      a.push(
-        (typeof obj[k] === 'object') ? toQueryString(obj[k]) :
-        encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])
-      );
-      return a;
-    }, []).join('&');
-  };
-  var encodeUrlXhr = function(url, data){
+  var encodeUrlXhr = function(url, data) {
     if(data && typeof(data) === 'object') {
-      var str_data = toQueryString(data);
+      var str_data = utils.toQueryString(data);
       url += (/\?/.test(url) ? '&' : '?') + str_data;
     }
     return url;
@@ -36,6 +27,15 @@
   
   FileBrowser.Utils = {
     whiteSpaceRegex: /\s+/,
+    toQueryString: function(obj){
+      return Object.keys(obj).reduce(function(a, k) {
+        a.push(
+          (typeof obj[k] === 'object') ? utils.toQueryString(obj[k]) :
+          encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])
+        );
+        return a;
+      }, []).join('&');
+    },
     json: function(url, data) {
       var
         xhr = getXhr(),
@@ -259,15 +259,15 @@
     },
     getSiblings: function(node, tagname) {
       return Array.prototype.filter.call(node.parentNode.children, 
-        function(child){
-          if(tagname){
-            if(tagname.toUpperCase() == child.tagName){
-              return child !== node;
-            }
-          } else{
+          function(child){
+        if(tagname){
+          if(tagname.toUpperCase() == child.tagName){
             return child !== node;
           }
-        });
+        } else{
+          return child !== node;
+        }
+      });
     },
     emptyArray: function(array){
       while(array.length) array.pop();

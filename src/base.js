@@ -1,11 +1,11 @@
 var FileBrowser = function(opt_options){
-  var
-    defaultOptions = utils.deepExtend({}, FileBrowser.defaultOptions),
-    options = this.options = utils.deepExtend(defaultOptions, opt_options),
-    $html = new FileBrowser.Html(this),
-    container = $html.createBrowser(),
-    $drag = new FileBrowser.Drag(this)
-  ;
+  var defaultOptions = utils.deepExtend({}, FileBrowser.defaultOptions);
+  this.options = utils.deepExtend(defaultOptions, opt_options);
+  
+  var $html = new FileBrowser.Html(this);
+  var container = $html.createBrowser();
+  var $drag = new FileBrowser.Drag(this);
+  
   $html.createAlert();
   this.$tree = new FileBrowser.Tree(this);
   this.$alert = new FileBrowser.Alert(this);

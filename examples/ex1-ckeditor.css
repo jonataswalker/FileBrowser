@@ -1,0 +1,54 @@
+html {
+  box-sizing: border-box;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+  background: transparent;
+}
+:focus {outline:none}
+::-moz-focus-inner {border:0}
+blockquote, q {quotes: none}
+b, strong {font-weight: bold}
+ins {text-decoration: none}
+del {text-decoration: line-through}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+header, menu, nav, section {display: block}
+.clearfix::before, .clearfix::after {
+  content: "";
+  display: table;
+}
+.clearfix::after {clear: both}
+body {
+  font: 1em/1.5 "Open Sans",Helvetica,Arial,sans-serif;
+  color: #222;
+  font-weight: 400;
+  background-color: #333;
+}
+
+.cke_button__mapeando_upload_label{
+  display: inline !important;
+}
+.cke_button__mapeando_save_label{
+  display: inline !important;
+}
+.cke_button__maximize_label{
+  display: inline !important;
+}
