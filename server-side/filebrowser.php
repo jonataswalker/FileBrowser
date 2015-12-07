@@ -1,7 +1,7 @@
 <?php
 ini_set("display_errors", 1);
 error_reporting(E_ALL ^ E_NOTICE);
-header("Access-Control-Allow-Origin: *");
+cors();
 header('Content-Type: application/json');
 require('./build-tree.php');
 
@@ -189,6 +189,38 @@ function unaccent($string){
     $string = html_entity_decode(preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|tilde|uml);~i', '$1', $string), ENT_QUOTES, 'UTF-8');
   }
   return $string;
+}
+/**
+ *  An example CORS-compliant method.  It will allow any GET, POST, or OPTIONS requests from any
+ *  origin.
+ *
+ *  In a production environment, you probably want to be more restrictive, but this gives you
+ *  the general idea of what is involved.  For the nitty-gritty low-down, read:
+ *
+ *  - https://developer.mozilla.org/en/HTTP_access_control
+ *  - http://www.w3.org/TR/cors/
+ *
+ */
+function cors() {
+
+    // Allow from any origin
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        header('Access-Control-Allow-Credentials: true');
+        header('Access-Control-Max-Age: 86400');    // cache for 1 day
+    }
+
+    // Access-Control headers are received during OPTIONS requests
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+            header("Access-Control-Allow-Methods: GET, POST, OPTIONS");         
+
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+            header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+        exit(0);
+    }
 }
 
 ?>
