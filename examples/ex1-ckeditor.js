@@ -26,6 +26,7 @@
   };
   var ckeditor = CKEDITOR.replace('editor', {
     extraPlugins: 'filebrowser_upload',
+    extraAllowedContent: 'img[src,alt,width,height]',
     toolbarGroups: [
       { name: 'basicstyles', groups: ['basicstyles', 'cleanup', 'colors'] },
       { name: 'tools', groups: ['tools'] },
