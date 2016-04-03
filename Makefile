@@ -1,8 +1,9 @@
-LAST_VERSION	:= 1.0.0
+LAST_VERSION	:= $(shell node -p "require('./package.json').version")
 NOW		:= $(shell date --iso=seconds)
 ROOT_DIR	:= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 SRC_DIR 	:= $(ROOT_DIR)/src
 BUILD_DIR 	:= $(ROOT_DIR)/build
+EXTERNS_DIR 	:= $(ROOT_DIR)/externs
 JS_DEBUG 	:= $(BUILD_DIR)/filebrowser-debug.js
 JS_FINAL 	:= $(BUILD_DIR)/filebrowser.js
 CSS_COMBINED 	:= $(BUILD_DIR)/filebrowser.css
@@ -10,29 +11,36 @@ CSS_FINAL 	:= $(BUILD_DIR)/filebrowser.min.css
 TMPFILE 	:= $(BUILD_DIR)/tmp
 
 JS_FILES 	:= $(SRC_DIR)/wrapper-head.js \
+		   $(SRC_DIR)/utils.js \
 		   $(SRC_DIR)/base.js \
 		   $(SRC_DIR)/tree.js \
 		   $(SRC_DIR)/html.js \
 		   $(SRC_DIR)/drag.js \
 		   $(SRC_DIR)/upload.js \
 		   $(SRC_DIR)/alert.js \
-		   $(SRC_DIR)/utils.js \
-		   $(SRC_DIR)/wrapper-tail.js
+		   $(SRC_DIR)/wrapper-tail.js \
+		   $(EXTERNS_DIR)/canvas-to-blob.js \
+		   $(EXTERNS_DIR)/FileAPI.core.js \
+		   $(EXTERNS_DIR)/FileAPI.Image.js \
+		   $(EXTERNS_DIR)/FileAPI.Form.js \
+		   $(EXTERNS_DIR)/FileAPI.XHR.js \
+		   $(EXTERNS_DIR)/FileAPI.Flash.js
 
 CSS_FILES 	:= $(SRC_DIR)/filebrowser.css \
 		   $(SRC_DIR)/brankic-icomoon.css
 
-CLEANCSS 	:= /usr/local/bin/cleancss
+NODE_MODULES	:= ./node_modules/.bin
+CLEANCSS 	:= $(NODE_MODULES)/cleancss
 CLEANCSSFLAGS 	:= --skip-restructuring
-POSTCSS 	:= /usr/bin/postcss
+POSTCSS 	:= $(NODE_MODULES)/postcss
 POSTCSSFLAGS 	:= --use autoprefixer -b "last 2 versions"
-JSHINT 		:= /usr/bin/jshint
-UGLIFYJS 	:= /usr/bin/uglifyjs
-UGLIFYJSFLAGS 	:= --mangle --mangle-regex --screw-ie8 --lint -c warnings=true
-JS_BEAUTIFY	:= /usr/bin/js-beautify
+ESLINT 		:= $(NODE_MODULES)/eslint
+UGLIFYJS 	:= $(NODE_MODULES)/uglifyjs
+UGLIFYJSFLAGS 	:= --mangle --mangle-regex --screw-ie8 -c warnings=false
+JS_BEAUTIFY	:= $(NODE_MODULES)/js-beautify
 BEAUTIFYFLAGS 	:= -f - --indent-size 2 --preserve-newlines
-NODEMON 	:= /usr/bin/nodemon
-PARALLELSHELL 	:= /usr/bin/parallelshell
+NODEMON 	:= $(NODE_MODULES)/nodemon
+PARALLELSHELL 	:= $(NODE_MODULES)/parallelshell
 
 # just to create variables like NODEMON_JS_FLAGS when called
 define NodemonFlags
@@ -50,6 +58,9 @@ endef
 export HEADER
 
 # targets
+.PHONY: ci
+ci: build
+
 build-watch: build watch
 
 watch:
@@ -57,17 +68,17 @@ watch:
 
 build: build-js build-css
 
-build-js: combine-js jshint uglifyjs addheader
-	@echo "Build JS ... OK"
+build-js: combine-js lint uglifyjs addheader
+	@echo `date +'%H:%M:%S'` " - build JS ... OK"
 
 build-css: combine-css cleancss
-	@echo "Build CSS ... OK"
+	@echo `date +'%H:%M:%S'` " - build CSS ... OK"
 
 uglifyjs:
 	@$(UGLIFYJS) $(JS_DEBUG) $(UGLIFYJSFLAGS) > $(JS_FINAL)
 
-jshint:
-	@$(JSHINT) $(JS_DEBUG)
+lint:
+	@$(ESLINT) $(JS_DEBUG)
 
 addheader-debug:
 	@echo "$$HEADER" | cat - $(JS_DEBUG) > $(TMPFILE) && mv $(TMPFILE) $(JS_DEBUG)

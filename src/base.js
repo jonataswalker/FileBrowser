@@ -1,84 +1,86 @@
-var FileBrowser = function(opt_options){
-  var defaultOptions = utils.deepExtend({}, FileBrowser.defaultOptions);
+/**
+ * @constructor
+ * @param {Object|undefined} opt_options Options.
+ */
+FB.Base = function(opt_options){
+  var defaultOptions = utils.deepExtend({}, FB.defaultOptions);
   this.options = utils.deepExtend(defaultOptions, opt_options);
   
-  var $html = new FileBrowser.Html(this);
-  var container = $html.createBrowser();
-  var $drag = new FileBrowser.Drag(this);
+  FB.$base = this;
+  FB.$html = new FB.Html();
+  FB.$html.createBrowser();
+  FB.$html.createAlert();
   
-  $html.createAlert();
-  this.$tree = new FileBrowser.Tree(this);
-  this.$alert = new FileBrowser.Alert(this);
-  this.$upload = new FileBrowser.Upload(this);
+  FB.$drag = new FB.Drag();
+  FB.$tree = new FB.Tree();
+  FB.$alert = new FB.Alert();
+  FB.$upload = new FB.Upload();
   
   //this.maxZIndex = utils.getMaxZIndex();
-  this.current_active = FileBrowser.elements.folder_tree_root;
+  this.current_active = FB.elements.folder_tree_root;
   this.root_event_added = false;
   this.thumbs_root = [];
   this.thumbs_selected = [];
   this.path = utils.getPath();
   
-  this.$tree.build();
+  FB.$tree.build();
+  console.info(this);
   this.setListeners();
-  $drag.when({
+  FB.$drag.when({
     start: function(){
-      utils.addClass(container, 'dragging');
+      utils.addClass(FB.container, 'dragging');
     },
     move: function(){
-      container.style.left = this.x + 'px';
-      container.style.top = this.y + 'px';
+      FB.container.style.left = this.x + 'px';
+      FB.container.style.top = this.y + 'px';
     },
     end: function(){
-      utils.removeClass(container, 'dragging');
-      if(this.y < 0) container.style.top = 0;
+      utils.removeClass(FB.container, 'dragging');
+      if(this.y < 0) FB.container.style.top = 0;
     }
   });
 };
-FileBrowser.prototype = {
+FB.Base.prototype = {
   show: function(){
-    FileBrowser.elements.container.style.zIndex = utils.getMaxZIndex() + 10;
-    FileBrowser.elements.container.style.display = 'block';
-    utils.setCenter(FileBrowser.elements.container);
+    FB.container.style.zIndex = utils.getMaxZIndex() + 10;
+    FB.container.style.display = 'block';
+    utils.setCenter(FB.container);
   },
   setEditor: function(editor){
     //editor is an instance of CKeditor for instance
     this.options.editor = editor;
   },
   setListeners: function(){
-    var
-      $tree = this.$tree,
-      $upload = this.$upload,
-      els = FileBrowser.elements,
-      //to not loose scope
-      newFolder = function(){
-        this.blur();
-        $tree.newFolder();
-      },
-      removeFolder = function(){
-        this.blur();
-        $tree.removeFolder();
-      },
-      removeFile = function(){
-        this.blur();
-        $tree.removeFile();
-      },
-      sendEditor = function(){
-        this.blur();
-        $tree.sendEditor();
-      },
-      closeBrowser = function(){
-        this.blur();
-        $tree.closeBrowser();
-      },
-      upChoose = function(){
-        this.blur();
-        $upload.choose();
-      },
-      upStart = function(){
-        this.blur();
-        $upload.start();
-      }
-    ;
+    var els = FB.elements,
+        //to not loose scope
+        newFolder = function(){
+          this.blur();
+          FB.$tree.newFolder();
+        },
+        removeFolder = function(){
+          this.blur();
+          FB.$tree.removeFolder();
+        },
+        removeFile = function(){
+          this.blur();
+          FB.$tree.removeFile();
+        },
+        sendEditor = function(){
+          this.blur();
+          FB.$tree.sendEditor();
+        },
+        closeBrowser = function(){
+          this.blur();
+          FB.$tree.closeBrowser();
+        },
+        upChoose = function(){
+          this.blur();
+          FB.$upload.choose();
+        },
+        upStart = function(){
+          this.blur();
+          FB.$upload.start();
+        };
     els.btn_new_folder.addEventListener('click', newFolder, false);
     els.btn_del_folder.addEventListener('click', removeFolder, false);
     els.btn_upload_choose.addEventListener('click', upChoose, false);
@@ -88,7 +90,7 @@ FileBrowser.prototype = {
     els.btn_close_grd.addEventListener('click', closeBrowser, false);
   }
 };
-FileBrowser.defaultOptions = {
+FB.defaultOptions = {
   mode: 'plugin',
   root_http: 'http://localhost/testes/wrap2',
   server_http: '/gerenciador/gerenciador.php',
@@ -97,11 +99,11 @@ FileBrowser.defaultOptions = {
   alert_overlay_class: 'filebrowser-fb fb-alert-overlay',
   alert_container_class: 'filebrowser-fb fb-alert'
 };
-FileBrowser.constants = {
+FB.constants = {
   'suffix-small': 'small',
   'suffix-medium': 'medium',
   'thumb-path': 'data-path',
   'thumb-sel': 'selected',
   'li-key': 'data-key'
 };
-FileBrowser.elements = {};
+FB.elements = {};
