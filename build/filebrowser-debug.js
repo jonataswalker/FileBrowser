@@ -1,7 +1,7 @@
 // A multi-purpose filebrowser.
 // https://github.com/jonataswalker/FileBrowser
-// Version: v1.1.0
-// Built: 2016-04-04T15:56:48-0300
+// Version: v1.2.0
+// Built: 2016-04-04T16:03:43-0300
 
 'use strict';
 
