@@ -3,35 +3,47 @@
  */
 FB.Upload = function(){
   this.els = FB.elements;
-  this.options = FB.$base.options;
   this.files = [];
   this.index = 0;
   this.active = false;
   this.path_parents = '';
   this.setListeners();
+  this.lang = FB.lang[FB.options.lang];
 };
 
 FB.Upload.prototype = {
   setListeners: function(){
     var this_ = this;
+    
+    var isImageAndHasMinSize = function (file, info) {
+      return /^image/.test(file.type) ?
+          info.width >= FB.options.image.min_width && 
+            info.height >= FB.options.image.min_height : false;
+    };
 
     FileAPI.event.on(this.els.upload_input, 'change', function (evt){
       var files = FileAPI.getFiles(evt);
       
       FileAPI.filterFiles(files,
-        function (file, info){
-          return /^image/.test(file.type) ?
-            info.width >= 120 && info.height >= 120 : false;
+        function (file, info) {
+          var check;
+          // TODO prepare for other file types
+          FB.options.upload_types.forEach(function(type){
+            if (type == FB.constants.types.image) {
+              check = isImageAndHasMinSize(file, info);
+            }
+          });
+          return check;
         },
         function(files, rejected){
-          if(rejected && rejected.length > 0){
+          if(rejected && rejected.length){
             FB.$tree.showHeaderMessage({
-              msg: 'Apenas imagens com no mínimo 120x120!',
+              msg: utils.templateLang(this_.lang.alert.image.not_min_size, 
+                  [FB.options.image.min_width, FB.options.image.min_height]),
               duration: 3500,
               type: 'alert'
             });
           }
-          /* jshint -W030 */
           files.length && this_.add(files);
         }
       );
@@ -105,7 +117,7 @@ FB.Upload.prototype = {
     this.path_parents = FB.$tree.getFolderPath(FB.$base.current_active);
     if(this.active){
       FB.$tree.showHeaderMessage({
-        msg: 'Um envio já está em andamento!',
+        msg: this.lang.alert.upload.sending,
         duration: 1500,
         type: 'alert'
       });
@@ -113,14 +125,14 @@ FB.Upload.prototype = {
     } else{
       if(len === 0){
         FB.$tree.showHeaderMessage({
-          msg: 'Nenhum arquivo foi selecionado!',
+          msg: this.lang.alert.upload.none,
           duration: 1500,
           type: 'alert'
         });
         return;
       } else if(len == this.index){
         FB.$tree.showHeaderMessage({
-          msg: 'Todos os arquivos já foram enviados!',
+          msg: this.lang.alert.upload.sent,
           duration: 1500,
           type: 'alert'
         });
@@ -151,7 +163,7 @@ FB.Upload.prototype = {
     if (!file) return;
 
     file.xhr = FileAPI.upload({
-      url: this.options.server_http,
+      url: FB.options.server_http,
       files: { file: file },
       data: {
         action: 'upload',
@@ -184,7 +196,7 @@ FB.Upload.prototype = {
           var result = FileAPI.parseJSON(xhr.responseText);
           if(result.erro === false){
             FB.$tree.showHeaderMessage({
-              msg: 'Todos os arquivos foram enviados!',
+              msg: this_.lang.alert.upload.sent,
               duration: 2500,
               type: 'success'
             });

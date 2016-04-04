@@ -4,7 +4,7 @@
  */
 FB.Base = function(opt_options){
   var defaultOptions = utils.deepExtend({}, FB.defaultOptions);
-  this.options = utils.deepExtend(defaultOptions, opt_options);
+  FB.options = utils.deepExtend(defaultOptions, opt_options);
   
   FB.$base = this;
   FB.$html = new FB.Html();
@@ -24,7 +24,6 @@ FB.Base = function(opt_options){
   this.path = utils.getPath();
   
   FB.$tree.build();
-  console.info(this);
   this.setListeners();
   FB.$drag.when({
     start: function(){
@@ -48,7 +47,7 @@ FB.Base.prototype = {
   },
   setEditor: function(editor){
     //editor is an instance of CKeditor for instance
-    this.options.editor = editor;
+    FB.options.editor = editor;
   },
   setListeners: function(){
     var els = FB.elements,
@@ -90,20 +89,43 @@ FB.Base.prototype = {
     els.btn_close_grd.addEventListener('click', closeBrowser, false);
   }
 };
+
+FB.constants = {
+  css: {
+    container: 'filebrowser-fb fb-container',
+    alert_overlay: 'filebrowser-fb fb-alert-overlay',
+    alert_container: 'filebrowser-fb fb-alert'
+  },
+  types: {
+    image: 'image'
+  },
+  actions: {
+    upload: 'upload',
+    new_folder: 'new-folder',
+    delete_folder: 'del-folder',
+    delete_file: 'del-file',
+    get_thumbs: 'get-thumbs',
+  },
+  suffix_small: 'small',
+  suffix_medium: 'medium',
+  thumb_path: 'data-path',
+  thumb_sel: 'selected',
+  li_key: 'data-key'
+};
+
 FB.defaultOptions = {
   mode: 'plugin',
-  root_http: 'http://localhost/testes/wrap2',
-  server_http: '/gerenciador/gerenciador.php',
+  lang: 'en',
+  root_http: '/',
+  server_http: 'browser.php',
   regex_folder: /^[a-zA-Z0-9-_.]{1,10}$/,
-  container_class: 'filebrowser-fb fb-container',
-  alert_overlay_class: 'filebrowser-fb fb-alert-overlay',
-  alert_container_class: 'filebrowser-fb fb-alert'
+  upload_types: [FB.constants.types.image],
+  image: {
+    min_width: 120, // pixels
+    min_height: 120
+  }
 };
-FB.constants = {
-  'suffix-small': 'small',
-  'suffix-medium': 'medium',
-  'thumb-path': 'data-path',
-  'thumb-sel': 'selected',
-  'li-key': 'data-key'
-};
+
 FB.elements = {};
+
+FB.lang = {};

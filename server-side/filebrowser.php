@@ -12,7 +12,39 @@ $suffixes = array('small', 'medium', 'big');
 $tree = new buildTreeFromDirectory($root);
 $tree->setFilter($allow_ext, $suffix);
 
-if($_GET['action'] == 'thumbs'){
+$actions = array(
+  'upload' => 'upload',
+  'new-folder' => 'new-folder',
+  'del-folder' => 'del-folder',
+  'del-file' => 'del-file',
+  'get-thumbs' => 'get-thumbs'
+);
+
+$msg = array(
+  'en' => array(
+    'no-writable' => 'This folder is not writable!',
+    'path-error' => 'Path error!',
+    'folder-exists' => 'This folder already exists!',
+    'folder-create-error' => 'Error creating folder!',
+    'folder-del-error' => 'Error deleting folder!',
+    'upload-error' => 'Cannot Upload!',
+    'file-del-error' => 'Error deleting file!',
+    'error' => 'Error: '
+  ),
+  'pt-br' => array(
+    'no-writable' => 'Sem permissão de escrita!',
+    'path-error' => 'Erro com path!',
+    'folder-exists' => 'Esta pasta já existe!',
+    'folder-create-error' => 'Erro na criação da pasta!',
+    'folder-del-error' => 'Erro removendo a pasta!',
+    'upload-error' => 'Não foi possível fazer o upload!',
+    'file-del-error' => 'Erro removendo o arquivo!',
+    'error' => 'Erro: '
+  )
+);
+
+
+if($_GET['action'] == $actions['get-thumbs']){
   die($tree->getJSON());
 }
 
@@ -23,8 +55,11 @@ if($_SERVER['REQUEST_METHOD'] == 'OPTIONS'){
 
 if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
   $action = $_POST['action'];
+  $lang = $_POST['lang'];
 
-  if($action == 'nova-pasta' || $action == 'del-pasta' || $action == 'upload'){
+  if($action == $actions['new-folder'] || 
+      $action == $actions['del-folder'] || 
+      $action == $actions['upload']){
     $parents = str_replace(',', '/', $_POST['parents']);
     
     $root2 = realpath($root.'/'.$parents);
@@ -32,26 +67,26 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
     if(!is_writable($root2)){
       die(json_encode(array(
         'erro' => true,
-        'msg' => 'Sem permissão de escrita!'
+        'msg' => $msg[$lang]['no-writable']
       )));
     }
     if(!$root2){
       die(json_encode(array(
         'erro' => true,
-        'msg' => 'Erro com o path!'
+        'msg' => $msg[$lang]['path-error']
       )));
     }
   }
   
-  if($action == 'nova-pasta' || $action == 'del-pasta'){
+  if($action == $actions['new-folder'] || $action == $actions['del-folder']){
 
     $full = $root2.'/'.$_POST['folder'];
     
-    if($action == 'nova-pasta'){
+    if($action == $actions['new-folder']){
       if(is_dir($full)){
         die(json_encode(array(
           'erro' => true,
-          'msg' => 'Esta pasta já existe!'
+          'msg' => $msg[$lang]['folder-exists']
         )));
       }
       
@@ -65,10 +100,10 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
       } else {
         die(json_encode(array(
           'erro' => true,
-          'msg' => 'Erro ao criar: ' . $parents.'/'.$_POST['folder']
+          'msg' => $msg[$lang]['folder-create-error'] . $parents.'/'.$_POST['folder']
         )));
       }
-    } elseif($action == 'del-pasta'){
+    } elseif($action == $actions['del-folder']){
       $full = realpath($full);
       if($full && $full != $root){
         $rm = array();
@@ -83,17 +118,17 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
         } else {
           die(json_encode(array(
             'erro' => true,
-            'msg' => 'Erro ao remover pasta: ' . $parents.'/'.$_POST['folder']
+            'msg' => $msg[$lang]['folder-del-error'] . $parents.'/'.$_POST['folder']
           )));
         }
       } else {
         die(json_encode(array(
           'erro' => true,
-          'msg' => 'Erro: ' . $parents.'/'.$_POST['folder']
+          'msg' => $msg[$lang]['error'] . $parents.'/'.$_POST['folder']
         )));
       }
     }
-  } elseif($action == 'upload'){
+  } elseif($action == $actions['upload']){
     $files = $_FILES['file'];
     if($files && is_array($files['tmp_name'])){
       //extension
@@ -117,7 +152,7 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
         if($err_up){
           echo json_encode(array(
             'erro' => true,
-            'msg'   => 'Erro no upload'
+            'msg'   => $msg[$lang]['upload-error']
           ));
         } else{
           echo json_encode(array(
@@ -127,7 +162,7 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
         }
       }
     }
-  } elseif($action == 'del-file'){
+  } elseif($action == $actions['del-file']){
     $arr = explode(',', $_POST['files']);
     $err = false;
     
@@ -151,7 +186,7 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
       echo json_encode(array(
         'erro' => true,
         //'file' => $root . $path,
-        'msg'   => 'Erro na remoção.'
+        'msg'   => $msg[$lang]['file-del-error']
       ));
     } else{
       echo json_encode(array(

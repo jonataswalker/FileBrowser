@@ -13,6 +13,8 @@ TMPFILE 	:= $(BUILD_DIR)/tmp
 JS_FILES 	:= $(SRC_DIR)/wrapper-head.js \
 		   $(SRC_DIR)/utils.js \
 		   $(SRC_DIR)/base.js \
+		   $(SRC_DIR)/lang/pt-br.js \
+		   $(SRC_DIR)/lang/en.js \
 		   $(SRC_DIR)/tree.js \
 		   $(SRC_DIR)/html.js \
 		   $(SRC_DIR)/drag.js \

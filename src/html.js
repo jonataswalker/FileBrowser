@@ -4,10 +4,92 @@
 FB.Html = function () {};
 
 FB.Html.prototype = {
-  createBrowser: function(){
+  createBrowser: function () {
+    var lang = FB.lang[FB.options.lang];
+    
+    var html = [
+      '<div class="fb-header unselectable">',
+        '<span>',
+          lang.title,
+        '</span>',
+        '<span class="close"></span>',
+      '</div>',
+      '<h5 class="fb-message"></h5>',
+      '<div class="fb-toolbar">',
+        '<div class="fb-toolbar-items">',
+          '<button id="btn-upload-choose" class="button-filebrowser">',
+            '<i class="brankic-attachment"></i>',
+            '<span>',
+              lang.toolbar.bt_choose,
+            '</span>',
+          '</button>',
+          '<button class="button-filebrowser hidden" id="btn-upload-send">',
+            '<i class="brankic-upload"></i>',
+            '<span>',
+              lang.toolbar.bt_send,
+            '</span>',
+          '</button>',
+          '<button class="button-filebrowser hidden" id="btn-del-file">',
+            '<i class="brankic-trashcan"></i>',
+            '<span>',
+              lang.toolbar.bt_del_file,
+            '</span>',
+          '</button>',
+          '<button class="button-filebrowser" id="btn-new-folder">',
+            '<i class="icomoon-folder-plus"></i>',
+            '<span>',
+              lang.toolbar.bt_new_folder,
+            '</span>',
+          '</button>',
+          '<button class="button-filebrowser" id="btn-del-folder" ',
+            'style="display:none">',
+            '<i class="icomoon-folder-minus"></i>',
+            '<span>',
+              lang.toolbar.bt_del_folder,
+            '</span>',
+          '</button>',
+          '<button class="button-filebrowser hidden" id="btn-editor">',
+            '<i class="brankic-edit"></i>',
+            '<span>',
+              lang.toolbar.bt_send_editor,
+            '</span>',
+          '</button>',
+        '</div>',
+      '</div>',
+      '<div class="fb-body clearfix">',
+        '<div class="fb-tree-container">',
+          '<ol id="fb-tree">',
+            '<li id="fb-tree-folder-root" class="active open">',
+              '<a>',
+                '<i class="icomoon-folder"></i>',
+                '<span id="folder-root-desc">',
+                  lang.root_folder,
+                '</span>',
+              '</a>',
+            '</li>',
+          '</ol>',
+        '</div>',
+        '<div id="" class="fb-thumb-container">',
+          '<ul id="fb-thumb" class="fb-thumb"></ul>',
+          //<!-- "js-fileapi-wrapper" -- required class -->
+          '<div class="js-fileapi-wrapper">',
+            '<input id="upload-input" class="input-file" name="files" ',
+              'type="file" multiple />',
+          '</div>',
+          '<ul id="upload-thumb" class="fb-upload-thumb" data-label="',
+            lang.preview,
+            '"></ul>',
+        '</div>',
+      '</div>',
+      '<div class="fb-footer">',
+        '<span></span><span></span>',
+      '</div>'
+    ].join('');
+    
+    
     var container = utils.createElement([
-          'div', { classname: FB.$base.options.container_class }
-        ], FB.Html.browser),
+          'div', { classname: FB.constants.css.container }
+        ], html),
         elements = {
           container: container,
           drag_handle: container.querySelector('.fb-header'),
@@ -28,7 +110,7 @@ FB.Html.prototype = {
           grd_resize: container.querySelector('.fb-footer'),
           desc_btn_del_file: container.querySelector('#btn-del-file span'),
           desc_btn_editor: container.querySelector('#btn-editor span'),
-          btn_close_grd: container.querySelector('.fb-header button')
+          btn_close_grd: container.querySelector('.fb-header span.close')
         };
     //add elements to FB.elements
     for(var el in elements){
@@ -39,11 +121,42 @@ FB.Html.prototype = {
     document.body.appendChild(container);
     FB.container = container;
   },
-  createAlert: function(){
+  createAlert: function () {
+    var lang = FB.lang[FB.options.lang];
+    
+    var html = [
+      '<div class="fb-icon fb-error" style="display:none;">',
+        '<span class="fb-x-mark">',
+        '<span class="fb-line fb-left"></span>',
+        '<span class="fb-line fb-right"></span>',
+        '</span>',
+      '</div>',
+      '<div class="fb-icon fb-warning" style="display:none;">',
+        '<span class="fb-body"></span>',
+        '<span class="fb-dot"></span>',
+      '</div>',
+      '<div class="fb-icon fb-info" style="display:none;"></div>',
+      '<h2 class="fb-title"></h2>',
+      '<div class="fb-text"></div>',
+      '<fieldset><input type="text" style="display:none;"></fieldset>',
+      '<div class="fb-error-container">',
+        '<div class="icon">!</div>',
+        '<div class="fb-error-text"></div>',
+      '</div>',
+      '<div class="fb-button-container">',
+        '<button class="button-filebrowser cancel">',
+          lang.alert.bt_cancel,
+        '</button>',
+        '<button class="button-filebrowser ok">',
+          lang.alert.bt_ok,
+        '</button>',
+      '</div>'
+    ].join('');
+    
     var overlay = document.createElement('div'),
         container = utils.createElement([
-          'div', { classname: FB.$base.options.alert_container_class }
-        ], FB.Html.alert),
+          'div', { classname: FB.constants.css.alert_container }
+        ], html),
         elements = {
           alert_overlay: overlay,
           alert_container: container,
@@ -64,7 +177,7 @@ FB.Html.prototype = {
       FB.elements[el] = elements[el];
     }
     
-    overlay.className = FB.$base.options.alert_overlay_class;
+    overlay.className = FB.constants.css.alert_overlay;
     overlay.style.zIndex = FB.$base.maxZIndex + 11;
     container.style.zIndex = FB.$base.maxZIndex + 12;
     container.style.display = 'none';
@@ -74,90 +187,3 @@ FB.Html.prototype = {
     return container;
   }
 };
-
-FB.Html.browser = [
-  '<div class="fb-header unselectable">',
-    '<span>Gerenciador de Imagens</span>',
-    '<button>&times;</button>',
-  '</div>',
-  '<h5 class="fb-message"></h5>',
-  '<div class="fb-toolbar">',
-    '<div class="fb-toolbar-items">',
-      '<button id="btn-upload-choose" class="button-filebrowser">',
-        '<i class="brankic-attachment"></i>',
-        '<span>Escolha</span>',
-      '</button>',
-      '<button class="button-filebrowser hidden" id="btn-upload-send">',
-        '<i class="brankic-upload"></i>',
-        '<span>Envie</span>',
-      '</button>',
-      '<button class="button-filebrowser hidden" id="btn-del-file">',
-        '<i class="brankic-trashcan"></i>',
-        '<span>Remover Arquivo</span>',
-      '</button>',
-      '<button class="button-filebrowser" id="btn-new-folder">',
-        '<i class="icomoon-folder-plus"></i>',
-        '<span>Nova Pasta</span>',
-      '</button>',
-      '<button class="button-filebrowser" id="btn-del-folder" ',
-        'style="display:none">',
-        '<i class="icomoon-folder-minus"></i>',
-        '<span>Remover Pasta</span>',
-      '</button>',
-      '<button class="button-filebrowser hidden" id="btn-editor">',
-        '<i class="brankic-edit"></i>',
-        '<span>Enviar para o Editor</span>',
-      '</button>',
-    '</div>',
-  '</div>',
-  '<div class="fb-body clearfix">',
-    '<div class="fb-tree-container">',
-      '<ol id="fb-tree">',
-        '<li id="fb-tree-folder-root" class="active open">',
-          '<a>',
-            '<i class="icomoon-folder"></i>',
-            '<span id="folder-root-desc">Pasta Principal</span>',
-          '</a>',
-        '</li>',
-      '</ol>',
-    '</div>',
-    '<div id="" class="fb-thumb-container">',
-      '<ul id="fb-thumb" class="fb-thumb"></ul>',
-      //<!-- "js-fileapi-wrapper" -- required class -->
-      '<div class="js-fileapi-wrapper">',
-        '<input id="upload-input" class="input-file" name="files" ',
-          'type="file" multiple />',
-      '</div>',
-      '<ul id="upload-thumb" class="fb-upload-thumb" ',
-        'data-label="Prévia do Envio"></ul>',
-    '</div>',
-  '</div>',
-  '<div class="fb-footer">',
-    '<span></span><span></span>',
-  '</div>'
-].join('');
-
-FB.Html.alert = [
-  '<div class="fb-icon fb-error" style="display:none;">',
-    '<span class="fb-x-mark">',
-    '<span class="fb-line fb-left"></span>',
-    '<span class="fb-line fb-right"></span>',
-    '</span>',
-  '</div>',
-  '<div class="fb-icon fb-warning" style="display:none;">',
-    '<span class="fb-body"></span>',
-    '<span class="fb-dot"></span>',
-  '</div>',
-  '<div class="fb-icon fb-info" style="display:none;"></div>',
-  '<h2 class="fb-title"></h2>',
-  '<div class="fb-text"></div>',
-  '<fieldset><input type="text" style="display:none;"></fieldset>',
-  '<div class="fb-error-container">',
-    '<div class="icon">!</div>',
-    '<div class="fb-error-text"></div>',
-  '</div>',
-  '<div class="fb-button-container">',
-    '<button class="button-filebrowser cancel">Cancelar</button>',
-    '<button class="button-filebrowser ok">OK</button>',
-  '</div>'
-].join('');
