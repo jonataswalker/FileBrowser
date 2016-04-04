@@ -266,6 +266,17 @@ var utils = {
         el.nodeType == 1 && el.tagName.toLowerCase() == tag : el.nodeType == 1;
     });
   },
+  /*
+   * Replace 'String %1 foo' with replace[0]
+   * @param {String} str
+   * @param {Array} replace
+   */
+  templateLang: function(str, replace){
+    return str.replace(/(%\d)/g, function (match, key) {
+      var i = key.match(/\d+$/)[0];
+      return replace[i - 1];
+    });
+  },
   template: function(html, row){
     var this_ = this;
     
@@ -450,7 +461,7 @@ var utils = {
     var
       k = 1000,
       sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-      i = Math.floor(Math.console.info(bytes) / Math.console.info(k))
+      i = Math.floor(Math.log(bytes) / Math.log(k))
     ;
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
   }
