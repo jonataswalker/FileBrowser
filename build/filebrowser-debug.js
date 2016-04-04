@@ -1,7 +1,7 @@
 // A multi-purpose filebrowser.
 // https://github.com/jonataswalker/FileBrowser
 // Version: v1.1.0
-// Built: 2016-04-03T08:10:27-0300
+// Built: 2016-04-04T15:56:48-0300
 
 'use strict';
 
@@ -281,6 +281,17 @@
           el.nodeType == 1 && el.tagName.toLowerCase() == tag : el.nodeType == 1;
       });
     },
+    /*
+     * Replace 'String %1 foo' with replace[0]
+     * @param {String} str
+     * @param {Array} replace
+     */
+    templateLang: function(str, replace) {
+      return str.replace(/(%\d)/g, function(match, key) {
+        var i = key.match(/\d+$/)[0];
+        return replace[i - 1];
+      });
+    },
     template: function(html, row) {
       var this_ = this;
 
@@ -465,7 +476,7 @@
       var
         k = 1000,
         sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-        i = Math.floor(Math.console.info(bytes) / Math.console.info(k));
+        i = Math.floor(Math.log(bytes) / Math.log(k));
       return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
     }
   };
@@ -475,7 +486,7 @@
    */
   FB.Base = function(opt_options) {
     var defaultOptions = utils.deepExtend({}, FB.defaultOptions);
-    this.options = utils.deepExtend(defaultOptions, opt_options);
+    FB.options = utils.deepExtend(defaultOptions, opt_options);
 
     FB.$base = this;
     FB.$html = new FB.Html();
@@ -495,7 +506,6 @@
     this.path = utils.getPath();
 
     FB.$tree.build();
-    console.info(this);
     this.setListeners();
     FB.$drag.when({
       start: function() {
@@ -519,7 +529,7 @@
     },
     setEditor: function(editor) {
       //editor is an instance of CKeditor for instance
-      this.options.editor = editor;
+      FB.options.editor = editor;
     },
     setListeners: function() {
       var els = FB.elements,
@@ -561,29 +571,155 @@
       els.btn_close_grd.addEventListener('click', closeBrowser, false);
     }
   };
+
+  FB.constants = {
+    css: {
+      container: 'filebrowser-fb fb-container',
+      alert_overlay: 'filebrowser-fb fb-alert-overlay',
+      alert_container: 'filebrowser-fb fb-alert'
+    },
+    types: {
+      image: 'image'
+    },
+    actions: {
+      upload: 'upload',
+      new_folder: 'new-folder',
+      delete_folder: 'del-folder',
+      delete_file: 'del-file',
+      get_thumbs: 'get-thumbs',
+    },
+    suffix_small: 'small',
+    suffix_medium: 'medium',
+    thumb_path: 'data-path',
+    thumb_sel: 'selected',
+    li_key: 'data-key'
+  };
+
   FB.defaultOptions = {
     mode: 'plugin',
-    root_http: 'http://localhost/testes/wrap2',
-    server_http: '/gerenciador/gerenciador.php',
+    lang: 'en',
+    root_http: '/',
+    server_http: 'browser.php',
     regex_folder: /^[a-zA-Z0-9-_.]{1,10}$/,
-    container_class: 'filebrowser-fb fb-container',
-    alert_overlay_class: 'filebrowser-fb fb-alert-overlay',
-    alert_container_class: 'filebrowser-fb fb-alert'
+    upload_types: [FB.constants.types.image],
+    image: {
+      min_width: 120, // pixels
+      min_height: 120
+    }
   };
-  FB.constants = {
-    'suffix-small': 'small',
-    'suffix-medium': 'medium',
-    'thumb-path': 'data-path',
-    'thumb-sel': 'selected',
-    'li-key': 'data-key'
-  };
+
   FB.elements = {};
+
+  FB.lang = {};
+  /*
+   * Language specific
+   */
+  FB.lang['pt-br'] = {
+    title: 'Image Browser',
+    root_folder: 'Root Folder',
+    preview: 'Sending Preview',
+    send_to_editor: 'Send to Editor',
+    toolbar: {
+      bt_choose: 'Escolha',
+      bt_send: 'Envie',
+      bt_del_file: 'Remover Arquivo',
+      bt_new_folder: 'Nova Pasta',
+      bt_del_folder: 'Remover Pasta',
+      bt_send_editor: 'Enviar para o Editor'
+    },
+    file: {
+      total: 'Total de Arquivos:',
+      del: 'Remover Arquivo',
+      dels: 'Remover Arquivos'
+    },
+    folder: {
+      new_: 'Nova Pasta',
+      del: 'Remover Pasta',
+      creation: 'Esta pasta será criada em:',
+      minimum: [
+        '<p>Preenchimento mínimo: 1 - máximo: 10',
+        '<br>Apenas <span class="strong">letras</span>, ',
+        '<span class="strong">números</span>',
+        ' e os seguintes caracteres: <span class="highlight">. - _</span></p>'
+      ].join(''),
+      deletion: [
+        '<p class="folder-path">Esta pasta <span>%1</span>',
+        ' será removida juntamente com todo seu conteúdo: </p>',
+        '<p>Total de Arquivos: <span class="destaque">%2</span>',
+        ' &mdash; Total de Sub-Pastas: <span class="destaque">%3</span></p>'
+      ].join('')
+    },
+    alert: {
+      bt_ok: 'OK',
+      bt_cancel: 'Cancelar',
+      image: {
+        not_min_size: 'Apenas imagens com no mínimo %1 x %2!'
+      },
+      upload: {
+        sending: 'Um envio já está em andamento!',
+        none: 'Nenhum arquivo foi selecionado!',
+        sent: 'Todos os arquivos já foram enviados!'
+      }
+    }
+  };
+  /*
+   * Language specific
+   */
+  FB.lang.en = {
+    title: 'Image Browser',
+    root_folder: 'Root Folder',
+    preview: 'Sending Preview',
+    send_to_editor: 'Send to Editor',
+    toolbar: {
+      bt_choose: 'Choose',
+      bt_send: 'Send',
+      bt_del_file: 'Delete File',
+      bt_new_folder: 'New Folder',
+      bt_del_folder: 'Delete Folder',
+      bt_send_editor: 'Send to Editor'
+    },
+    file: {
+      total: 'Total Files:',
+      del: 'Delete File',
+      dels: 'Delete Files'
+    },
+    folder: {
+      new_: 'New Folder',
+      del: 'Delete Folder',
+      creation: 'This folder will be created inside:',
+      minimum: [
+        '<p>Min-length: 1 - Max-length: 10',
+        '<br>Only <span class="strong">letters</span>, ',
+        '<span class="strong">numbers</span> ',
+        'and the following characters: <span class="highlight">. - _</span></p>'
+      ].join(''),
+      deletion: [
+        '<p class="folder-path">This folder <span>%1</span>',
+        ' will be removed with all its contents: </p>',
+        '<p>Total Files: <span class="destaque">%2</span>',
+        ' &mdash; Total Subfolders: <span class="destaque">%3</span></p>'
+      ].join('')
+    },
+    alert: {
+      bt_ok: 'OK',
+      bt_cancel: 'Cancel',
+      image: {
+        not_min_size: 'Only images with minimum %1 x %2!'
+      },
+      upload: {
+        sending: 'An upload is already in progress!',
+        none: 'No file!',
+        sent: 'All done!'
+      }
+    }
+  };
   /**
    * @constructor
    */
   FB.Tree = function() {
     this.els = FB.elements;
-    this.options = FB.$base.options;
+    this.options = FB.options;
+    this.lang = FB.lang[FB.options.lang];
   };
 
   FB.Tree.prototype = {
@@ -593,7 +729,8 @@
       var when = {},
         this_ = this;
       utils.json(this.options.server_http, {
-        action: 'thumbs'
+        action: FB.constants.actions.get_thumbs,
+        lang: FB.options.lang
       }).when({
         ready: function(response) {
 
@@ -629,8 +766,7 @@
     buildTree: function(json) {
       var this_ = this;
       var createFolder = function(folder, statistics, parent, last_created) {
-        var
-          row = {
+        var row = {
             folder: folder,
             'n-files': statistics.files,
             'n-files-all': statistics['files-all'],
@@ -667,8 +803,7 @@
           }
         }
       };
-      var
-        keys = Object.keys(json),
+      var keys = Object.keys(json),
         len = keys.length,
         i = -1,
         prop, value, appended,
@@ -731,26 +866,24 @@
       this.setFolderActive();
     },
     newFolder: function() {
-      var
-        this_ = this,
+      var this_ = this,
         regex = this.options.regex_folder,
-        msg_error = '<p>Preenchimento mínimo: 1 - máximo: 10;<br>Apenas ' + '<strong>letras</strong>, <strong>números</strong> e os seguintes' + ' caracteres: <span class="destaque">. - _</span></p>',
         checkInput = function() {
           //this = input value
           if (regex.test(this)) {
             FB.$alert.hideInputError();
           } else {
-            FB.$alert.showInputError(msg_error);
+            FB.$alert.showInputError(this_.lang.folder.minimum);
           }
         },
         submit = function() {
           //this = input value
           if (!regex.test(this)) {
-            FB.$alert.showInputError(msg_error);
+            FB.$alert.showInputError(this_.lang.folder.minimum);
             return;
           }
 
-          this_.submitFolder(this, 'nova-pasta').when({
+          this_.submitFolder(this, FB.constants.actions.new_folder).when({
             ready: function(response) {
               if (response.erro === false) {
                 this_.renewTree(response.tree);
@@ -763,19 +896,19 @@
         },
         parents = this.getFolderPath(FB.$base.current_active),
         i = parents.length,
-        path = '<span>Pasta Principal</span>';
+        path = '<span>' + this.lang.root_folder + '</span>';
       parents.reverse();
       while (i--) {
         path += '&nbsp;&rarr;&nbsp;<span>' + parents[i] + '</span>';
       }
 
-      var text = '<p>Esta pasta será criada em: </p>' + '<p class="folder-path">' + path + '</p>',
+      var text = '<p>' + this.lang.folder.creation + '</p>' + '<p class="folder-path">' + path + '</p>',
         html = {
-          title: 'Nova Pasta',
+          title: this.lang.folder.new_,
           text: text
         };
       FB.$alert.prompt({
-        placeholder: 'Nova Pasta',
+        placeholder: this.lang.folder.new_,
         html: html,
         checkInput: checkInput,
         submit: submit
@@ -783,7 +916,7 @@
     },
     submitFolder: function(value, action) {
       //exclude current from parents
-      var parents = (action == 'del-pasta') ?
+      var parents = (action == FB.constants.actions.delete_folder) ?
         this.getFolderPath(FB.$base.current_active, true) :
         this.getFolderPath(FB.$base.current_active),
         when = {};
@@ -791,7 +924,8 @@
       utils.post(this.options.server_http, {
         action: action,
         folder: value,
-        parents: parents.join()
+        parents: parents.join(),
+        lang: FB.options.lang
       }).when({
         ready: function(response) {
           when.ready.call(undefined, response);
@@ -810,7 +944,7 @@
         n_files = current.getAttribute('data-files-all'),
         n_folders = current.getAttribute('data-folders'),
         submit = function() {
-          this_.submitFolder(folder, 'del-pasta').when({
+          this_.submitFolder(folder, FB.constants.actions.delete_folder).when({
             ready: function(response) {
               if (response.erro === false) {
                 this_.renewTree(response.tree);
@@ -821,15 +955,10 @@
             }
           });
         },
-        text = [
-          '<p class="folder-path">Esta pasta <span>' + folder + '</span>',
-          'será removida e também todo seu conteúdo: </p>',
-          '<p>Total de Arquivos: <span class="destaque">' + n_files + '</span>',
-          ' &mdash; Total de Subpastas: <span class="destaque">',
-          n_folders + '</span></p>'
-        ].join(''),
+        text = utils.templateLang(
+          this.lang.folder.deletion, [folder, n_files, n_folders]),
         html = {
-          title: 'Remover Pasta',
+          title: this.lang.folder.del,
           text: text
         };
 
@@ -842,8 +971,9 @@
       var this_ = this,
         submit = function() {
           utils.post(this_.options.server_http, {
-            action: 'del-file',
-            files: FB.$base.thumbs_selected.join()
+            action: FB.constants.actions.delete_file,
+            files: FB.$base.thumbs_selected.join(),
+            lang: FB.options.lang
           }).when({
             ready: function(response) {
               this_.renewTree(response.tree);
@@ -851,10 +981,15 @@
             }
           });
         },
-        text = '<p>Total de Arquivos: <span class="destaque">' +
-        FB.$base.thumbs_selected.length + '</span></p>',
+        text = [
+          '<p>',
+          this.lang.file.total,
+          '<span class="highlight">',
+          FB.$base.thumbs_selected.length,
+          '</span></p>'
+        ].join(''),
         html = {
-          title: 'Remover Arquivo(s)',
+          title: this.lang.file.del,
           text: text
         };
       FB.$alert.confirm({
@@ -1059,19 +1194,18 @@
     emptyThumbSelected: function() {
       var lis = utils.find('li', this.els.grd_preview, true);
       utils.emptyArray(FB.$base.thumbs_selected);
-      utils.removeClass(lis, FB.constants['thumb-sel']);
+      utils.removeClass(lis, FB.constants.thumb_sel);
       this.buttonThumbRemoveHandler();
     },
     buttonThumbRemoveHandler: function() {
-      var
-        len_sel = FB.$base.thumbs_selected.length,
-        btn_desc = (len_sel > 1) ? 'Remover Arquivos' : 'Remover Arquivo';
+      var len_sel = FB.$base.thumbs_selected.length,
+        btn_desc = (len_sel > 1) ? this.lang.file.dels : this.lang.file.del;
       if (len_sel > 0) {
         utils.removeClass(this.els.btn_editor, 'hidden');
         utils.removeClass(this.els.btn_del_file, 'hidden');
         this.els.desc_btn_del_file.textContent = btn_desc + ' (' + len_sel + ')';
         this.els.desc_btn_editor.textContent =
-          'Enviar para o Editor (' + len_sel + ')';
+          this.lang.send_to_editor + ' (' + len_sel + ')';
       } else {
         utils.addClass(this.els.btn_editor, 'hidden');
         utils.addClass(this.els.btn_del_file, 'hidden');
@@ -1079,7 +1213,7 @@
     },
     updateCountFolder: function() {
       this.els.folder_root_desc.textContent =
-        'Pasta Principal (' + FB.$base.thumbs_root.length + ')';
+        this.lang.root_folder + ' (' + FB.$base.thumbs_root.length + ')';
     },
     removeThumbs: function() {
       utils.removeAllChildren(this.els.grd_preview);
@@ -1092,9 +1226,9 @@
         url = this.options.root_http,
         count = files.length,
         thumbSelect = function() {
-          utils.toggleClass(this, FB.constants['thumb-sel']);
-          var selected = utils.hasClass(this, FB.constants['thumb-sel']),
-            attr = this.getAttribute(FB.constants['thumb-path']);
+          utils.toggleClass(this, FB.constants.thumb_sel);
+          var selected = utils.hasClass(this, FB.constants.thumb_sel),
+            attr = this.getAttribute(FB.constants.thumb_path);
           if (selected) {
             FB.$base.thumbs_selected.push(attr);
           } else {
@@ -1116,9 +1250,9 @@
         };
         html = this.thumbTemplate(row);
         li = utils.createElement(['li', {
-          classname: (selected) ? FB.constants['thumb-sel'] : '',
+          classname: (selected) ? FB.constants.thumb_sel : '',
           attr: [{
-            name: FB.constants['thumb-path'],
+            name: FB.constants.thumb_path,
             value: path
           }]
         }], html);
@@ -1134,8 +1268,8 @@
         filename;
       while (++i < c) {
         filename = FB.$base.thumbs_selected[i].replace(
-          FB.constants['suffix-small'],
-          FB.constants['suffix-medium']
+          FB.constants.suffix_small,
+          FB.constants.suffix_medium
         );
         editor.insertHtml('<img src="' + this.options.root_http + filename + '">');
       }
@@ -1180,11 +1314,93 @@
 
   FB.Html.prototype = {
     createBrowser: function() {
+      var lang = FB.lang[FB.options.lang];
+
+      var html = [
+        '<div class="fb-header unselectable">',
+        '<span>',
+        lang.title,
+        '</span>',
+        '<span class="close"></span>',
+        '</div>',
+        '<h5 class="fb-message"></h5>',
+        '<div class="fb-toolbar">',
+        '<div class="fb-toolbar-items">',
+        '<button id="btn-upload-choose" class="button-filebrowser">',
+        '<i class="brankic-attachment"></i>',
+        '<span>',
+        lang.toolbar.bt_choose,
+        '</span>',
+        '</button>',
+        '<button class="button-filebrowser hidden" id="btn-upload-send">',
+        '<i class="brankic-upload"></i>',
+        '<span>',
+        lang.toolbar.bt_send,
+        '</span>',
+        '</button>',
+        '<button class="button-filebrowser hidden" id="btn-del-file">',
+        '<i class="brankic-trashcan"></i>',
+        '<span>',
+        lang.toolbar.bt_del_file,
+        '</span>',
+        '</button>',
+        '<button class="button-filebrowser" id="btn-new-folder">',
+        '<i class="icomoon-folder-plus"></i>',
+        '<span>',
+        lang.toolbar.bt_new_folder,
+        '</span>',
+        '</button>',
+        '<button class="button-filebrowser" id="btn-del-folder" ',
+        'style="display:none">',
+        '<i class="icomoon-folder-minus"></i>',
+        '<span>',
+        lang.toolbar.bt_del_folder,
+        '</span>',
+        '</button>',
+        '<button class="button-filebrowser hidden" id="btn-editor">',
+        '<i class="brankic-edit"></i>',
+        '<span>',
+        lang.toolbar.bt_send_editor,
+        '</span>',
+        '</button>',
+        '</div>',
+        '</div>',
+        '<div class="fb-body clearfix">',
+        '<div class="fb-tree-container">',
+        '<ol id="fb-tree">',
+        '<li id="fb-tree-folder-root" class="active open">',
+        '<a>',
+        '<i class="icomoon-folder"></i>',
+        '<span id="folder-root-desc">',
+        lang.root_folder,
+        '</span>',
+        '</a>',
+        '</li>',
+        '</ol>',
+        '</div>',
+        '<div id="" class="fb-thumb-container">',
+        '<ul id="fb-thumb" class="fb-thumb"></ul>',
+        //<!-- "js-fileapi-wrapper" -- required class -->
+        '<div class="js-fileapi-wrapper">',
+        '<input id="upload-input" class="input-file" name="files" ',
+        'type="file" multiple />',
+        '</div>',
+        '<ul id="upload-thumb" class="fb-upload-thumb" data-label="',
+        lang.preview,
+        '"></ul>',
+        '</div>',
+        '</div>',
+        '<div class="fb-footer">',
+        '<span></span><span></span>',
+        '</div>'
+      ].join('');
+
+
       var container = utils.createElement([
           'div', {
-            classname: FB.$base.options.container_class
+            classname: FB.constants.css.container
           }
-        ], FB.Html.browser),
+        ], html),
         elements = {
           container: container,
           drag_handle: container.querySelector('.fb-header'),
@@ -1205,7 +1421,7 @@
           grd_resize: container.querySelector('.fb-footer'),
           desc_btn_del_file: container.querySelector('#btn-del-file span'),
           desc_btn_editor: container.querySelector('#btn-editor span'),
-          btn_close_grd: container.querySelector('.fb-header button')
+          btn_close_grd: container.querySelector('.fb-header span.close')
         };
       //add elements to FB.elements
       for (var el in elements) {
@@ -1217,12 +1433,43 @@
       FB.container = container;
     },
     createAlert: function() {
+      var lang = FB.lang[FB.options.lang];
+
+      var html = [
+        '<div class="fb-icon fb-error" style="display:none;">',
+        '<span class="fb-x-mark">',
+        '<span class="fb-line fb-left"></span>',
+        '<span class="fb-line fb-right"></span>',
+        '</span>',
+        '</div>',
+        '<div class="fb-icon fb-warning" style="display:none;">',
+        '<span class="fb-body"></span>',
+        '<span class="fb-dot"></span>',
+        '</div>',
+        '<div class="fb-icon fb-info" style="display:none;"></div>',
+        '<h2 class="fb-title"></h2>',
+        '<div class="fb-text"></div>',
+        '<fieldset><input type="text" style="display:none;"></fieldset>',
+        '<div class="fb-error-container">',
+        '<div class="icon">!</div>',
+        '<div class="fb-error-text"></div>',
+        '</div>',
+        '<div class="fb-button-container">',
+        '<button class="button-filebrowser cancel">',
+        lang.alert.bt_cancel,
+        '</button>',
+        '<button class="button-filebrowser ok">',
+        lang.alert.bt_ok,
+        '</button>',
+        '</div>'
+      ].join('');
+
       var overlay = document.createElement('div'),
         container = utils.createElement([
           'div', {
-            classname: FB.$base.options.alert_container_class
+            classname: FB.constants.css.alert_container
           }
-        ], FB.Html.alert),
+        ], html),
         elements = {
           alert_overlay: overlay,
           alert_container: container,
@@ -1243,7 +1490,7 @@
         FB.elements[el] = elements[el];
       }
 
-      overlay.className = FB.$base.options.alert_overlay_class;
+      overlay.className = FB.constants.css.alert_overlay;
       overlay.style.zIndex = FB.$base.maxZIndex + 11;
       container.style.zIndex = FB.$base.maxZIndex + 12;
       container.style.display = 'none';
@@ -1253,93 +1500,6 @@
       return container;
     }
   };
-
-  FB.Html.browser = [
-    '<div class="fb-header unselectable">',
-    '<span>Gerenciador de Imagens</span>',
-    '<button>&times;</button>',
-    '</div>',
-    '<h5 class="fb-message"></h5>',
-    '<div class="fb-toolbar">',
-    '<div class="fb-toolbar-items">',
-    '<button id="btn-upload-choose" class="button-filebrowser">',
-    '<i class="brankic-attachment"></i>',
-    '<span>Escolha</span>',
-    '</button>',
-    '<button class="button-filebrowser hidden" id="btn-upload-send">',
-    '<i class="brankic-upload"></i>',
-    '<span>Envie</span>',
-    '</button>',
-    '<button class="button-filebrowser hidden" id="btn-del-file">',
-    '<i class="brankic-trashcan"></i>',
-    '<span>Remover Arquivo</span>',
-    '</button>',
-    '<button class="button-filebrowser" id="btn-new-folder">',
-    '<i class="icomoon-folder-plus"></i>',
-    '<span>Nova Pasta</span>',
-    '</button>',
-    '<button class="button-filebrowser" id="btn-del-folder" ',
-    'style="display:none">',
-    '<i class="icomoon-folder-minus"></i>',
-    '<span>Remover Pasta</span>',
-    '</button>',
-    '<button class="button-filebrowser hidden" id="btn-editor">',
-    '<i class="brankic-edit"></i>',
-    '<span>Enviar para o Editor</span>',
-    '</button>',
-    '</div>',
-    '</div>',
-    '<div class="fb-body clearfix">',
-    '<div class="fb-tree-container">',
-    '<ol id="fb-tree">',
-    '<li id="fb-tree-folder-root" class="active open">',
-    '<a>',
-    '<i class="icomoon-folder"></i>',
-    '<span id="folder-root-desc">Pasta Principal</span>',
-    '</a>',
-    '</li>',
-    '</ol>',
-    '</div>',
-    '<div id="" class="fb-thumb-container">',
-    '<ul id="fb-thumb" class="fb-thumb"></ul>',
-    //<!-- "js-fileapi-wrapper" -- required class -->
-    '<div class="js-fileapi-wrapper">',
-    '<input id="upload-input" class="input-file" name="files" ',
-    'type="file" multiple />',
-    '</div>',
-    '<ul id="upload-thumb" class="fb-upload-thumb" ',
-    'data-label="Prévia do Envio"></ul>',
-    '</div>',
-    '</div>',
-    '<div class="fb-footer">',
-    '<span></span><span></span>',
-    '</div>'
-  ].join('');
-
-  FB.Html.alert = [
-    '<div class="fb-icon fb-error" style="display:none;">',
-    '<span class="fb-x-mark">',
-    '<span class="fb-line fb-left"></span>',
-    '<span class="fb-line fb-right"></span>',
-    '</span>',
-    '</div>',
-    '<div class="fb-icon fb-warning" style="display:none;">',
-    '<span class="fb-body"></span>',
-    '<span class="fb-dot"></span>',
-    '</div>',
-    '<div class="fb-icon fb-info" style="display:none;"></div>',
-    '<h2 class="fb-title"></h2>',
-    '<div class="fb-text"></div>',
-    '<fieldset><input type="text" style="display:none;"></fieldset>',
-    '<div class="fb-error-container">',
-    '<div class="icon">!</div>',
-    '<div class="fb-error-text"></div>',
-    '</div>',
-    '<div class="fb-button-container">',
-    '<button class="button-filebrowser cancel">Cancelar</button>',
-    '<button class="button-filebrowser ok">OK</button>',
-    '</div>'
-  ].join('');
   /**
    * @constructor
    */
@@ -1398,35 +1558,46 @@
    */
   FB.Upload = function() {
     this.els = FB.elements;
-    this.options = FB.$base.options;
     this.files = [];
     this.index = 0;
     this.active = false;
     this.path_parents = '';
     this.setListeners();
+    this.lang = FB.lang[FB.options.lang];
   };
 
   FB.Upload.prototype = {
     setListeners: function() {
       var this_ = this;
 
+      var isImageAndHasMinSize = function(file, info) {
+        return /^image/.test(file.type) ?
+          info.width >= FB.options.image.min_width &&
+          info.height >= FB.options.image.min_height : false;
+      };
+
       FileAPI.event.on(this.els.upload_input, 'change', function(evt) {
         var files = FileAPI.getFiles(evt);
 
         FileAPI.filterFiles(files,
           function(file, info) {
-            return /^image/.test(file.type) ?
-              info.width >= 120 && info.height >= 120 : false;
+            var check;
+            // TODO prepare for other file types
+            FB.options.upload_types.forEach(function(type) {
+              if (type == FB.constants.types.image) {
+                check = isImageAndHasMinSize(file, info);
+              }
+            });
+            return check;
           },
           function(files, rejected) {
-            if (rejected && rejected.length > 0) {
+            if (rejected && rejected.length) {
               FB.$tree.showHeaderMessage({
-                msg: 'Apenas imagens com no mínimo 120x120!',
+                msg: utils.templateLang(this_.lang.alert.image.not_min_size, [FB.options.image.min_width, FB.options.image.min_height]),
                 duration: 3500,
                 type: 'alert'
               });
             }
-            /* jshint -W030 */
             files.length && this_.add(files);
           }
         );
@@ -1500,7 +1671,7 @@
       this.path_parents = FB.$tree.getFolderPath(FB.$base.current_active);
       if (this.active) {
         FB.$tree.showHeaderMessage({
-          msg: 'Um envio já está em andamento!',
+          msg: this.lang.alert.upload.sending,
           duration: 1500,
           type: 'alert'
         });
@@ -1508,14 +1679,14 @@
       } else {
         if (len === 0) {
           FB.$tree.showHeaderMessage({
-            msg: 'Nenhum arquivo foi selecionado!',
+            msg: this.lang.alert.upload.none,
             duration: 1500,
             type: 'alert'
           });
           return;
         } else if (len == this.index) {
           FB.$tree.showHeaderMessage({
-            msg: 'Todos os arquivos já foram enviados!',
+            msg: this.lang.alert.upload.sent,
             duration: 1500,
             type: 'alert'
           });
@@ -1546,7 +1717,7 @@
       if (!file) return;
 
       file.xhr = FileAPI.upload({
-        url: this.options.server_http,
+        url: FB.options.server_http,
         files: {
           file: file
         },
@@ -1590,7 +1761,7 @@
             var result = FileAPI.parseJSON(xhr.responseText);
             if (result.erro === false) {
               FB.$tree.showHeaderMessage({
-                msg: 'Todos os arquivos foram enviados!',
+                msg: this_.lang.alert.upload.sent,
                 duration: 2500,
                 type: 'success'
               });
