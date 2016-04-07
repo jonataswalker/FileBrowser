@@ -1,6 +1,6 @@
 {
   "name": "FileBrowser",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A multi-purpose filebrowser.",
   "main": "filebrowser.js",
   "author": "Jonatas Walker",
@@ -12,8 +12,35 @@
     "clean-css": "latest",
     "autoprefixer": "latest",
     "postcss-cli": "latest",
+    "stylelint": "latest",
+    "stylelint-config-standard": "latest",
     "nodemon": "latest",
     "parallelshell": "latest"
+  },
+  "stylelint": {
+    "extends": "stylelint-config-standard",
+    "rules": {
+      "rule-non-nested-empty-line-before": null,
+      "declaration-block-semicolon-newline-after": null,
+      "declaration-block-trailing-semicolon": null,
+      "declaration-colon-space-after": null,
+      "declaration-block-semicolon-space-after": null,
+      "max-empty-lines": null,
+      "comment-whitespace-inside": null,
+      "at-rule-empty-line-before": null,
+      "block-closing-brace-newline-after": null,
+      "block-closing-brace-space-before": null,
+      "block-closing-brace-space-after": null,
+      "block-opening-brace-space-after": null,
+      "block-opening-brace-space-before": null,
+      "indentation": null,
+      "selector-combinator-space-after": null,
+      "selector-combinator-space-before": null,
+      "no-eol-whitespace": null,
+      "selector-list-comma-newline-after": null,
+      "declaration-block-single-line-max-declarations": null,
+      "number-leading-zero": null
+    }
   },
   "eslintConfig": {
     "env": {
