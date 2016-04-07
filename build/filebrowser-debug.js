@@ -1,7 +1,7 @@
 // A multi-purpose filebrowser.
 // https://github.com/jonataswalker/FileBrowser
-// Version: v1.2.0
-// Built: 2016-04-04T16:03:43-0300
+// Version: v1.3.0
+// Built: 2016-04-07T18:43:16-0300
 
 'use strict';
 
@@ -370,8 +370,7 @@
     },
     setCenter: function(node, parent) {
       parent = parent || window;
-      var
-        parent_size = utils.getSize(parent),
+      var parent_size = utils.getSize(parent),
         node_size = utils.getSize(node),
         scroll_x = (parent == window) ? window.pageXOffset : parent.scrollLeft,
         scroll_y = (parent == window) ? window.pageYOffset : parent.scrollTop,
@@ -379,6 +378,7 @@
           (parent_size.height - node_size.height) / 2) + scroll_y),
         left = Math.max(0, (
           (parent_size.width - node_size.width) / 2) + scroll_x);
+
       node.style.position = 'absolute';
       node.style.top = top + 'px';
       node.style.left = left + 'px';
@@ -392,6 +392,15 @@
           height: element.offsetHeight
         };
       }
+    },
+    offset: function(element) {
+      var rect = element.getBoundingClientRect();
+      return {
+        left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
+        top: rect.top + window.pageYOffset - document.documentElement.clientTop,
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      };
     },
     getWindowSize: function() {
       return {
@@ -493,7 +502,7 @@
     FB.$html.createBrowser();
     FB.$html.createAlert();
 
-    FB.$drag = new FB.Drag();
+    FB.$drag = new FB.DragAndResize();
     FB.$tree = new FB.Tree();
     FB.$alert = new FB.Alert();
     FB.$upload = new FB.Upload();
@@ -508,16 +517,28 @@
     FB.$tree.build();
     this.setListeners();
     FB.$drag.when({
-      start: function() {
+      startDragging: function() {
         utils.addClass(FB.container, 'dragging');
       },
-      move: function() {
+      dragging: function() {
         FB.container.style.left = this.x + 'px';
         FB.container.style.top = this.y + 'px';
       },
-      end: function() {
+      endDragging: function() {
         utils.removeClass(FB.container, 'dragging');
         if (this.y < 0) FB.container.style.top = 0;
+      },
+      resizing: function() {
+        FB.container.style.width = this.w + 'px';
+        FB.container.style.height = this.h + 'px';
+      },
+      endResizing: function() {
+        var min_width = 400,
+          min_height = 300;
+        if (this.w < min_width)
+          FB.container.style.width = min_width + 'px';
+        if (this.h < min_height)
+          FB.container.style.height = min_height + 'px';
       }
     });
   };
@@ -1317,6 +1338,8 @@
       var lang = FB.lang[FB.options.lang];
 
       var html = [
+        '<div class="fb-wrap">',
+        '<header>',
         '<div class="fb-header unselectable">',
         '<span>',
         lang.title,
@@ -1365,6 +1388,7 @@
         '</button>',
         '</div>',
         '</div>',
+        '</header>',
         '<div class="fb-body clearfix">',
         '<div class="fb-tree-container">',
         '<ol id="fb-tree">',
@@ -1378,8 +1402,8 @@
         '</li>',
         '</ol>',
         '</div>',
-        '<div id="" class="fb-thumb-container">',
-        '<ul id="fb-thumb" class="fb-thumb"></ul>',
+        '<div class="fb-thumb-container">',
+        '<ul id="fb-thumb" class="fb-thumb clearfix"></ul>',
         //<!-- "js-fileapi-wrapper" -- required class -->
         '<div class="js-fileapi-wrapper">',
         '<input id="upload-input" class="input-file" name="files" ',
@@ -1390,8 +1414,9 @@
         '"></ul>',
         '</div>',
         '</div>',
-        '<div class="fb-footer">',
-        '<span></span><span></span>',
+        '<footer class="fb-footer clearfix">',
+        '<span></span>',
+        '</footer>',
         '</div>'
       ].join('');
 
@@ -1404,6 +1429,7 @@
         elements = {
           container: container,
           drag_handle: container.querySelector('.fb-header'),
+          resize_handle: container.querySelector('.fb-footer > span'),
           grd_preview: container.querySelector('#fb-thumb'),
           folder_tree: container.querySelector('#fb-tree'),
           folder_tree_root: container.querySelector('#fb-tree-folder-root'),
@@ -1427,6 +1453,7 @@
       for (var el in elements) {
         FB.elements[el] = elements[el];
       }
+      container.style.position = 'fixed';
       container.style.zIndex = FB.$base.maxZIndex + 10;
       container.style.display = 'none';
       document.body.appendChild(container);
@@ -1503,53 +1530,100 @@
   /**
    * @constructor
    */
-  FB.Drag = function() {
-    var handle = FB.elements.drag_handle || FB.container,
-      lastX, lastY, currentX, currentY, x, y,
-      when = {},
-      dragging = function(evt) {
-        evt.preventDefault && evt.preventDefault();
+  FB.DragAndResize = function() {
+    var lastX, lastY, currentX, currentY, x, y,
+      when = {};
 
+    /*
+     * Dragging
+     */
+    FB.elements.drag_handle.addEventListener('mousedown', function(evt) {
+      if (evt.button !== 0) return;
+
+      evt.preventDefault();
+      lastX = evt.clientX;
+      lastY = evt.clientY;
+
+      function mousemove(e) {
         currentX = parseInt(FB.container.style.left, 10) || 0;
         currentY = parseInt(FB.container.style.top, 10) || 0;
 
-        x = currentX + (evt.clientX - lastX);
-        y = currentY + (evt.clientY - lastY);
+        x = currentX + (e.clientX - lastX);
+        y = currentY + (e.clientY - lastY);
 
-        when.move.call({
+        when.dragging.call({
           target: FB.container,
           x: x,
           y: y
         });
-        lastX = evt.clientX;
-        lastY = evt.clientY;
-      },
-      stopDragging = function() {
-        document.removeEventListener('mousemove', dragging, false);
-        document.removeEventListener('mouseup', stopDragging, false);
 
-        when.end.call({
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+
+      function mouseup() {
+        window.removeEventListener('mousemove', mousemove, false);
+        window.removeEventListener('mouseup', mouseup, false);
+
+        when.endDragging.call({
           target: FB.container,
           x: x,
           y: y
         });
-      },
-      startDragging = function(evt) {
-        if (evt.button !== 0) return;
-        lastX = evt.clientX;
-        lastY = evt.clientY;
-        when.start.call({
-          target: FB.container
+      }
+
+      when.startDragging.call({
+        target: FB.container
+      });
+      window.addEventListener('mousemove', mousemove, false);
+      window.addEventListener('mouseup', mouseup, false);
+    }, false);
+
+    /*
+     * Resizing
+     */
+    FB.elements.resize_handle.addEventListener('mousedown', function(evt) {
+      evt.preventDefault();
+
+      if (evt.which == 2 || evt.which == 3) return;
+
+      function mousemove(e) {
+        var offset = utils.offset(FB.container);
+        x = e.clientX - offset.left;
+        y = e.clientY - offset.top;
+
+        when.resizing.call({
+          target: FB.container,
+          w: x,
+          h: y
         });
-        document.addEventListener('mousemove', dragging, false);
-        document.addEventListener('mouseup', stopDragging, false);
-      };
-    handle.addEventListener('mousedown', startDragging, false);
+      }
+
+      function mouseup() {
+        window.removeEventListener('mousemove', mousemove, false);
+        window.removeEventListener('mouseup', mouseup, false);
+
+        when.endResizing.call({
+          target: FB.container,
+          w: x,
+          h: y
+        });
+      }
+
+      window.addEventListener('mousemove', mousemove, false);
+      window.addEventListener('mouseup', mouseup, false);
+    }, false);
+
     return {
       when: function(obj) {
-        when.start = obj.start;
-        when.move = obj.move;
-        when.end = obj.end;
+        when = {
+          startDragging: obj.startDragging,
+          endDragging: obj.endDragging,
+          dragging: obj.dragging,
+          startResizing: obj.startResizing,
+          endResizing: obj.endResizing,
+          resizing: obj.resizing
+        };
       }
     };
   };

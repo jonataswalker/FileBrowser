@@ -11,7 +11,7 @@ FB.Base = function(opt_options){
   FB.$html.createBrowser();
   FB.$html.createAlert();
   
-  FB.$drag = new FB.Drag();
+  FB.$drag = new FB.DragAndResize();
   FB.$tree = new FB.Tree();
   FB.$alert = new FB.Alert();
   FB.$upload = new FB.Upload();
@@ -26,16 +26,27 @@ FB.Base = function(opt_options){
   FB.$tree.build();
   this.setListeners();
   FB.$drag.when({
-    start: function(){
+    startDragging: function(){
       utils.addClass(FB.container, 'dragging');
     },
-    move: function(){
+    dragging: function(){
       FB.container.style.left = this.x + 'px';
       FB.container.style.top = this.y + 'px';
     },
-    end: function(){
+    endDragging: function(){
       utils.removeClass(FB.container, 'dragging');
       if(this.y < 0) FB.container.style.top = 0;
+    },
+    resizing: function(){
+      FB.container.style.width = this.w + 'px';
+      FB.container.style.height = this.h + 'px';
+    },
+    endResizing: function(){
+      var min_width = 400, min_height = 300;
+      if(this.w < min_width)
+        FB.container.style.width = min_width + 'px';
+      if(this.h < min_height)
+        FB.container.style.height = min_height + 'px';
     }
   });
 };

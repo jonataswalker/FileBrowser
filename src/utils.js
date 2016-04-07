@@ -355,16 +355,15 @@ var utils = {
   },
   setCenter: function(node, parent){
     parent = parent || window;
-    var
-      parent_size = utils.getSize(parent),
-      node_size = utils.getSize(node),
-      scroll_x = (parent == window) ? window.pageXOffset : parent.scrollLeft,
-      scroll_y = (parent == window) ? window.pageYOffset : parent.scrollTop,
-      top = Math.max(0, (
-        (parent_size.height - node_size.height) / 2) + scroll_y),
-      left = Math.max(0, (
-        (parent_size.width - node_size.width) / 2) + scroll_x)
-    ;
+    var parent_size = utils.getSize(parent),
+        node_size = utils.getSize(node),
+        scroll_x = (parent == window) ? window.pageXOffset : parent.scrollLeft,
+        scroll_y = (parent == window) ? window.pageYOffset : parent.scrollTop,
+        top = Math.max(0, (
+          (parent_size.height - node_size.height) / 2) + scroll_y),
+        left = Math.max(0, (
+          (parent_size.width - node_size.width) / 2) + scroll_x);
+    
     node.style.position = 'absolute';
     node.style.top = top + 'px';
     node.style.left = left + 'px';
@@ -378,6 +377,15 @@ var utils = {
         height: element.offsetHeight
       };
     }
+  },
+  offset: function(element){
+    var rect = element.getBoundingClientRect();
+    return {
+      left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
+      top: rect.top + window.pageYOffset - document.documentElement.clientTop,
+      width: element.offsetWidth,
+      height: element.offsetHeight
+    };
   },
   getWindowSize: function(){
     return {

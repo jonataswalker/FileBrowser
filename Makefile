@@ -36,6 +36,7 @@ CLEANCSS 	:= $(NODE_MODULES)/cleancss
 CLEANCSSFLAGS 	:= --skip-restructuring
 POSTCSS 	:= $(NODE_MODULES)/postcss
 POSTCSSFLAGS 	:= --use autoprefixer -b "last 2 versions"
+STYLELINT 	:= $(NODE_MODULES)/stylelint
 ESLINT 		:= $(NODE_MODULES)/eslint
 UGLIFYJS 	:= $(NODE_MODULES)/uglifyjs
 UGLIFYJSFLAGS 	:= --mangle --mangle-regex --screw-ie8 -c warnings=false
@@ -73,31 +74,34 @@ build: build-js build-css
 build-js: combine-js lint uglifyjs addheader
 	@echo `date +'%H:%M:%S'` " - build JS ... OK"
 
-build-css: combine-css cleancss
+build-css: combine-css stylelint cleancss
 	@echo `date +'%H:%M:%S'` " - build CSS ... OK"
 
-uglifyjs:
-	@$(UGLIFYJS) $(JS_DEBUG) $(UGLIFYJSFLAGS) > $(JS_FINAL)
+uglifyjs: $(JS_DEBUG)
+	@$(UGLIFYJS) $^ $(UGLIFYJSFLAGS) > $(JS_FINAL)
 
-lint:
-	@$(ESLINT) $(JS_DEBUG)
+lint: $(JS_DEBUG)
+	@$(ESLINT) $^
 
-addheader-debug:
-	@echo "$$HEADER" | cat - $(JS_DEBUG) > $(TMPFILE) && mv $(TMPFILE) $(JS_DEBUG)
+addheader-debug: $(JS_DEBUG)
+	@echo "$$HEADER" | cat - $^ > $(TMPFILE) && mv $(TMPFILE) $^
 
-addheader-min:
-	@echo "$$HEADER" | cat - $(JS_FINAL) > $(TMPFILE) && mv $(TMPFILE) $(JS_FINAL)
+addheader-min: $(JS_FINAL)
+	@echo "$$HEADER" | cat - $^ > $(TMPFILE) && mv $(TMPFILE) $^
 
 addheader: addheader-debug addheader-min
 
-cleancss:
-	@cat $(CSS_COMBINED) | $(CLEANCSS) $(CLEANCSSFLAGS) > $(CSS_FINAL)
+stylelint: $(CSS_COMBINED)
+	@$(STYLELINT) $^
 
-combine-js:
-	@cat $(JS_FILES) | $(JS_BEAUTIFY) $(BEAUTIFYFLAGS) > $(JS_DEBUG)
+cleancss: $(CSS_COMBINED)
+	@cat $^ | $(CLEANCSS) $(CLEANCSSFLAGS) > $(CSS_FINAL)
 
-combine-css:
-	@cat $(CSS_FILES) | $(POSTCSS) $(POSTCSSFLAGS) > $(CSS_COMBINED)
+combine-css: $(CSS_FILES)
+	@cat $^ | $(POSTCSS) $(POSTCSSFLAGS) > $(CSS_COMBINED)
+
+combine-js: $(JS_FILES)
+	@cat $^ | $(JS_BEAUTIFY) $(BEAUTIFYFLAGS) > $(JS_DEBUG)
 
 watch-js: $(JS_FILES)
 	$(eval $(call NodemonFlags,js))
