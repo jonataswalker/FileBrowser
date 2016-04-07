@@ -181,7 +181,6 @@ body.filebrowser-fb-stop-scrolling {
   padding: 2px;
 }
 .filebrowser-fb .fb-footer span:first-child {
-  display: inline-block;
   float: right;
   cursor: nwse-resize;
   width: 0; height: 0;
@@ -526,11 +525,10 @@ ul.fb-thumb li.uploaded:hover {
   display: none;
 }
 .filebrowser-fb ul.fb-upload-thumb::before {
+  display: block;
   content: attr(data-label);
   font-size: 120%;
   font-weight: bold;
-  display: block;
-  vertical-align: middle;
   text-align: center;
 }
 .filebrowser-fb ul.fb-upload-thumb li {
