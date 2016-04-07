@@ -21,7 +21,6 @@ JS_FILES 	:= $(SRC_DIR)/wrapper-head.js \
 		   $(SRC_DIR)/upload.js \
 		   $(SRC_DIR)/alert.js \
 		   $(SRC_DIR)/wrapper-tail.js \
-		   $(EXTERNS_DIR)/perfect-scrollbar.min.js \
 		   $(EXTERNS_DIR)/canvas-to-blob.js \
 		   $(EXTERNS_DIR)/FileAPI.core.js \
 		   $(EXTERNS_DIR)/FileAPI.Image.js \
@@ -30,7 +29,6 @@ JS_FILES 	:= $(SRC_DIR)/wrapper-head.js \
 		   $(EXTERNS_DIR)/FileAPI.Flash.js
 
 CSS_FILES 	:= $(SRC_DIR)/filebrowser.css \
-		   $(EXTERNS_DIR)/perfect-scrollbar.min.css \
 		   $(SRC_DIR)/brankic-icomoon.css
 
 NODE_MODULES	:= ./node_modules/.bin
