@@ -1,7 +1,7 @@
 // A multi-purpose filebrowser.
 // https://github.com/jonataswalker/FileBrowser
 // Version: v1.3.0
-// Built: 2016-04-07T17:07:12-0300
+// Built: 2016-04-07T17:19:23-0300
 
 'use strict';
 
@@ -487,56 +487,6 @@
         sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
         i = Math.floor(Math.log(bytes) / Math.log(k));
       return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-    },
-    easing: {
-      bounce: function(pos) {
-        if (pos < (1 / 2.75)) {
-          return (7.5625 * pos * pos);
-        } else if (pos < (2 / 2.75)) {
-          return (7.5625 * (pos -= (1.5 / 2.75)) * pos + 0.75);
-        } else if (pos < (2.5 / 2.75)) {
-          return (7.5625 * (pos -= (2.25 / 2.75)) * pos + 0.9375);
-        } else {
-          return (7.5625 * (pos -= (2.625 / 2.75)) * pos + 0.984375);
-        }
-      },
-      swingTo: function(pos) {
-        var s = 1.70158;
-        return (pos -= 1) * pos * ((s + 1) * pos + s) + 1;
-      },
-      /**
-       * Start slow and speed up.
-       * @param {number} t Input between 0 and 1.
-       * @return {number} Output between 0 and 1.
-       */
-      easeIn: function(t) {
-        return Math.pow(t, 3);
-      },
-      /**
-       * Start fast and slow down.
-       * @param {number} t Input between 0 and 1.
-       * @return {number} Output between 0 and 1.
-       */
-      easeOut: function(t) {
-        return 1 - utils.easing.easeIn(1 - t);
-      },
-      easeInOutBack: function(pos) {
-        var s = 1.70158;
-        if ((pos /= 0.5) < 1) return 0.5 * (pos * pos * (((s *= (1.525)) + 1) * pos - s));
-        return 0.5 * ((pos -= 2) * pos * (((s *= (1.525)) + 1) * pos + s) + 2);
-      },
-      easeFromTo: function(pos) {
-        if ((pos /= 0.5) < 1) return 0.5 * Math.pow(pos, 4);
-        return -0.5 * ((pos -= 2) * Math.pow(pos, 3) - 2);
-      },
-      /**
-       * Start slow, speed up, and then slow down again.
-       * @param {number} t Input between 0 and 1.
-       * @return {number} Output between 0 and 1.
-       */
-      inAndOut: function(t) {
-        return 3 * t * t - 2 * t * t * t;
-      }
     }
   };
   /**
