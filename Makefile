@@ -16,6 +16,7 @@ JS_FILES 	:= $(SRC_DIR)/wrapper-head.js \
 		   $(SRC_DIR)/lang/pt-br.js \
 		   $(SRC_DIR)/lang/en.js \
 		   $(SRC_DIR)/tree.js \
+		   $(SRC_DIR)/internal.js \
 		   $(SRC_DIR)/html.js \
 		   $(SRC_DIR)/drag.js \
 		   $(SRC_DIR)/upload.js \

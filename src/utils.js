@@ -66,6 +66,7 @@ var utils = {
     data = utils.toQueryString(data);
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.onload = onload;
     xhr.onerror = onerror;
     xhr.onprogress = onprogress;

@@ -114,7 +114,7 @@ FB.Upload.prototype = {
   start: function(){
     var len = this.files.length;
 
-    this.path_parents = FB.$tree.getFolderPath(FB.$base.current_active);
+    this.path_parents = FB.$tree.getFolderPath(FB.$tree.current_active);
     if(this.active){
       FB.$tree.showHeaderMessage({
         msg: this.lang.alert.upload.sending,
@@ -158,28 +158,33 @@ FB.Upload.prototype = {
   },
   upload_: function(file){
     var this_ = this,
+        opt_transform = FB.options.image.transform,
         progress_el = this.getEl_(file, '.fb-progress-bar');
 
     if (!file) return;
 
+    console.info(opt_transform);
     file.xhr = FileAPI.upload({
       url: FB.options.server_http,
       files: { file: file },
       data: {
-        action: 'upload',
+        action: FB.constants.actions.upload,
         parents: this.path_parents.join()
       },
       imageOriginal: false,
       imageTransform: {
-        big: { maxWidth: 800, maxHeight: 600 },
-        medium: { maxWidth: 320, maxHeight: 240},
-        small: { maxWidth: 100, maxHeight: 100 }
+        big: {
+          maxWidth: opt_transform.big.maxWidth,
+          maxHeight: opt_transform.big.maxHeight
+        },
+        small: {
+          maxWidth: opt_transform.small.maxWidth,
+          maxHeight: opt_transform.small.maxHeight
+        }
       },
       filecomplete: function (err){
-        if(err){
+        if (err) {
           console.info(err);
-        } else {
-
         }
       },
       progress: function (evt){
@@ -194,7 +199,7 @@ FB.Upload.prototype = {
         
         if(this_.files.length == this_.index){
           var result = FileAPI.parseJSON(xhr.responseText);
-          if(result.erro === false){
+          if(result.error === false){
             FB.$tree.showHeaderMessage({
               msg: this_.lang.alert.upload.sent,
               duration: 2500,
