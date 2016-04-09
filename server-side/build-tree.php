@@ -1,18 +1,19 @@
 <?php
 ini_set("display_errors", 1);
 error_reporting(E_ALL ^ E_NOTICE);
-date_default_timezone_set('America/Sao_Paulo');
+
+// TODO adjust for Windows OS
 
 class buildTreeFromDirectory {
 
-  public  $root_dir,
-      $file_suffix,
-      $qtde_suffix = 3, //small, medium, big
-      $allowed_extensions,
-      $ignore_hidden,
-      $exclude_dir;
+  public $count_suffix = 2; //small, big
   
-  private $filter;
+  private $filter,
+          $root_dir,
+          $file_suffix,
+          $allowed_extensions,
+          $ignore_hidden,
+          $exclude_dir;
 
   public function __construct($root_dir) {
   
@@ -65,7 +66,7 @@ class buildTreeFromDirectory {
       if ($fileinfo->isDir()) {
         //statistics
         $statistics = $this->countChildren($it->key());
-        $total_files = round($statistics['files'] / $this->qtde_suffix);
+        $total_files = round($statistics['files'] / $this->count_suffix);
       
         // Add the final part to the structure
         if(!empty($last_created) && $it->key() == $last_created) {
@@ -80,7 +81,7 @@ class buildTreeFromDirectory {
             'f' => $name,
             'c-folders' => $statistics['folders'],
             'c-files' => $total_files,
-            'ffff' => $statistics['files'].'..'.$this->qtde_suffix
+            'ffff' => $statistics['files'].'..'.$this->count_suffix
           );
         }
       } else {

@@ -1,7 +1,7 @@
 // A multi-purpose filebrowser.
 // https://github.com/jonataswalker/FileBrowser
 // Version: v1.3.0
-// Built: 2016-04-07T18:43:16-0300
+// Built: 2016-04-09T13:13:47-0300
 
 'use strict';
 
@@ -84,6 +84,7 @@
       data = utils.toQueryString(data);
       xhr.open('POST', url, true);
       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
       xhr.onload = onload;
       xhr.onerror = onerror;
       xhr.onprogress = onprogress;
@@ -506,42 +507,12 @@
     FB.$tree = new FB.Tree();
     FB.$alert = new FB.Alert();
     FB.$upload = new FB.Upload();
-
-    //this.maxZIndex = utils.getMaxZIndex();
-    this.current_active = FB.elements.folder_tree_root;
-    this.root_event_added = false;
-    this.thumbs_root = [];
-    this.thumbs_selected = [];
-    this.path = utils.getPath();
+    FB.$internal = new FB.Internal();
 
     FB.$tree.build();
-    this.setListeners();
-    FB.$drag.when({
-      startDragging: function() {
-        utils.addClass(FB.container, 'dragging');
-      },
-      dragging: function() {
-        FB.container.style.left = this.x + 'px';
-        FB.container.style.top = this.y + 'px';
-      },
-      endDragging: function() {
-        utils.removeClass(FB.container, 'dragging');
-        if (this.y < 0) FB.container.style.top = 0;
-      },
-      resizing: function() {
-        FB.container.style.width = this.w + 'px';
-        FB.container.style.height = this.h + 'px';
-      },
-      endResizing: function() {
-        var min_width = 400,
-          min_height = 300;
-        if (this.w < min_width)
-          FB.container.style.width = min_width + 'px';
-        if (this.h < min_height)
-          FB.container.style.height = min_height + 'px';
-      }
-    });
+    FB.$internal.setListeners();
   };
+
   FB.Base.prototype = {
     show: function() {
       FB.container.style.zIndex = utils.getMaxZIndex() + 10;
@@ -549,47 +520,8 @@
       utils.setCenter(FB.container);
     },
     setEditor: function(editor) {
-      //editor is an instance of CKeditor for instance
+      //editor is an instance of CKeditor for example
       FB.options.editor = editor;
-    },
-    setListeners: function() {
-      var els = FB.elements,
-        //to not loose scope
-        newFolder = function() {
-          this.blur();
-          FB.$tree.newFolder();
-        },
-        removeFolder = function() {
-          this.blur();
-          FB.$tree.removeFolder();
-        },
-        removeFile = function() {
-          this.blur();
-          FB.$tree.removeFile();
-        },
-        sendEditor = function() {
-          this.blur();
-          FB.$tree.sendEditor();
-        },
-        closeBrowser = function() {
-          this.blur();
-          FB.$tree.closeBrowser();
-        },
-        upChoose = function() {
-          this.blur();
-          FB.$upload.choose();
-        },
-        upStart = function() {
-          this.blur();
-          FB.$upload.start();
-        };
-      els.btn_new_folder.addEventListener('click', newFolder, false);
-      els.btn_del_folder.addEventListener('click', removeFolder, false);
-      els.btn_upload_choose.addEventListener('click', upChoose, false);
-      els.btn_upload_file.addEventListener('click', upStart, false);
-      els.btn_del_file.addEventListener('click', removeFile, false);
-      els.btn_editor.addEventListener('click', sendEditor, false);
-      els.btn_close_grd.addEventListener('click', closeBrowser, false);
     }
   };
 
@@ -610,7 +542,7 @@
       get_thumbs: 'get-thumbs',
     },
     suffix_small: 'small',
-    suffix_medium: 'medium',
+    suffix_big: 'big',
     thumb_path: 'data-path',
     thumb_sel: 'selected',
     li_key: 'data-key'
@@ -620,12 +552,22 @@
     mode: 'plugin',
     lang: 'en',
     root_http: '/',
-    server_http: 'browser.php',
+    server_http: 'filebrowser.php',
     regex_folder: /^[a-zA-Z0-9-_.]{1,10}$/,
     upload_types: [FB.constants.types.image],
     image: {
       min_width: 120, // pixels
-      min_height: 120
+      min_height: 120,
+      transform: {
+        big: {
+          maxWidth: 1200,
+          maxHeight: 800
+        },
+        small: {
+          maxWidth: 320,
+          maxHeight: 240
+        }
+      }
     }
   };
 
@@ -741,6 +683,11 @@
     this.els = FB.elements;
     this.options = FB.options;
     this.lang = FB.lang[FB.options.lang];
+
+    this.current_active = FB.elements.folder_tree_root;
+    this.root_event_added = false;
+    this.thumbs_root = [];
+    this.thumbs_selected = [];
   };
 
   FB.Tree.prototype = {
@@ -757,8 +704,8 @@
 
           utils.removeClass(this_.els.grd_preview, 'mapeando-spinner');
           if ('files' in response.tree) {
-            FB.$base.thumbs_root = response.tree.files;
-            this_.loadThumbs(FB.$base.thumbs_root);
+            this_.thumbs_root = response.tree.files;
+            this_.loadThumbs(this_.thumbs_root);
           }
           if ('dirs' in response.tree) {
             when.ready.call(undefined, {
@@ -865,8 +812,8 @@
       this.emptyThumbSelected();
       //to renew thumbs
       this.removeThumbs();
-      utils.emptyArray(FB.$base.thumbs_root);
-      FB.$base.current_active = false;
+      utils.emptyArray(this.thumbs_root);
+      this.current_active = false;
 
       if (Array.isArray(tree) && tree.length === 0) {
         //empty return
@@ -876,8 +823,8 @@
       }
 
       if ('files' in tree) {
-        FB.$base.thumbs_root = tree.files;
-        this.loadThumbs(FB.$base.thumbs_root);
+        this.thumbs_root = tree.files;
+        this.loadThumbs(this.thumbs_root);
       }
       if ('dirs' in tree) {
         this.buildTree(tree.dirs);
@@ -906,7 +853,7 @@
 
           this_.submitFolder(this, FB.constants.actions.new_folder).when({
             ready: function(response) {
-              if (response.erro === false) {
+              if (response.error === false) {
                 this_.renewTree(response.tree);
                 FB.$alert.close();
               } else {
@@ -915,7 +862,7 @@
             }
           });
         },
-        parents = this.getFolderPath(FB.$base.current_active),
+        parents = this.getFolderPath(this.current_active),
         i = parents.length,
         path = '<span>' + this.lang.root_folder + '</span>';
       parents.reverse();
@@ -938,8 +885,8 @@
     submitFolder: function(value, action) {
       //exclude current from parents
       var parents = (action == FB.constants.actions.delete_folder) ?
-        this.getFolderPath(FB.$base.current_active, true) :
-        this.getFolderPath(FB.$base.current_active),
+        this.getFolderPath(this.current_active, true) :
+        this.getFolderPath(this.current_active),
         when = {};
 
       utils.post(this.options.server_http, {
@@ -960,14 +907,13 @@
     },
     removeFolder: function() {
       var this_ = this,
-        current = FB.$base.current_active,
-        folder = current.getAttribute('data-key'),
-        n_files = current.getAttribute('data-files-all'),
-        n_folders = current.getAttribute('data-folders'),
+        folder = this.current_active.getAttribute('data-key'),
+        n_files = this.current_active.getAttribute('data-files-all'),
+        n_folders = this.current_active.getAttribute('data-folders'),
         submit = function() {
           this_.submitFolder(folder, FB.constants.actions.delete_folder).when({
             ready: function(response) {
-              if (response.erro === false) {
+              if (response.error === false) {
                 this_.renewTree(response.tree);
                 FB.$alert.close();
               } else {
@@ -993,7 +939,7 @@
         submit = function() {
           utils.post(this_.options.server_http, {
             action: FB.constants.actions.delete_file,
-            files: FB.$base.thumbs_selected.join(),
+            files: this_.thumbs_selected.join(),
             lang: FB.options.lang
           }).when({
             ready: function(response) {
@@ -1006,7 +952,7 @@
           '<p>',
           this.lang.file.total,
           '<span class="highlight">',
-          FB.$base.thumbs_selected.length,
+          this.thumbs_selected.length,
           '</span></p>'
         ].join(''),
         html = {
@@ -1109,8 +1055,7 @@
         }
       };
       var toggle = function(li) {
-        var
-          openned = utils.hasClass(li, 'open'),
+        var openned = utils.hasClass(li, 'open'),
           active = utils.hasClass(li, 'active'),
           children = utils.getChildren(li, 'ol'),
           children_ol_recursive = utils.getAllChildren(li, 'ol'),
@@ -1128,7 +1073,7 @@
           utils.removeClass(children, 'collapse');
           utils.addClass(li, 'open');
         }
-        FB.$base.current_active = li;
+        this_.current_active = li;
         utils.addClass(li, 'active');
       };
       var findFiles = function(keys, tree_node, depth) {
@@ -1154,7 +1099,7 @@
       };
       var thumb = function(li, tree) {
         if (li == this_.els.folder_tree_root) {
-          this_.loadThumbs(FB.$base.thumbs_root);
+          this_.loadThumbs(this_.thumbs_root);
           return;
         }
 
@@ -1171,14 +1116,14 @@
         evt.stopPropagation();
         FB.$upload.showTree();
         //this is <li>
-        if (this != FB.$base.current_active) {
+        if (this != this_.current_active) {
           this_.removeThumbs();
           thumb(this, root_tree);
         }
 
-        FB.$base.current_active = FB.$base.current_active || this_.els.folder_tree_root;
+        this_.current_active = this_.current_active || this_.els.folder_tree_root;
 
-        utils.removeClass(FB.$base.current_active, 'active');
+        utils.removeClass(this_.current_active, 'active');
         setParentOpen(this);
         toggle(this);
 
@@ -1191,8 +1136,6 @@
       };
       var i = -1;
       while (++i < lis_len) {
-        // FIXME maybe move this to a function
-        // https://jslinterrors.com/dont-make-functions-within-a-loop
         (function(i) {
           var li = lis[i];
           if (i === 0) {
@@ -1202,9 +1145,9 @@
             }
           }
           if (li == this_.els.folder_tree_root) {
-            if (!FB.$base.root_event_added) {
+            if (!this_.root_event_added) {
               li.addEventListener('click', clickFolder, false);
-              FB.$base.root_event_added = true;
+              this_.root_event_added = true;
             }
           } else {
             li.addEventListener('click', clickFolder, false);
@@ -1214,12 +1157,12 @@
     },
     emptyThumbSelected: function() {
       var lis = utils.find('li', this.els.grd_preview, true);
-      utils.emptyArray(FB.$base.thumbs_selected);
+      utils.emptyArray(this.thumbs_selected);
       utils.removeClass(lis, FB.constants.thumb_sel);
       this.buttonThumbRemoveHandler();
     },
     buttonThumbRemoveHandler: function() {
-      var len_sel = FB.$base.thumbs_selected.length,
+      var len_sel = this.thumbs_selected.length,
         btn_desc = (len_sel > 1) ? this.lang.file.dels : this.lang.file.del;
       if (len_sel > 0) {
         utils.removeClass(this.els.btn_editor, 'hidden');
@@ -1234,7 +1177,7 @@
     },
     updateCountFolder: function() {
       this.els.folder_root_desc.textContent =
-        this.lang.root_folder + ' (' + FB.$base.thumbs_root.length + ')';
+        this.lang.root_folder + ' (' + this.thumbs_root.length + ')';
     },
     removeThumbs: function() {
       utils.removeAllChildren(this.els.grd_preview);
@@ -1251,9 +1194,9 @@
           var selected = utils.hasClass(this, FB.constants.thumb_sel),
             attr = this.getAttribute(FB.constants.thumb_path);
           if (selected) {
-            FB.$base.thumbs_selected.push(attr);
+            this_.thumbs_selected.push(attr);
           } else {
-            utils.removeArrayEntry(FB.$base.thumbs_selected, attr);
+            utils.removeArrayEntry(this_.thumbs_selected, attr);
           }
           this_.buttonThumbRemoveHandler();
         };
@@ -1262,7 +1205,7 @@
         file = files[i];
         path = file.relative_path + file.filename;
         // FIXME change this ternary
-        selected = (FB.$base.thumbs_selected.indexOf(path) > -1) ? true : false;
+        selected = (this.thumbs_selected.indexOf(path) > -1) ? true : false;
         row = {
           filename: file.filename,
           date: file.date,
@@ -1284,13 +1227,13 @@
     },
     sendEditor: function() {
       var editor = this.options.editor,
-        c = FB.$base.thumbs_selected.length,
+        c = this.thumbs_selected.length,
         i = -1,
         filename;
       while (++i < c) {
-        filename = FB.$base.thumbs_selected[i].replace(
+        filename = this.thumbs_selected[i].replace(
           FB.constants.suffix_small,
-          FB.constants.suffix_medium
+          FB.constants.suffix_big
         );
         editor.insertHtml('<img src="' + this.options.root_http + filename + '">');
       }
@@ -1326,6 +1269,78 @@
         '</a></li>'
       ].join('');
       return utils.template(str, row);
+    }
+  };
+  /**
+   * @constructor
+   */
+  FB.Internal = function() {
+    FB.$drag.when({
+      startDragging: function() {
+        utils.addClass(FB.container, 'dragging');
+      },
+      dragging: function() {
+        FB.container.style.left = this.x + 'px';
+        FB.container.style.top = this.y + 'px';
+      },
+      endDragging: function() {
+        utils.removeClass(FB.container, 'dragging');
+        if (this.y < 0) FB.container.style.top = 0;
+      },
+      resizing: function() {
+        FB.container.style.width = this.w + 'px';
+        FB.container.style.height = this.h + 'px';
+      },
+      endResizing: function() {
+        var min_width = 400,
+          min_height = 300;
+        if (this.w < min_width)
+          FB.container.style.width = min_width + 'px';
+        if (this.h < min_height)
+          FB.container.style.height = min_height + 'px';
+      }
+    });
+  };
+
+  FB.Internal.prototype = {
+    setListeners: function() {
+      var els = FB.elements,
+        //to not loose scope
+        newFolder = function() {
+          this.blur();
+          FB.$tree.newFolder();
+        },
+        removeFolder = function() {
+          this.blur();
+          FB.$tree.removeFolder();
+        },
+        removeFile = function() {
+          this.blur();
+          FB.$tree.removeFile();
+        },
+        sendEditor = function() {
+          this.blur();
+          FB.$tree.sendEditor();
+        },
+        closeBrowser = function() {
+          this.blur();
+          FB.$tree.closeBrowser();
+        },
+        upChoose = function() {
+          this.blur();
+          FB.$upload.choose();
+        },
+        upStart = function() {
+          this.blur();
+          FB.$upload.start();
+        };
+      els.btn_new_folder.addEventListener('click', newFolder, false);
+      els.btn_del_folder.addEventListener('click', removeFolder, false);
+      els.btn_upload_choose.addEventListener('click', upChoose, false);
+      els.btn_upload_file.addEventListener('click', upStart, false);
+      els.btn_del_file.addEventListener('click', removeFile, false);
+      els.btn_editor.addEventListener('click', sendEditor, false);
+      els.btn_close_grd.addEventListener('click', closeBrowser, false);
     }
   };
   /**
@@ -1742,7 +1757,7 @@
     start: function() {
       var len = this.files.length;
 
-      this.path_parents = FB.$tree.getFolderPath(FB.$base.current_active);
+      this.path_parents = FB.$tree.getFolderPath(FB.$tree.current_active);
       if (this.active) {
         FB.$tree.showHeaderMessage({
           msg: this.lang.alert.upload.sending,
@@ -1786,39 +1801,35 @@
     },
     upload_: function(file) {
       var this_ = this,
+        opt_transform = FB.options.image.transform,
         progress_el = this.getEl_(file, '.fb-progress-bar');
 
       if (!file) return;
 
+      console.info(opt_transform);
       file.xhr = FileAPI.upload({
         url: FB.options.server_http,
         files: {
           file: file
         },
         data: {
-          action: 'upload',
+          action: FB.constants.actions.upload,
           parents: this.path_parents.join()
         },
         imageOriginal: false,
         imageTransform: {
           big: {
-            maxWidth: 800,
-            maxHeight: 600
-          },
-          medium: {
-            maxWidth: 320,
-            maxHeight: 240
+            maxWidth: opt_transform.big.maxWidth,
+            maxHeight: opt_transform.big.maxHeight
           },
           small: {
-            maxWidth: 100,
-            maxHeight: 100
+            maxWidth: opt_transform.small.maxWidth,
+            maxHeight: opt_transform.small.maxHeight
           }
         },
         filecomplete: function(err) {
           if (err) {
             console.info(err);
-          } else {
-
           }
         },
         progress: function(evt) {
@@ -1833,7 +1844,7 @@
 
           if (this_.files.length == this_.index) {
             var result = FileAPI.parseJSON(xhr.responseText);
-            if (result.erro === false) {
+            if (result.error === false) {
               FB.$tree.showHeaderMessage({
                 msg: this_.lang.alert.upload.sent,
                 duration: 2500,

@@ -5,6 +5,11 @@ FB.Tree = function(){
   this.els = FB.elements;
   this.options = FB.options;
   this.lang = FB.lang[FB.options.lang];
+  
+  this.current_active = FB.elements.folder_tree_root;
+  this.root_event_added = false;
+  this.thumbs_root = [];
+  this.thumbs_selected = [];
 };
 
 FB.Tree.prototype = {
@@ -20,8 +25,8 @@ FB.Tree.prototype = {
         
         utils.removeClass(this_.els.grd_preview, 'mapeando-spinner');
         if('files' in response.tree){
-          FB.$base.thumbs_root = response.tree.files;
-          this_.loadThumbs(FB.$base.thumbs_root);
+          this_.thumbs_root = response.tree.files;
+          this_.loadThumbs(this_.thumbs_root);
         }
         if('dirs' in response.tree){
           when.ready.call(undefined, {
@@ -125,8 +130,8 @@ FB.Tree.prototype = {
     this.emptyThumbSelected();
     //to renew thumbs
     this.removeThumbs();
-    utils.emptyArray(FB.$base.thumbs_root);
-    FB.$base.current_active = false;
+    utils.emptyArray(this.thumbs_root);
+    this.current_active = false;
     
     if(Array.isArray(tree) && tree.length === 0){
       //empty return
@@ -136,8 +141,8 @@ FB.Tree.prototype = {
     }
     
     if('files' in tree){
-      FB.$base.thumbs_root = tree.files;
-      this.loadThumbs(FB.$base.thumbs_root);
+      this.thumbs_root = tree.files;
+      this.loadThumbs(this.thumbs_root);
     }
     if('dirs' in tree){
       this.buildTree(tree.dirs);
@@ -166,7 +171,7 @@ FB.Tree.prototype = {
 
           this_.submitFolder(this, FB.constants.actions.new_folder).when({
             ready: function(response) {
-              if(response.erro === false){
+              if(response.error === false){
                 this_.renewTree(response.tree);
                 FB.$alert.close();
               } else {
@@ -175,7 +180,7 @@ FB.Tree.prototype = {
             }
           });
         },
-        parents = this.getFolderPath(FB.$base.current_active),
+        parents = this.getFolderPath(this.current_active),
         i = parents.length,
         path = '<span>'+ this.lang.root_folder +'</span>';
     parents.reverse();
@@ -199,8 +204,8 @@ FB.Tree.prototype = {
   submitFolder: function(value, action){
     //exclude current from parents
     var parents = (action == FB.constants.actions.delete_folder) ?
-          this.getFolderPath(FB.$base.current_active, true) :
-            this.getFolderPath(FB.$base.current_active),
+          this.getFolderPath(this.current_active, true) :
+            this.getFolderPath(this.current_active),
         when = {};
     
     utils.post(this.options.server_http, {
@@ -221,14 +226,13 @@ FB.Tree.prototype = {
   },
   removeFolder: function(){
     var this_ = this,
-        current = FB.$base.current_active,
-        folder = current.getAttribute('data-key'),
-        n_files = current.getAttribute('data-files-all'),
-        n_folders = current.getAttribute('data-folders'),
+        folder = this.current_active.getAttribute('data-key'),
+        n_files = this.current_active.getAttribute('data-files-all'),
+        n_folders = this.current_active.getAttribute('data-folders'),
         submit = function(){
           this_.submitFolder(folder, FB.constants.actions.delete_folder).when({
             ready: function(response) {
-              if(response.erro === false){
+              if(response.error === false){
                 this_.renewTree(response.tree);
                 FB.$alert.close();
               } else {
@@ -254,7 +258,7 @@ FB.Tree.prototype = {
         submit = function () {
           utils.post(this_.options.server_http, {
             action: FB.constants.actions.delete_file,
-            files: FB.$base.thumbs_selected.join(),
+            files: this_.thumbs_selected.join(),
             lang: FB.options.lang
           }).when({
             ready: function(response) {
@@ -267,7 +271,7 @@ FB.Tree.prototype = {
           '<p>',
             this.lang.file.total,
             '<span class="highlight">',
-              FB.$base.thumbs_selected.length,
+            this.thumbs_selected.length,
           '</span></p>'
         ].join(''),
         html = {
@@ -369,13 +373,11 @@ FB.Tree.prototype = {
       }
     };
     var toggle = function(li){
-      var 
-        openned = utils.hasClass(li, 'open'),
-        active = utils.hasClass(li, 'active'),
-        children = utils.getChildren(li, 'ol'),
-        children_ol_recursive = utils.getAllChildren(li, 'ol'),
-        children_li_recursive = utils.getAllChildren(li, 'li')
-      ;
+      var openned = utils.hasClass(li, 'open'),
+          active = utils.hasClass(li, 'active'),
+          children = utils.getChildren(li, 'ol'),
+          children_ol_recursive = utils.getAllChildren(li, 'ol'),
+          children_li_recursive = utils.getAllChildren(li, 'li');
 
       if(openned && active){
         utils.addClass(children_ol_recursive, 'collapse');
@@ -389,7 +391,7 @@ FB.Tree.prototype = {
         utils.removeClass(children, 'collapse');
         utils.addClass(li, 'open');
       }
-      FB.$base.current_active = li;
+      this_.current_active = li;
       utils.addClass(li, 'active');
     };
     var findFiles = function(keys, tree_node, depth){
@@ -415,7 +417,7 @@ FB.Tree.prototype = {
     };
     var thumb = function(li, tree){
       if(li == this_.els.folder_tree_root){
-        this_.loadThumbs(FB.$base.thumbs_root);
+        this_.loadThumbs(this_.thumbs_root);
         return;
       }
       
@@ -432,14 +434,14 @@ FB.Tree.prototype = {
       evt.stopPropagation();
       FB.$upload.showTree();
       //this is <li>
-      if(this != FB.$base.current_active) {
+      if(this != this_.current_active) {
         this_.removeThumbs();
         thumb(this, root_tree);
       }
       
-      FB.$base.current_active = FB.$base.current_active || this_.els.folder_tree_root;
+      this_.current_active = this_.current_active || this_.els.folder_tree_root;
 
-      utils.removeClass(FB.$base.current_active, 'active');
+      utils.removeClass(this_.current_active, 'active');
       setParentOpen(this);
       toggle(this);
       
@@ -452,8 +454,6 @@ FB.Tree.prototype = {
     };
     var i = -1;
     while(++i < lis_len){
-      // FIXME maybe move this to a function
-      // https://jslinterrors.com/dont-make-functions-within-a-loop
       (function(i){
         var li = lis[i];
         if(i === 0){
@@ -463,9 +463,9 @@ FB.Tree.prototype = {
           }
         }
         if(li == this_.els.folder_tree_root){
-          if(!FB.$base.root_event_added){
+          if(!this_.root_event_added){
             li.addEventListener('click', clickFolder, false);
-            FB.$base.root_event_added = true;
+            this_.root_event_added = true;
           }
         } else {
           li.addEventListener('click', clickFolder, false);
@@ -475,12 +475,12 @@ FB.Tree.prototype = {
   },
   emptyThumbSelected: function(){
     var lis = utils.find('li', this.els.grd_preview, true);
-    utils.emptyArray(FB.$base.thumbs_selected);
+    utils.emptyArray(this.thumbs_selected);
     utils.removeClass(lis, FB.constants.thumb_sel);
     this.buttonThumbRemoveHandler();
   },
   buttonThumbRemoveHandler: function(){
-    var len_sel = FB.$base.thumbs_selected.length,
+    var len_sel = this.thumbs_selected.length,
         btn_desc = (len_sel > 1) ? this.lang.file.dels : this.lang.file.del;
     if(len_sel > 0){
       utils.removeClass(this.els.btn_editor, 'hidden');
@@ -495,7 +495,7 @@ FB.Tree.prototype = {
   },
   updateCountFolder: function(){
     this.els.folder_root_desc.textContent = 
-      this.lang.root_folder + ' ('+ FB.$base.thumbs_root.length +')';
+      this.lang.root_folder + ' ('+ this.thumbs_root.length +')';
   },
   removeThumbs: function(){
     utils.removeAllChildren(this.els.grd_preview);
@@ -511,9 +511,9 @@ FB.Tree.prototype = {
           var selected = utils.hasClass(this, FB.constants.thumb_sel),
               attr = this.getAttribute(FB.constants.thumb_path);
           if (selected) {
-            FB.$base.thumbs_selected.push(attr);
+            this_.thumbs_selected.push(attr);
           } else {
-            utils.removeArrayEntry(FB.$base.thumbs_selected, attr);
+            utils.removeArrayEntry(this_.thumbs_selected, attr);
           }
           this_.buttonThumbRemoveHandler();
         };
@@ -522,7 +522,7 @@ FB.Tree.prototype = {
       file = files[i];
       path = file.relative_path + file.filename;
       // FIXME change this ternary
-      selected = (FB.$base.thumbs_selected.indexOf(path) > -1) ? true : false;
+      selected = (this.thumbs_selected.indexOf(path) > -1) ? true : false;
       row = {
         filename: file.filename,
         date: file.date,
@@ -546,12 +546,12 @@ FB.Tree.prototype = {
   },
   sendEditor: function(){
     var editor = this.options.editor,
-        c = FB.$base.thumbs_selected.length,
+        c = this.thumbs_selected.length,
         i = -1, filename;
     while(++i < c){
-      filename = FB.$base.thumbs_selected[i].replace(
+      filename = this.thumbs_selected[i].replace(
         FB.constants.suffix_small,
-        FB.constants.suffix_medium
+        FB.constants.suffix_big
       );
       editor.insertHtml('<img src="'+ this.options.root_http + filename+'">');
     }
