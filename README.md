@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/jonataswalker/FileBrowser.svg?branch=master)](https://travis-ci.org/jonataswalker/FileBrowser)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![MIT License](https://img.shields.io/badge/Licence-MIT-blue.svg?style=flat-square)](https://github.com/jonataswalker/FileBrowser/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/jonataswalker/FileBrowser.svg)](https://github.com/jonataswalker/FileBrowser/releases)
+[![GitHub commits](https://img.shields.io/github/commits-since/jonataswalker/FileBrowser/1.0.0.svg?maxAge=2592000)](https://github.com/jonataswalker/FileBrowser/releases)
 
 A multi-purpose filebrowser. This is initially intended to be a [CKEditor](http://ckeditor.com/) file browser plugin but can be easily adapted to integrate with [TinyMCE](https://www.tinymce.com/) among others.
 
