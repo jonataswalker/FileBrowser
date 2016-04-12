@@ -8,7 +8,7 @@
 
 A multi-purpose filebrowser. This is initially intended to be a [CKEditor](http://ckeditor.com/) file browser plugin but can be easily adapted to integrate with [TinyMCE](https://www.tinymce.com/) among others.
 
-![FileBrowser anim](https://raw.githubusercontent.com/jonataswalker/FileBrowser/screenshot/images/anim.gif)
+![FileBrowser anim](https://raw.githubusercontent.com/jonataswalker/FileBrowser/screenshot/images/screenshot.gif)
 
 ### Demo with CKEditor
 See [here a demo](http://rawgit.com/jonataswalker/FileBrowser/master/examples/ex1-ckeditor.html).
