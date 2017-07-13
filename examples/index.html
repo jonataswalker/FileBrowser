@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
+    <link href="/static/filebrowser-deps.css" rel="stylesheet">
+    <link href="/static/filebrowser.css" rel="stylesheet">
+
+    <style type="text/css">
+      body {
+        font-family: 'Titillium Web', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="browser"></div>
+    <script src="/static/filebrowser-deps.js"></script>
+    <script src="/static/filebrowser.js"></script>
+    <script>
+      var filebrowser = new FileBrowser('#browser', {
+        lang: 'pt-br'
+      });
+    </script>
+  </body>
+</html>

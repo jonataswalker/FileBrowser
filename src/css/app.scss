@@ -1,0 +1,52 @@
+$mdc-theme-primary: #444;
+$mdc-theme-accent: #ffab40;
+$mdc-theme-background: #fff;
+
+$container-width: 800px;
+
+@import "@material/theme/mdc-theme";
+
+#filebrowser-container {
+  position: absolute;
+  z-index: 110;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  flex-flow: column;
+  min-width: 450px;
+  width: $container-width;
+  height: 100%;
+  min-height: 250px;
+  max-height: calc(100vh - 10px);
+  margin: auto;
+  overflow: hidden;
+  background-color: #fff;
+  border: 1px solid rgb(170, 170, 170);
+  box-shadow: rgba(0, 0, 0, .3) 1px 1px 3px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+  box-sizing: border-box;
+
+  *,
+  *:before,
+  *:after { box-sizing: inherit }
+
+  button {
+    font-family: inherit;
+
+    i, span { vertical-align: middle }
+  }
+}
+
+.filebrowser-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  @import "./header";
+  @import "./tree";
+}
+
+@import "./override";
