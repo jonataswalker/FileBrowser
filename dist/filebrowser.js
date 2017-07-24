@@ -1,15 +1,12 @@
 /*!
  * FileBrowser - v1.3.0
- * A multi-purpose filebrowser.
- * https://github.com/jonataswalker/FileBrowser
- * Built: Thu Jul 13 2017 16:18:21 GMT-0300 (-03)
+ * ${description}
+ * ${homepage}
+ * Built: Mon Jul 24 2017 12:40:56 GMT-0300 (-03)
  */
 
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue'), require('@material/ripple')) :
-	typeof define === 'function' && define.amd ? define(['vue', '@material/ripple'], factory) :
-	(global.FileBrowser = factory(global.Vue,global.mdc.ripple));
-}(this, (function (Vue,_material_ripple) { 'use strict';
+var FileBrowser = (function (Vue,_material_ripple) {
+'use strict';
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
@@ -21,29 +18,47 @@ var MyButton = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     type: { type: String, default: 'button' },
     disabled: { type: Boolean, default: false }
   },
-  mounted() {
+  mounted: function mounted() {
     new _material_ripple.MDCRipple(this.$el);
   }
 };
 
-var MyHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('header',{staticClass:"fb-header"},[_c('div',{staticClass:"fb-header-title"},[_c('span',[_vm._v(_vm._s(_vm.$root.text.TITLE))]),_vm._v(" "),_c('span',{staticClass:"close"})]),_c('div',{staticClass:"fb-message"}),_c('div',{staticClass:"fb-toolbar"},[_c('div',{staticClass:"fb-toolbar-items"},[_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("attach_file")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_CHOOSE))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("send")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_SEND))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_DEL_FILE))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("create_new_folder")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_NEW_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_DEL_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("publish")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_SEND_EDITOR))])])],1)])])},staticRenderFns: [],
+var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('header',{staticClass:"fb-header"},[_c('div',{staticClass:"fb-header-title"},[_c('span',[_vm._v(_vm._s(_vm.$root.text.TITLE))]),_vm._v(" "),_c('span',{staticClass:"close"})]),_c('div',{staticClass:"fb-message"}),_c('div',{staticClass:"fb-toolbar"},[_c('div',{staticClass:"fb-toolbar-items"},[_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("attach_file")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_CHOOSE))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("send")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_SEND))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_DEL_FILE))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("create_new_folder")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_NEW_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_DEL_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("publish")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.$root.text.TOOLBAR.BTN_SEND_EDITOR))])])],1)])])},staticRenderFns: [],
   name: 'Header',
-  components: { MyButton }
+  components: { MyButton: MyButton }
 };
 
-var MyBody = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-body"},[_c('div',{staticClass:"fb-tree-container"},[_c('ol',{attrs:{"id":"fb-tree"}},[_c('li',{staticClass:"active open",attrs:{"id":"fb-tree-folder-root"}},[_c('a',[_c('i',{staticClass:"icomoon-folder"}),_vm._v(" "),_c('span',{attrs:{"id":"folder-root-desc"}},[_vm._v(_vm._s(_vm.$root.text.ROOT_FOLDER))])])])])]),_vm._m(0)])},staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-thumb-container"},[_c('ul',{staticClass:"fb-thumb",attrs:{"id":"fb-thumb"}}),_c('div',{staticClass:"js-fileapi-wrapper"},[_c('input',{staticClass:"input-file",attrs:{"id":"upload-input","name":"files","type":"file","multiple":"multiple"}})]),_c('ul',{staticClass:"fb-upload-thumb",attrs:{"id":"upload-thumb","data-label":"\n      lang.preview\n    "}})])}],
+var AppBody = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-body"},[_c('div',{staticClass:"fb-tree-container"},[_c('ol',{attrs:{"id":"fb-tree"}},[_c('li',{staticClass:"active open",attrs:{"id":"fb-tree-folder-root"}},[_c('a',[_c('i',{staticClass:"icomoon-folder"}),_vm._v(" "),_c('span',{attrs:{"id":"folder-root-desc"}},[_vm._v(_vm._s(_vm.$root.text.ROOT_FOLDER))])])])])]),_vm._m(0)])},staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-thumb-container"},[_c('ul',{staticClass:"fb-thumb",attrs:{"id":"fb-thumb"}}),_c('div',{staticClass:"js-fileapi-wrapper"},[_c('input',{staticClass:"input-file",attrs:{"id":"upload-input","name":"files","type":"file","multiple":"multiple"}})]),_c('ul',{staticClass:"fb-upload-thumb",attrs:{"id":"upload-thumb","data-label":"\n      lang.preview\n    "}})])}],
   name: 'Body',
-  components: { MyButton }
+  components: { MyButton: MyButton }
 };
 
-var Layout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"filebrowser-container"}},[_c('div',{staticClass:"filebrowser-wrapper"},[_c('my-header'),_c('my-body')],1)])},staticRenderFns: [],
-  name: 'Layout',
-  components: { MyHeader, MyBody }
+var AppFooter = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('footer',{staticClass:"fb-footer"})},staticRenderFns: [],
+  name: 'Footer'
 };
 
-var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('layout')},staticRenderFns: [],
+var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"filebrowser-container"}},[_c('div',{staticClass:"filebrowser-wrapper"},[_c('app-header'),_c('app-body'),_c('app-footer')],1)])},staticRenderFns: [],
   name: 'App',
-  components: { Layout }
+  components: { AppHeader: AppHeader, AppBody: AppBody, AppFooter: AppFooter },
+  mounted: function mounted() {
+    console.log('fetching ... ', this.$root.options);
+
+    var ref = this.$root;
+    var options = ref.options;
+
+    const config = {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    };
+
+    fetch(options.server + '/files', config)
+      .then(function (res) { return res.json(); })
+      .then(function (jsonData) { console.log(jsonData); })
+      .catch(console.error);
+  }
 };
 
 const LANG = {
@@ -106,7 +121,7 @@ const TEXT = {
 
 const app = new Vue({
   data: { options: OPTIONS, text: {}},
-  render: h => h(App)
+  render: function (h) { return h(App); }
 });
 
 const text = Object.assign({}, TEXT);
@@ -172,22 +187,22 @@ text.TOOLBAR.BTN_SEND = 'Envie';
 //   }
 // };
 
-class FileBrowser {
-  constructor(el, options = {}) {
-    app.options = Object.assign(app.options, options);
+var FileBrowser = function FileBrowser(el, options) {
+  if ( options === void 0 ) options = {};
 
-    switch (app.options.lang) {
-      case LANG.BR:
-        app.text = text;
-        break;
-      default:
-        app.text = TEXT;
-    }
+  app.options = Object.assign(app.options, options);
 
-    app.$mount(el);
+  switch (app.options.lang) {
+    case LANG.BR:
+      app.text = text;
+      break;
+    default:
+      app.text = TEXT;
   }
-}
+
+  app.$mount(el);
+};
 
 return FileBrowser;
 
-})));
+}(Vue,mdc.ripple));

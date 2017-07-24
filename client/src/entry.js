@@ -1,6 +1,6 @@
 import { app } from './app';
-import { TEXT, LANG } from './constants';
-import TEXT_BR from './constants/lang/pt-br';
+import { TEXT, LANG } from 'konstants';
+import TEXT_BR from 'konstants/lang/pt-br';
 
 export default class FileBrowser {
   constructor(el, options = {}) {

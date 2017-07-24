@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Thu Jul 13 2017 17:50:59 GMT-0300 (-03)
+ * Built: Mon Jul 24 2017 12:40:55 GMT-0300 (-03)
  */
 /*
   Precomputed linear color channel values, for use in contrast calculations.
@@ -231,7 +231,7 @@
 
 #filebrowser-container {
   position: absolute;
-  z-index: 110;
+  z-index: 111;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;

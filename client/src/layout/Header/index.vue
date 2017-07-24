@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import MyButton from '../../../Button';
+import MyButton from 'Button';
 
 export default {
   name: 'Header',

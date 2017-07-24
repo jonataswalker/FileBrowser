@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Thu Jul 13 2017 16:18:21 GMT-0300 (-03)
+ * Built: Mon Jul 24 2017 12:40:56 GMT-0300 (-03)
  */
 
 'use strict';
@@ -29,6 +29,12 @@ const resolve$1 = file => path.resolve(__dirname, file);
 //   fileFilter: imageFilter
 // }).array('test');
 // router.put(ROUTES.FOTOS.UPLOAD, handleUploadFotos);
+
+router.get('/files', (req, res) => {
+  res.json({});
+  console.log('get');
+});
+
 
 // Always return the main index.html
 // so router render the route in the client

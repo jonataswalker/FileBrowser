@@ -4,7 +4,7 @@ const colors = require('colors');
 const jetpack = require('fs-jetpack');
 const resolve = file => path.resolve(__dirname, file);
 
-const isProduction = process.env.NODE_ENV === 'production';
+const dev = !!process.env.DEV;
 
 const jsFile = resolve('../dist/filebrowser-deps.js');
 const cssFile = resolve('../dist/filebrowser-deps.css');
@@ -40,13 +40,8 @@ const css = [].concat(materialCSS);
 jetpack.remove(jsFile);
 jetpack.remove(cssFile);
 
-if (isProduction) {
-  concat(depsProd, jsFile);
-  concat(css, cssFile);
-} else {
-  concat(depsDev, jsFile);
-  concat(css, cssFile);
-}
+concat(css, cssFile);
+dev ? concat(depsDev, jsFile) : concat(depsProd, jsFile);
 
 function concat(files, final) {
   let code = '';

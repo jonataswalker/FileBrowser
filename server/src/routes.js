@@ -41,6 +41,12 @@ const imageFilter = (req, file, cb) => {
 // }).array('test');
 // router.put(ROUTES.FOTOS.UPLOAD, handleUploadFotos);
 
+router.get('/files', (req, res) => {
+  res.json({});
+  console.log('get');
+});
+
+
 // Always return the main index.html
 // so router render the route in the client
 router.all('*', (req, res) => {
