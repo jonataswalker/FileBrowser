@@ -15,24 +15,6 @@ import AppFooter from './layout/Footer';
 
 export default {
   name: 'App',
-  components: { AppHeader, AppBody, AppFooter },
-  mounted() {
-    console.log('fetching ... ', this.$root.options);
-
-    const { options } = this.$root;
-
-    const config = {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    };
-
-    fetch(options.server + '/files', config)
-      .then(res => res.json())
-      .then(jsonData => { console.log(jsonData) })
-      .catch(console.error);
-  }
+  components: { AppHeader, AppBody, AppFooter }
 };
 </script>

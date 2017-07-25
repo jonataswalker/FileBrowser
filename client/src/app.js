@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import App from './App.vue';
-import { OPTIONS } from 'konstants';
+import store from './store';
 
 const app = new Vue({
-  data: { options: OPTIONS, text: {}},
+  store,
   render: h => h(App)
 });
 
-export { app };
+export { app, store };

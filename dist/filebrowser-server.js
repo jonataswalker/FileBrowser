@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Mon Jul 24 2017 12:40:56 GMT-0300 (-03)
+ * Built: Tue Jul 25 2017 15:34:15 GMT-0300 (-03)
  */
 
 'use strict';
@@ -18,21 +18,84 @@ var multer = _interopDefault(require('multer'));
 var mime = _interopDefault(require('mime-types'));
 var url = _interopDefault(require('url'));
 var util = _interopDefault(require('util'));
+var fs = _interopDefault(require('fs'));
 
-// import { ROUTES, UPLOAD } from '../constants';
+async function directoryTree(dir, options, done) {
+  const results = {
+    files: [],
+    folders: []
+  };
+
+  const files = safeReadDirSync(dir);
+
+  if (!files) return { error: `Directory '${dir}' not found.` };
+
+  while (files.length > 0) {
+    const f = files.pop();
+    const file = path.resolve(dir, f);
+    const stat = fs.statSync(file);
+    if (!file) break;
+
+    if (stat && stat.isDirectory()) {
+      const recursive = await directoryTree(file);
+      results.folders.push({
+        name: path.basename(file),
+        files: recursive.files,
+        folders: recursive.folders
+      });
+    } else if (stat && stat.isFile()) {
+      const ext = path.extname(file).toLowerCase();
+      const fileObj = {
+        size: stat.size,
+        name: path.basename(file),
+        extension: ext
+      };
+
+      if (options.extensions || options.exclude) {
+        if (options.extensions.includes(ext)) {
+          results.files.push(fileObj);
+        }
+
+      } else {
+        results.files.push(fileObj);
+      }
+    }
+  }
+  return results;
+}
+
+function safeReadDirSync(dir) {
+  let data;
+  if (fs.existsSync(dir)) {
+    try {
+      data = fs.readdirSync(dir);
+    } catch (ex) {
+      if (ex.code === 'EACCES') {
+        //User does not have permissions, ignore directory
+        return null;
+      } else throw ex;
+    }
+  }
+  return data;
+}
 
 const router = express.Router();
 const resolve$1 = file => path.resolve(__dirname, file);
+const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
 
-// const uploadFotos = multer({
-//   storage: storageFotos,
-//   fileFilter: imageFilter
-// }).array('test');
-// router.put(ROUTES.FOTOS.UPLOAD, handleUploadFotos);
-
-router.get('/files', (req, res) => {
-  res.json({});
-  console.log('get');
+router.get('/files', (req, res, next) => {
+  directoryTree(root)
+    .then(tree => {
+      if (tree.error) {
+        res.status(500).send({ error: tree.error });
+      } else {
+        res.json(tree);
+      }
+    })
+    .catch(error => {
+      res.status(500).send({ error });
+      next();
+    });
 });
 
 
@@ -49,7 +112,8 @@ const server = express();
 const bs = require('browser-sync').create();
 
 const isProd = process.env.NODE_ENV === 'production';
-const port = process.env.PORT || 3000;
+const port = process.env.npm_package_config_PORT || process.env.PORT || 3000;
+
 const resolve = file => path.resolve(__dirname, file);
 const serve = (path_, cache) => express.static(resolve(path_), {
   maxAge: cache && isProd ? 1000 * 60 * 60 * 24 * 30 : 0

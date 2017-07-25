@@ -3,6 +3,7 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 import bundleSize from 'rollup-plugin-bundle-size';
 import commonjs from 'rollup-plugin-commonjs';
 import eslint from 'rollup-plugin-eslint';
+import includePaths from 'rollup-plugin-includepaths';
 import colors from 'colors';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
@@ -16,6 +17,7 @@ const lintOpts = {
 };
 
 const plugins = [
+  includePaths({ paths: [''] }),
   eslint(Object.assign(lintOpts, pkg.eslintConfig)),
   bundleSize(),
   nodeResolve(),

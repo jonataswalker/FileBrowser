@@ -6,7 +6,7 @@
         :type="type"
         :id="id"
         :class="inputClasses"
-        :value="value"
+        :value="inputValue"
         :disabled="disabled"
         :required="required"
         @blur="$emit('blur')"
@@ -22,10 +22,10 @@
 
 <script>
 import { MDCTextfield } from '@material/textfield';
-import { guid } from '../../helpers/mix';
+import { guid } from 'helpers/mix';
 
 export default {
-  name: 'Text',
+  name: 'InputText',
   props: {
     type: { type: String, default: 'text' },
     id: { type: String, default: `i-${guid()}` },
@@ -37,11 +37,10 @@ export default {
     hasError: { type: Boolean, default: false }
   },
   data() {
-    return { hasValue: false };
+    return { hasValue: false, inputValue: this.value };
   },
   computed: {
     inputClasses: function () {
-      console.log(this.hasValue, this.hasError);
       return {
         'fl-input': true,
         'fl-valid': this.hasValue && !this.hasError,
@@ -56,12 +55,12 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$refs.textfield);
     new MDCTextfield(this.$refs.textfield);
   },
   methods: {
     onInput(evt) {
       this.hasValue = Boolean(evt.target.value);
+      this.inputValue = evt.target.value;
       this.$emit('input', evt.target.value);
     }
   }

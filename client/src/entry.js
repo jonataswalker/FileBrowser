@@ -1,19 +1,9 @@
-import { app } from './app';
-import { TEXT, LANG } from 'konstants';
-import TEXT_BR from 'konstants/lang/pt-br';
+import { app, store } from './app';
 
 export default class FileBrowser {
   constructor(el, options = {}) {
-    app.options = Object.assign(app.options, options);
-
-    switch (app.options.lang) {
-      case LANG.BR:
-        app.text = TEXT_BR;
-        break;
-      default:
-        app.text = TEXT;
-    }
-
+    store.commit('mergeOptions', options);
+    store.dispatch('getTree');
     app.$mount(el);
   }
 }

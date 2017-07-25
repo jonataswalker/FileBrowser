@@ -6,7 +6,7 @@
         <a>
           <i class="icomoon-folder"></i>
           <span id="folder-root-desc">
-            {{ $root.text.ROOT_FOLDER }}
+            {{ text.ROOT_FOLDER }}
           </span>
         </a>
       </li>
@@ -31,6 +31,9 @@ import MyButton from 'Button';
 
 export default {
   name: 'Body',
-  components: { MyButton }
+  components: { MyButton },
+  data() {
+    return { text: this.$store.state.text };
+  }
 };
 </script>

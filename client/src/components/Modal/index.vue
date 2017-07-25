@@ -40,9 +40,7 @@ export default {
   data() { return { dialog: null }},
   mounted() {
     this.dialog = new MDCDialog(this.$el);
-    this.dialog.listen('MDCDialog:cancel', () => {
-      this.$emit('close');
-    });
+    this.dialog.listen('MDCDialog:cancel', () => this.$emit('close'));
   }
 };
 </script>

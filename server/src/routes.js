@@ -5,10 +5,13 @@ import multer from 'multer';
 import mime from 'mime-types';
 import url from 'url';
 import util from 'util';
+import { directoryTree } from 'helpers/tree';
 // import { ROUTES, UPLOAD } from '../constants';
+
 
 const router = express.Router();
 const resolve = file => path.resolve(__dirname, file);
+const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
 
 const routes = {};
 
@@ -41,9 +44,19 @@ const imageFilter = (req, file, cb) => {
 // }).array('test');
 // router.put(ROUTES.FOTOS.UPLOAD, handleUploadFotos);
 
-router.get('/files', (req, res) => {
-  res.json({});
-  console.log('get');
+router.get('/files', (req, res, next) => {
+  directoryTree(root)
+    .then(tree => {
+      if (tree.error) {
+        res.status(500).send({ error: tree.error });
+      } else {
+        res.json(tree);
+      }
+    })
+    .catch(error => {
+      res.status(500).send({ error });
+      next();
+    });
 });
 
 

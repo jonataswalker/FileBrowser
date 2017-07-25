@@ -8,7 +8,8 @@ const server = express();
 const bs = require('browser-sync').create();
 
 const isProd = process.env.NODE_ENV === 'production';
-const port = process.env.PORT || 3000;
+const port = process.env.npm_package_config_PORT || process.env.PORT || 3000;
+
 const resolve = file => path.resolve(__dirname, file);
 const serve = (path_, cache) => express.static(resolve(path_), {
   maxAge: cache && isProd ? 1000 * 60 * 60 * 24 * 30 : 0
