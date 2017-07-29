@@ -4,7 +4,7 @@
     <span>{{ text.TITLE }}</span>
     <span class="close"></span>
   </div>
-  <div class="fb-message"></div>
+  <div :class="messageClasses">{{ $store.state.message.message }}</div>
   <div class="fb-toolbar">
     <div class="fb-toolbar-items">
       <my-button>
@@ -46,6 +46,17 @@ import Folder from 'Folder';
 export default {
   name: 'Header',
   components: { MyButton, Folder },
+  computed: {
+    messageClasses: function () {
+      console.log(this.$store.state.message.class);
+      return {
+        'fb-message': true,
+        'show': this.$store.state.message.show,
+        'alert': this.$store.state.message.class === 'alert',
+        'success': this.$store.state.message.class === 'success'
+      };
+    }
+  },
   data() {
     return {
       openCreate: false,

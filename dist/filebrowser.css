@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Tue Jul 25 2017 15:34:14 GMT-0300 (-03)
+ * Built: Sat Jul 29 2017 09:17:34 GMT-0300 (-03)
  */
 /*
   Precomputed linear color channel values, for use in contrast calculations.
@@ -109,123 +109,153 @@
 
 /* Special case, so that .mdc-theme--background changes background color, not text color. */
 .mdc-theme--background {
+  /* @alternate */
   background-color: #fff;
   background-color: var(--mdc-theme-background, #fff); }
 
 .mdc-theme--primary {
+  /* @alternate */
   color: #444 !important;
   color: var(--mdc-theme-primary, #444) !important; }
 
 .mdc-theme--accent {
+  /* @alternate */
   color: #ffab40 !important;
   color: var(--mdc-theme-accent, #ffab40) !important; }
 
 .mdc-theme--text-primary-on-primary {
+  /* @alternate */
   color: white !important;
   color: var(--mdc-theme-text-primary-on-primary, white) !important; }
 
 .mdc-theme--text-secondary-on-primary {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.7) !important;
   color: var(--mdc-theme-text-secondary-on-primary, rgba(255, 255, 255, 0.7)) !important; }
 
 .mdc-theme--text-hint-on-primary {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.5) !important;
   color: var(--mdc-theme-text-hint-on-primary, rgba(255, 255, 255, 0.5)) !important; }
 
 .mdc-theme--text-disabled-on-primary {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.5) !important;
   color: var(--mdc-theme-text-disabled-on-primary, rgba(255, 255, 255, 0.5)) !important; }
 
 .mdc-theme--text-icon-on-primary {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.5) !important;
   color: var(--mdc-theme-text-icon-on-primary, rgba(255, 255, 255, 0.5)) !important; }
 
 .mdc-theme--text-primary-on-accent {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.87) !important;
   color: var(--mdc-theme-text-primary-on-accent, rgba(0, 0, 0, 0.87)) !important; }
 
 .mdc-theme--text-secondary-on-accent {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.54) !important;
   color: var(--mdc-theme-text-secondary-on-accent, rgba(0, 0, 0, 0.54)) !important; }
 
 .mdc-theme--text-hint-on-accent {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-hint-on-accent, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-disabled-on-accent {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-disabled-on-accent, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-icon-on-accent {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-icon-on-accent, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-primary-on-background {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.87) !important;
   color: var(--mdc-theme-text-primary-on-background, rgba(0, 0, 0, 0.87)) !important; }
 
 .mdc-theme--text-secondary-on-background {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.54) !important;
   color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54)) !important; }
 
 .mdc-theme--text-hint-on-background {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-disabled-on-background {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-disabled-on-background, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-icon-on-background {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-primary-on-light {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.87) !important;
   color: var(--mdc-theme-text-primary-on-light, rgba(0, 0, 0, 0.87)) !important; }
 
 .mdc-theme--text-secondary-on-light {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.54) !important;
   color: var(--mdc-theme-text-secondary-on-light, rgba(0, 0, 0, 0.54)) !important; }
 
 .mdc-theme--text-hint-on-light {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-hint-on-light, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-disabled-on-light {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-disabled-on-light, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-icon-on-light {
+  /* @alternate */
   color: rgba(0, 0, 0, 0.38) !important;
   color: var(--mdc-theme-text-icon-on-light, rgba(0, 0, 0, 0.38)) !important; }
 
 .mdc-theme--text-primary-on-dark {
+  /* @alternate */
   color: white !important;
   color: var(--mdc-theme-text-primary-on-dark, white) !important; }
 
 .mdc-theme--text-secondary-on-dark {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.7) !important;
   color: var(--mdc-theme-text-secondary-on-dark, rgba(255, 255, 255, 0.7)) !important; }
 
 .mdc-theme--text-hint-on-dark {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.5) !important;
   color: var(--mdc-theme-text-hint-on-dark, rgba(255, 255, 255, 0.5)) !important; }
 
 .mdc-theme--text-disabled-on-dark {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.5) !important;
   color: var(--mdc-theme-text-disabled-on-dark, rgba(255, 255, 255, 0.5)) !important; }
 
 .mdc-theme--text-icon-on-dark {
+  /* @alternate */
   color: rgba(255, 255, 255, 0.5) !important;
   color: var(--mdc-theme-text-icon-on-dark, rgba(255, 255, 255, 0.5)) !important; }
 
 /* CSS rules for using primary and accent as background colors. */
 .mdc-theme--primary-bg {
+  /* @alternate */
   background-color: #444 !important;
   background-color: var(--mdc-theme-primary, #444) !important; }
 
 .mdc-theme--accent-bg {
+  /* @alternate */
   background-color: #ffab40 !important;
   background-color: var(--mdc-theme-accent, #ffab40) !important; }
 
@@ -357,6 +387,48 @@
     border: 1px solid #333;
     overflow: auto;
     background-color: #1d1f20; }
+    .filebrowser-wrapper .fb-tree-container ol {
+      list-style: none;
+      margin: 0;
+      padding: 0; }
+      .filebrowser-wrapper .fb-tree-container ol li {
+        height: 34px;
+        padding-left: 1rem;
+        -webkit-transition: height 200ms ease-in;
+        transition: height 200ms ease-in; }
+        .filebrowser-wrapper .fb-tree-container ol li.collapse {
+          overflow: hidden;
+          height: 34px !important;
+          -webkit-transition: height 200ms ease-out;
+          transition: height 200ms ease-out; }
+        .filebrowser-wrapper .fb-tree-container ol li span {
+          margin-left: 3px; }
+        .filebrowser-wrapper .fb-tree-container ol li a {
+          display: -webkit-box;
+          display: -ms-flexbox;
+          display: flex;
+          -ms-flex-line-pack: center;
+              align-content: center;
+          -webkit-box-align: center;
+              -ms-flex-align: center;
+                  align-items: center;
+          padding: 5px;
+          color: #acacac;
+          text-shadow: 0 1px 0 black;
+          font-size: .9em; }
+  .filebrowser-wrapper .fb-folder-path span {
+    color: #333;
+    margin: 0 5px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    -webkit-box-shadow: 2px 2px 2px #999;
+            box-shadow: 2px 2px 2px #999;
+    background-color: #eee; }
+  .filebrowser-wrapper .fb-dialog-footer button:not(:last-of-type) {
+    margin-right: 2px; }
+  .filebrowser-wrapper .fb-input.fb-invalid + label,
+  .filebrowser-wrapper .fb-error-msg {
+    color: #e74c3c; }
 
 .mdc-button {
   font-size: 12px; }

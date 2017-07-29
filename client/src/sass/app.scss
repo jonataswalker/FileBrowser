@@ -5,6 +5,7 @@ $mdc-theme-background: #fff;
 $container-width: 800px;
 
 @import "@material/theme/mdc-theme";
+@import "./mixins";
 
 #filebrowser-container {
   position: absolute;
@@ -47,6 +48,8 @@ $container-width: 800px;
 
   @import "./header";
   @import "./tree";
+  @import "./dialog";
+  @import "./footer";
 }
 
 @import "./override";

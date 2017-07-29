@@ -15,7 +15,7 @@
       class="mdc-dialog__body mdc-dialog__body--scrollable">
       <slot name="body"></slot>
     </section>
-    <footer class="mdc-dialog__footer">
+    <footer class="fb-dialog-footer mdc-dialog__footer">
       <slot name="footer"></slot>
     </footer>
   </div>
@@ -34,7 +34,13 @@ export default {
   },
   watch: {
     active: function (val) {
-      val ? this.dialog.show() : this.dialog.close();
+      if (val) {
+        this.$emit('open');
+        this.dialog.show();
+      } else {
+        this.$emit('close');
+        this.dialog.close();
+      }
     }
   },
   data() { return { dialog: null }},

@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * ${description}
  * ${homepage}
- * Built: Tue Jul 25 2017 15:34:15 GMT-0300 (-03)
+ * Built: Sat Jul 29 2017 09:17:35 GMT-0300 (-03)
  */
 
 var FileBrowser = (function (Vue,_material_ripple,_material_dialog,_material_textfield,Vuex) {
@@ -24,7 +24,7 @@ var MyButton = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   }
 };
 
-var Modal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('aside',{staticClass:"mdc-dialog",attrs:{"role":"alertdialog","aria-labelledby":"mdc-dialog-with-list-label","aria-describedby":"mdc-dialog-with-list-description"}},[_c('div',{staticClass:"mdc-dialog__surface"},[_c('header',{staticClass:"mdc-dialog__header"},[_c('h2',{staticClass:"mdc-dialog__header__title",attrs:{"id":"mdc-dialog-with-list-label"}},[_vm._v(_vm._s(_vm.title))])]),_c('section',{staticClass:"mdc-dialog__body mdc-dialog__body--scrollable",attrs:{"id":"mdc-dialog-with-list-description"}},[_vm._t("body")],2),_c('footer',{staticClass:"mdc-dialog__footer"},[_vm._t("footer")],2)]),_c('div',{staticClass:"mdc-dialog__backdrop"})])},staticRenderFns: [],
+var Modal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('aside',{staticClass:"mdc-dialog",attrs:{"role":"alertdialog","aria-labelledby":"mdc-dialog-with-list-label","aria-describedby":"mdc-dialog-with-list-description"}},[_c('div',{staticClass:"mdc-dialog__surface"},[_c('header',{staticClass:"mdc-dialog__header"},[_c('h2',{staticClass:"mdc-dialog__header__title",attrs:{"id":"mdc-dialog-with-list-label"}},[_vm._v(_vm._s(_vm.title))])]),_c('section',{staticClass:"mdc-dialog__body mdc-dialog__body--scrollable",attrs:{"id":"mdc-dialog-with-list-description"}},[_vm._t("body")],2),_c('footer',{staticClass:"fb-dialog-footer mdc-dialog__footer"},[_vm._t("footer")],2)]),_c('div',{staticClass:"mdc-dialog__backdrop"})])},staticRenderFns: [],
   name: 'Modal',
   props: {
     title: String,
@@ -32,7 +32,13 @@ var Modal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   },
   watch: {
     active: function (val) {
-      val ? this.dialog.show() : this.dialog.close();
+      if (val) {
+        this.$emit('open');
+        this.dialog.show();
+      } else {
+        this.$emit('close');
+        this.dialog.close();
+      }
     }
   },
   data: function data() { return { dialog: null }},
@@ -59,7 +65,7 @@ function guid() {
   return _p8() + _p8(true) + _p8(true) + _p8();
 }
 
-var InputText = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fl-input-container"},[_c('div',{ref:"textfield",staticClass:"mdc-textfield"},[_c('input',{staticClass:"mdc-textfield__input",class:_vm.inputClasses,attrs:{"type":_vm.type,"id":_vm.id,"disabled":_vm.disabled,"required":_vm.required},domProps:{"value":_vm.inputValue},on:{"blur":function($event){_vm.$emit('blur');},"input":_vm.onInput}}),_c('label',{staticClass:"mdc-textfield__label",attrs:{"for":_vm.id}},[_vm._v(_vm._s(_vm.label))])]),_c('p',{directives:[{name:"show",rawName:"v-show",value:(_vm.hasError),expression:"hasError"}],staticClass:"mdc-textfield-helptext mdc-textfield-helptext--persistent mdc-textfield-helptext--validation-msg"},[_vm._v(_vm._s(_vm.errorMsg))])])},staticRenderFns: [],
+var InputText = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fl-input-container"},[_c('div',{ref:"textfield",staticClass:"mdc-textfield"},[_c('input',{staticClass:"mdc-textfield__input",class:_vm.inputClasses,attrs:{"type":_vm.type,"id":_vm.id,"disabled":_vm.disabled,"required":_vm.required,"minlength":_vm.minlength,"maxlength":_vm.maxlength},domProps:{"value":_vm.inputValue},on:{"blur":function($event){_vm.$emit('blur');},"input":_vm.onInput}}),_c('label',{staticClass:"mdc-textfield__label",attrs:{"for":_vm.id}},[_vm._v(_vm._s(_vm.label))])]),_c('p',{class:_vm.errMsgClasses,domProps:{"innerHTML":_vm._s(_vm.errorMsg)}})])},staticRenderFns: [],
   name: 'InputText',
   props: {
     type: { type: String, default: 'text' },
@@ -67,6 +73,8 @@ var InputText = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     value: { type: String, default: '' },
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
+    minlength: Number,
+    maxlength: Number,
     label: String,
     errorMsg: String,
     hasError: { type: Boolean, default: false }
@@ -77,15 +85,18 @@ var InputText = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   computed: {
     inputClasses: function () {
       return {
-        'fl-input': true,
-        'fl-valid': this.hasValue && !this.hasError,
-        'fl-invalid': this.hasError
+        'fb-input': true,
+        'fb-valid': this.hasValue && !this.hasError,
+        'fb-invalid': this.hasError
       };
     },
     errMsgClasses: function () {
+      console.log('errMsgClasses', this.hasError);
       return {
-        'fl-error-msg': true,
-        'fl-error-show': this.hasError
+        'fb-error-msg': true,
+        'mdc-textfield-helptext': true,
+        'mdc-textfield-helptext--validation-msg': true,
+        'mdc-textfield-helptext--persistent': this.hasError
       };
     }
   },
@@ -101,7 +112,7 @@ var InputText = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var Folder = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('modal',{attrs:{"active":_vm.modalActive,"title":_vm.text.FOLDER.NEW},on:{"close":_vm.closeModal}},[_c('div',{slot:"body"},[_c('input-text',{attrs:{"label":_vm.text.FOLDER.NEW,"required":true,"hasError":_vm.creatingHasError,"errorMsg":"Fill..."},on:{"input":_vm.onInputNew}})],1),_c('div',{slot:"footer"},[_c('my-button',{attrs:{"classes":"is-dark","type":"submit"},nativeOn:{"click":function($event){_vm.onSubmit($event);}}},[_vm._v("Submit")]),_c('my-button',{nativeOn:{"click":function($event){_vm.closeModal($event);}}},[_vm._v("Cancel")])],1)])},staticRenderFns: [],
+var Folder = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('modal',{attrs:{"active":_vm.modalActive,"title":_vm.text.FOLDER.NEW},on:{"open":_vm.onOpenModal,"close":_vm.closeModal}},[_c('div',{slot:"body"},[_c('h5',[_vm._v(_vm._s(_vm.text.FOLDER.CREATION))]),_c('p',{staticClass:"fb-folder-path",domProps:{"innerHTML":_vm._s(_vm.hierarchy)}}),_c('input-text',{attrs:{"label":_vm.text.FOLDER.NEW,"required":true,"minlength":1,"maxlength":20,"hasError":_vm.creatingHasError,"errorMsg":_vm.creatingError},on:{"input":_vm.onInputNew}})],1),_c('div',{slot:"footer"},[_c('my-button',{attrs:{"classes":"is-dark","type":"submit"},nativeOn:{"click":function($event){_vm.onSubmit($event);}}},[_vm._v("Submit")]),_c('my-button',{nativeOn:{"click":function($event){_vm.closeModal($event);}}},[_vm._v("Cancel")])],1)])},staticRenderFns: [],
   name: 'Folder',
   props: ['openCreate'],
   components: { MyButton: MyButton, Modal: Modal, InputText: InputText },
@@ -110,7 +121,9 @@ var Folder = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       text: this.$store.state.text,
       modalActive: false,
       creatingHasError: false,
-      creatingName: ''
+      creatingError: '',
+      creatingName: '',
+      hierarchy: ''
     };
   },
   watch: {
@@ -119,26 +132,61 @@ var Folder = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     }
   },
   methods: {
-    createFolder: function createFolder() {
-      this.modalActive = true;
-    },
     onInputNew: function onInputNew(value) {
-      // this.creatingHasError = !value;
+      this.creatingName = value;
+
+      if (!value) {
+        this.creatingHasError = true;
+        this.creatingError = this.text.REQUIRED;
+      } else {
+        this.creatingHasError = !/^[a-zA-Z0-9\-_]{1,20}$/.test(value);
+        this.creatingError = this.text.FOLDER.VALIDATION;
+      }
       console.log('onInputNew', value, this.creatingHasError);
+    },
+    onOpenModal: function onOpenModal() {
+      this.creatingName = '';
+      this.hierarchy = "<span>" + (this.text.ROOT_FOLDER) + "</span>";
     },
     closeModal: function closeModal() {
       this.modalActive = false;
       this.$emit('closeModal');
     },
     onSubmit: function onSubmit() {
-      console.log('onSubmit');
+      var this$1 = this;
+
+      console.log('onSubmit', this.creatingName);
+      this.$store.dispatch('folder/create', this.creatingName).then(function (res) {
+        this$1.closeModal();
+        this$1.$store.dispatch('message/show', {
+          message: res,
+          type: 'success'
+        });
+      }).catch(function (res) {
+        this$1.closeModal();
+        this$1.$store.dispatch('message/show', {
+          message: res,
+          type: 'alert'
+        });
+      });
     }
   }
 };
 
-var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('header',{staticClass:"fb-header"},[_c('div',{staticClass:"fb-header-title"},[_c('span',[_vm._v(_vm._s(_vm.text.TITLE))]),_vm._v(" "),_c('span',{staticClass:"close"})]),_c('div',{staticClass:"fb-message"}),_c('div',{staticClass:"fb-toolbar"},[_c('div',{staticClass:"fb-toolbar-items"},[_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("attach_file")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_CHOOSE))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("send")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_SEND))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_DEL_FILE))])]),_c('my-button',{nativeOn:{"click":function($event){_vm.openCreate = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("create_new_folder")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_NEW_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_DEL_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("publish")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_SEND_EDITOR))])])],1)]),_c('folder',{attrs:{"open-create":_vm.openCreate},on:{"closeModal":function($event){_vm.openCreate = false;}}})],1)},staticRenderFns: [],
+var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('header',{staticClass:"fb-header"},[_c('div',{staticClass:"fb-header-title"},[_c('span',[_vm._v(_vm._s(_vm.text.TITLE))]),_vm._v(" "),_c('span',{staticClass:"close"})]),_c('div',{class:_vm.messageClasses},[_vm._v(_vm._s(_vm.$store.state.message.message))]),_c('div',{staticClass:"fb-toolbar"},[_c('div',{staticClass:"fb-toolbar-items"},[_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("attach_file")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_CHOOSE))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("send")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_SEND))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_DEL_FILE))])]),_c('my-button',{nativeOn:{"click":function($event){_vm.openCreate = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("create_new_folder")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_NEW_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_DEL_FOLDER))])]),_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("publish")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.text.TOOLBAR.BTN_SEND_EDITOR))])])],1)]),_c('folder',{attrs:{"open-create":_vm.openCreate},on:{"closeModal":function($event){_vm.openCreate = false;}}})],1)},staticRenderFns: [],
   name: 'Header',
   components: { MyButton: MyButton, Folder: Folder },
+  computed: {
+    messageClasses: function () {
+      console.log(this.$store.state.message.class);
+      return {
+        'fb-message': true,
+        'show': this.$store.state.message.show,
+        'alert': this.$store.state.message.class === 'alert',
+        'success': this.$store.state.message.class === 'success'
+      };
+    }
+  },
   data: function data() {
     return {
       openCreate: false,
@@ -147,12 +195,47 @@ var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var AppBody = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-body"},[_c('div',{staticClass:"fb-tree-container"},[_c('ol',{attrs:{"id":"fb-tree"}},[_c('li',{staticClass:"active open",attrs:{"id":"fb-tree-folder-root"}},[_c('a',[_c('i',{staticClass:"icomoon-folder"}),_vm._v(" "),_c('span',{attrs:{"id":"folder-root-desc"}},[_vm._v(_vm._s(_vm.text.ROOT_FOLDER))])])])])]),_vm._m(0)])},staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-thumb-container"},[_c('ul',{staticClass:"fb-thumb",attrs:{"id":"fb-thumb"}}),_c('div',{staticClass:"js-fileapi-wrapper"},[_c('input',{staticClass:"input-file",attrs:{"id":"upload-input","name":"files","type":"file","multiple":"multiple"}})]),_c('ul',{staticClass:"fb-upload-thumb",attrs:{"id":"upload-thumb","data-label":"\n      lang.preview\n    "}})])}],
-  name: 'Body',
-  components: { MyButton: MyButton },
+var Item = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"active open",class:{ 'collapse': _vm.open },style:(_vm.folderStyle),attrs:{"data-folders":_vm.tree.folders.length,"data-files":_vm.tree.files.length},on:{"click":function($event){$event.stopPropagation();_vm.collapse($event);}}},[_c('a',[_c('i',{staticClass:"material-icons"},[_vm._v("folder")]),_vm._v(" "),_c('span',{attrs:{"id":"folder-root-desc"}},[_vm._v(_vm._s(_vm.tree.name))])]),(_vm.tree.folders.length)?_c('ol',_vm._l((_vm.tree.folders),function(folder){return _c('item',{attrs:{"collapsed":true,"isRoot":false,"tree":folder}})})):_vm._e()])},staticRenderFns: [],
+  name: 'Item',
+  props: {
+    tree: Object,
+    isRoot: { type: Boolean, default: true },
+    collapsed: Boolean
+  },
+  computed: {},
   data: function data() {
-    return { text: this.$store.state.text };
+    return {
+      open: this.collapsed,
+      folderStyle: {
+        height: (this.tree.folders.length + 1) * 34 + 'px'
+      }
+    };
+  },
+  mounted: function mounted() {
+    console.log('tree', this.tree.name, this.folderStyle);
+  },
+  methods: {
+    collapse: function collapse() {
+      console.log('collapse', this.tree.name, this.isRoot);
+      if (this.isRoot) { return; }
+      this.open = !this.open;
+    }
   }
+};
+
+var Tree = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-tree-container"},[_c('ol',[_c('item',{attrs:{"tree":_vm.$store.state.tree.tree}})],1)])},staticRenderFns: [],
+  name: 'Tree',
+  components: { Item: Item },
+  data: function data() {
+    return {
+      text: this.$store.state.text
+    };
+  }
+};
+
+var AppBody = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-body"},[_c('tree',[_c('div',{staticClass:"fb-thumb-container"},[_c('ul',{staticClass:"fb-thumb",attrs:{"id":"fb-thumb"}}),_c('div',{staticClass:"js-fileapi-wrapper"},[_c('input',{staticClass:"input-file",attrs:{"id":"upload-input","name":"files","type":"file","multiple":"multiple"}})]),_c('ul',{staticClass:"fb-upload-thumb",attrs:{"id":"upload-thumb","data-label":"\n      lang.preview\n    "}})])])],1)},staticRenderFns: [],
+  name: 'Body',
+  components: { MyButton: MyButton, Tree: Tree }
 };
 
 var AppFooter = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('footer',{staticClass:"fb-footer"})},staticRenderFns: [],
@@ -178,6 +261,7 @@ const TEXT = {
   ROOT_FOLDER: 'Root Folder',
   PREVIEW: 'Sending Preview',
   SEND_TO_EDITOR: 'Send to Editor',
+  REQUIRED: 'Field is required',
   TOOLBAR: {
     BTN_CHOOSE: 'Choose',
     BTN_SEND: 'Send',
@@ -195,11 +279,9 @@ const TEXT = {
     NEW: 'New Folder',
     DEL: 'Delete Folder',
     CREATION: 'This folder will be created inside:',
-    MINIMUM: [
-      '<p>Min-length: 1 - Max-length: 10',
-      '<br>Only <span class="strong">letters</span>, ',
-      '<span class="strong">numbers</span> ',
-      'and the following characters: <span class="highlight">. - _</span></p>'
+    VALIDATION: [
+      'Only <strong>letters, numbers</strong>',
+      ' and the following characters: <span class="highlight">- _</span>'
     ].join(''),
     DELETION: [
       '<p class="folder-path">This folder <span>%1</span>',
@@ -219,6 +301,28 @@ const TEXT = {
       NONE: 'No file!',
       SENT: 'All done!'
     }
+  },
+  API: {
+    MESSAGES: {
+      FOLDER: {
+        CREATED: 'Folder created!',
+        RENAMED: 'Folder renamed!',
+        EXISTS: 'This folder already exists!'
+      }
+    }
+  }
+};
+
+const ROUTES = {
+  FILES: {
+    ALL: '/files',
+    CREATE: '/files',
+    REMOVE: '/files/:id'
+  },
+  FOLDER: {
+    CREATE: '/folder',
+    EDIT: '/folder/:id',
+    REMOVE: '/folder/:id'
   }
 };
 
@@ -285,39 +389,134 @@ text.TOOLBAR.BTN_SEND = 'Envie';
 //   }
 // };
 
-var store = new Vuex.Store({
-  state: {
-    options: OPTIONS,
-    text: {},
-    tree: {},
-    folderSelected: null
-  },
+var request = function (url, options) {
+  if ( options === void 0 ) options = {};
+
+  const config = {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  };
+  options = Object.assign(config, options);
+
+  if (options.body) { options.body = JSON.stringify(options.body); }
+
+  console.log('fetch', options);
+  return fetch(url, options)
+    .then(handleResponse, handleNetworkError);
+};
+
+function handleResponse(response) {
+  return response.ok
+    ? response.json()
+    : response.json().then(function (err) { throw err });
+}
+
+function handleNetworkError(error) {
+  throw { message: error.message };
+}
+
+var folder = {
+  namespaced: true,
+  state: { selected: '/' },
   actions: {
-    getTree: function getTree(ref) {
+    create: function create(ref, name) {
       var commit = ref.commit;
       var state = ref.state;
+      var dispatch = ref.dispatch;
 
-      const config = {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      };
+      const path = state.selected + name;
+      const config = { method: 'POST', body: { path: path }};
+      console.log('store folder/create', path);
 
-      fetch(state.options.server + '/files', config)
-        .then(function (res) { return res.json(); })
-        .then(function (tree) {
-          console.log('getTree', tree);
-          commit('changeTree', tree);
-        })
-        .catch(console.error);
+      return new Promise(function (resolve, reject) {
+        request(ROUTES.FOLDER.CREATE, config).then(function (res) {
+          console.log('store folder/create res', res);
+          commit('tree/update', res.tree, { root: true });
+          resolve(res.message);
+        }).catch(function (res) { return reject(res.message); });
+      });
+    }
+  },
+  mutations: {}
+};
+
+var tree = {
+  namespaced: true,
+  state: {
+    tree: { name: '', files: [], folders: [] }
+  },
+  actions: {
+    get: function get(ref) {
+      var commit = ref.commit;
+      var state = ref.state;
+      var rootState = ref.rootState;
+
+      return new Promise(function (resolve, reject) {
+        request(rootState.options.server + ROUTES.FILES.ALL)
+          .then(function (tree) {
+            tree.name = rootState.text.ROOT_FOLDER;
+            console.log('getTree', tree);
+            commit('update', tree);
+            resolve();
+          })
+          .catch(reject);
+      });
     }
   },
   mutations: {
-    changeTree: function changeTree(state, tree) {
+    update: function update(state, tree) {
       state.tree = tree;
+    }
+  }
+};
+
+var file = {
+  namespaced: true,
+  state: {},
+  actions: {},
+  mutations: {}
+};
+
+var message = {
+  namespaced: true,
+  state: { show: false, class: '', message: '' },
+  actions: {
+    show: function show(ref, ref$1) {
+      var commit = ref.commit;
+      var state = ref.state;
+      var rootState = ref.rootState;
+      var message = ref$1.message;
+      var type = ref$1.type;
+
+      commit('show', { message: message, type: type });
+      setTimeout(function () { commit('hide'); }, 5000);
+    }
+  },
+  mutations: {
+    show: function show(state, ref) {
+      var message = ref.message;
+      var type = ref.type;
+
+      state.show = true;
+      state.message = message;
+      state.class = type;
     },
+    hide: function hide(state, type) {
+      state.show = false;
+    }
+  }
+};
+
+var store = new Vuex.Store({
+  modules: { folder: folder, tree: tree, file: file, message: message },
+  state: {
+    text: {},
+    options: OPTIONS
+  },
+  mutations: {
     mergeOptions: function mergeOptions(state, opts) {
       state.options = Object.assign(state.options, opts);
       switch (state.options.lang) {
@@ -340,7 +539,7 @@ var FileBrowser = function FileBrowser(el, options) {
   if ( options === void 0 ) options = {};
 
   store.commit('mergeOptions', options);
-  store.dispatch('getTree');
+  store.dispatch('tree/get');
   app.$mount(el);
 };
 

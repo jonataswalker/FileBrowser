@@ -9,14 +9,13 @@
         :value="inputValue"
         :disabled="disabled"
         :required="required"
+        :minlength="minlength"
+        :maxlength="maxlength"
         @blur="$emit('blur')"
         @input="onInput">
       <label :for="id" class="mdc-textfield__label">{{ label }}</label>
     </div>
-    <p class="mdc-textfield-helptext
-              mdc-textfield-helptext--persistent
-              mdc-textfield-helptext--validation-msg"
-       v-show="hasError">{{ errorMsg }}</p>
+    <p :class="errMsgClasses" v-html="errorMsg"></p>
   </div>
 </template>
 
@@ -32,6 +31,8 @@ export default {
     value: { type: String, default: '' },
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
+    minlength: Number,
+    maxlength: Number,
     label: String,
     errorMsg: String,
     hasError: { type: Boolean, default: false }
@@ -42,15 +43,18 @@ export default {
   computed: {
     inputClasses: function () {
       return {
-        'fl-input': true,
-        'fl-valid': this.hasValue && !this.hasError,
-        'fl-invalid': this.hasError
+        'fb-input': true,
+        'fb-valid': this.hasValue && !this.hasError,
+        'fb-invalid': this.hasError
       };
     },
     errMsgClasses: function () {
+      console.log('errMsgClasses', this.hasError);
       return {
-        'fl-error-msg': true,
-        'fl-error-show': this.hasError
+        'fb-error-msg': true,
+        'mdc-textfield-helptext': true,
+        'mdc-textfield-helptext--validation-msg': true,
+        'mdc-textfield-helptext--persistent': this.hasError
       };
     }
   },

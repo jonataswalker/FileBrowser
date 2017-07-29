@@ -1,9 +1,17 @@
 import fs from 'fs';
 import path from 'path';
+import { TEXT } from 'konstants';
 
 export function createFolder(dir) {
-  dir = path.resolve(dir);
-  fs.existsSync(dir) || fs.mkdirSync(dir);
+  return new Promise((resolve, reject) => {
+    if (fs.existsSync(dir)) {
+      reject(TEXT.API.MESSAGES.FOLDER.EXISTS);
+    } else {
+      fs.mkdir(dir, err => {
+        err ? reject(err) : resolve(TEXT.API.MESSAGES.FOLDER.CREATED);
+      });
+    }
+  });
 }
 
 export async function directoryTree(dir, options, done) {

@@ -12,6 +12,7 @@ export const TEXT = {
   ROOT_FOLDER: 'Root Folder',
   PREVIEW: 'Sending Preview',
   SEND_TO_EDITOR: 'Send to Editor',
+  REQUIRED: 'Field is required',
   TOOLBAR: {
     BTN_CHOOSE: 'Choose',
     BTN_SEND: 'Send',
@@ -29,11 +30,9 @@ export const TEXT = {
     NEW: 'New Folder',
     DEL: 'Delete Folder',
     CREATION: 'This folder will be created inside:',
-    MINIMUM: [
-      '<p>Min-length: 1 - Max-length: 10',
-      '<br>Only <span class="strong">letters</span>, ',
-      '<span class="strong">numbers</span> ',
-      'and the following characters: <span class="highlight">. - _</span></p>'
+    VALIDATION: [
+      'Only <strong>letters, numbers</strong>',
+      ' and the following characters: <span class="highlight">- _</span>'
     ].join(''),
     DELETION: [
       '<p class="folder-path">This folder <span>%1</span>',
@@ -53,6 +52,27 @@ export const TEXT = {
       NONE: 'No file!',
       SENT: 'All done!'
     }
+  },
+  API: {
+    MESSAGES: {
+      FOLDER: {
+        CREATED: 'Folder created!',
+        RENAMED: 'Folder renamed!',
+        EXISTS: 'This folder already exists!'
+      }
+    }
   }
 };
 
+export const ROUTES = {
+  FILES: {
+    ALL: '/files',
+    CREATE: '/files',
+    REMOVE: '/files/:id'
+  },
+  FOLDER: {
+    CREATE: '/folder',
+    EDIT: '/folder/:id',
+    REMOVE: '/folder/:id'
+  }
+};

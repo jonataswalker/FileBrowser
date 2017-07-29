@@ -1,19 +1,17 @@
 import path from 'path';
-import crypto from 'crypto';
+// import crypto from 'crypto';
 import express from 'express';
-import multer from 'multer';
+// import multer from 'multer';
 import mime from 'mime-types';
 import url from 'url';
 import util from 'util';
-import { directoryTree } from 'helpers/tree';
-// import { ROUTES, UPLOAD } from '../constants';
+import { directoryTree, createFolder } from 'helpers/tree';
+import { ROUTES } from 'konstants';
 
 
 const router = express.Router();
 const resolve = file => path.resolve(__dirname, file);
 const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
-
-const routes = {};
 
 // const uploadRoot = UPLOAD.ROOT.replace('{root}', resolve('../'));
 
@@ -29,14 +27,14 @@ const routes = {};
 //   }
 // });
 
-const imageFilter = (req, file, cb) => {
-  // accept image only
-  console.log(file);
-  const ext = mime.extension(file.mimetype);
-  ['jpg', 'jpeg', 'png', 'gif'].includes(ext)
-    ? cb(null, true)
-    : cb(new Error('Only image files are allowed!'), false);
-};
+// const imageFilter = (req, file, cb) => {
+//   // accept image only
+//   console.log(file);
+//   const ext = mime.extension(file.mimetype);
+//   ['jpg', 'jpeg', 'png', 'gif'].includes(ext)
+//     ? cb(null, true)
+//     : cb(new Error('Only image files are allowed!'), false);
+// };
 
 // const uploadFotos = multer({
 //   storage: storageFotos,
@@ -44,19 +42,25 @@ const imageFilter = (req, file, cb) => {
 // }).array('test');
 // router.put(ROUTES.FOTOS.UPLOAD, handleUploadFotos);
 
-router.get('/files', (req, res, next) => {
+router.get(ROUTES.FILES.ALL, (req, res, next) => {
   directoryTree(root)
-    .then(tree => {
-      if (tree.error) {
-        res.status(500).send({ error: tree.error });
-      } else {
-        res.json(tree);
-      }
+    .then(tree => res.json(tree))
+    .catch(e => res.status(500).send({ message: e }));
+});
+
+router.post(ROUTES.FOLDER.CREATE, (req, res, next) => {
+  const dir = path.join(root, '.' + req.body.path);
+  const response = {};
+  createFolder(dir)
+    .then(msg => {
+      response.message = msg;
+      return directoryTree(root);
     })
-    .catch(error => {
-      res.status(500).send({ error });
-      next();
-    });
+    .then(tree => {
+      response.tree = tree;
+      res.json(response);
+    })
+    .catch(e => res.status(500).send({ message: e }));
 });
 
 

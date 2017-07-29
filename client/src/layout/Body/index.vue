@@ -1,17 +1,6 @@
 <template>
 <div class="fb-body">
-  <div class="fb-tree-container">
-    <ol id="fb-tree">
-      <li id="fb-tree-folder-root" class="active open">
-        <a>
-          <i class="icomoon-folder"></i>
-          <span id="folder-root-desc">
-            {{ text.ROOT_FOLDER }}
-          </span>
-        </a>
-      </li>
-    </ol>
-  </div>
+  <tree />
   <div class="fb-thumb-container">
     <ul id="fb-thumb" class="fb-thumb"></ul>
     <!-- "js-fileapi-wrapper" -- required class -->
@@ -28,12 +17,10 @@
 
 <script>
 import MyButton from 'Button';
+import Tree from 'Tree';
 
 export default {
   name: 'Body',
-  components: { MyButton },
-  data() {
-    return { text: this.$store.state.text };
-  }
+  components: { MyButton, Tree }
 };
 </script>

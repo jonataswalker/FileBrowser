@@ -12,4 +12,44 @@
   border: 1px solid #333;
   overflow: auto;
   background-color: #1d1f20;
+
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      height: 34px;
+      padding-left: 1rem;
+      transition: height 200ms ease-in;
+
+      &.collapse {
+        overflow: hidden;
+        height: 34px !important;
+        transition: height 200ms ease-out;
+      }
+
+      span { margin-left: 3px }
+
+      a {
+        @include flex-center;
+        padding: 5px;
+        color: #acacac;
+        text-shadow: 0 1px 0 black;
+        font-size: .9em;
+      }
+    }
+  }
 }
+
+
+// .fb-tree-container ol li a:hover,
+// .fb-tree-container ol li.active > a {
+//   color: white;
+//   cursor: pointer;
+//   background-color: black;
+//   text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+// }
+// .fb-tree-container ol li.open > a i::before {
+//   content: "\e630";
+// }

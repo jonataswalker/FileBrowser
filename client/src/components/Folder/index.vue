@@ -2,13 +2,18 @@
   <modal
     :active="modalActive"
     :title="text.FOLDER.NEW"
+    @open="onOpenModal"
     @close="closeModal">
     <div slot="body">
+      <h5>{{ text.FOLDER.CREATION }}</h5>
+      <p class="fb-folder-path" v-html="hierarchy"></p>
       <input-text
         :label="text.FOLDER.NEW"
         :required="true"
+        :minlength="1"
+        :maxlength="20"
         :hasError="creatingHasError"
-        errorMsg="Fill..."
+        :errorMsg="creatingError"
         @input="onInputNew" />
     </div>
     <div slot="footer">
@@ -35,7 +40,9 @@ export default {
       text: this.$store.state.text,
       modalActive: false,
       creatingHasError: false,
-      creatingName: ''
+      creatingError: '',
+      creatingName: '',
+      hierarchy: ''
     };
   },
   watch: {
@@ -44,19 +51,41 @@ export default {
     }
   },
   methods: {
-    createFolder() {
-      this.modalActive = true;
-    },
     onInputNew(value) {
-      // this.creatingHasError = !value;
+      this.creatingName = value;
+
+      if (!value) {
+        this.creatingHasError = true;
+        this.creatingError = this.text.REQUIRED;
+      } else {
+        this.creatingHasError = !/^[a-zA-Z0-9\-_]{1,20}$/.test(value);
+        this.creatingError = this.text.FOLDER.VALIDATION;
+      }
       console.log('onInputNew', value, this.creatingHasError);
+    },
+    onOpenModal() {
+      this.creatingName = '';
+      this.hierarchy = `<span>${this.text.ROOT_FOLDER}</span>`;
     },
     closeModal() {
       this.modalActive = false;
       this.$emit('closeModal');
     },
     onSubmit() {
-      console.log('onSubmit');
+      console.log('onSubmit', this.creatingName);
+      this.$store.dispatch('folder/create', this.creatingName).then(res => {
+        this.closeModal();
+        this.$store.dispatch('message/show', {
+          message: res,
+          type: 'success'
+        });
+      }).catch(res => {
+        this.closeModal();
+        this.$store.dispatch('message/show', {
+          message: res,
+          type: 'alert'
+        });
+      });
     }
   }
 };
