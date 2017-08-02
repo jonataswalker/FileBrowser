@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * ${description}
  * ${homepage}
- * Built: Sat Jul 29 2017 09:17:35 GMT-0300 (-03)
+ * Built: Wed Aug 02 2017 16:47:40 GMT-0300 (-03)
  */
 
 var FileBrowser = (function (Vue,_material_ripple,_material_dialog,_material_textfield,Vuex) {
@@ -91,7 +91,7 @@ var InputText = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       };
     },
     errMsgClasses: function () {
-      console.log('errMsgClasses', this.hasError);
+      // console.log('errMsgClasses', this.hasError);
       return {
         'fb-error-msg': true,
         'mdc-textfield-helptext': true,
@@ -178,7 +178,6 @@ var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   components: { MyButton: MyButton, Folder: Folder },
   computed: {
     messageClasses: function () {
-      console.log(this.$store.state.message.class);
       return {
         'fb-message': true,
         'show': this.$store.state.message.show,
@@ -195,57 +194,7 @@ var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var Item = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"active open",class:{ 'collapse': _vm.open },style:(_vm.folderStyle),attrs:{"data-folders":_vm.tree.folders.length,"data-files":_vm.tree.files.length},on:{"click":function($event){$event.stopPropagation();_vm.collapse($event);}}},[_c('a',[_c('i',{staticClass:"material-icons"},[_vm._v("folder")]),_vm._v(" "),_c('span',{attrs:{"id":"folder-root-desc"}},[_vm._v(_vm._s(_vm.tree.name))])]),(_vm.tree.folders.length)?_c('ol',_vm._l((_vm.tree.folders),function(folder){return _c('item',{attrs:{"collapsed":true,"isRoot":false,"tree":folder}})})):_vm._e()])},staticRenderFns: [],
-  name: 'Item',
-  props: {
-    tree: Object,
-    isRoot: { type: Boolean, default: true },
-    collapsed: Boolean
-  },
-  computed: {},
-  data: function data() {
-    return {
-      open: this.collapsed,
-      folderStyle: {
-        height: (this.tree.folders.length + 1) * 34 + 'px'
-      }
-    };
-  },
-  mounted: function mounted() {
-    console.log('tree', this.tree.name, this.folderStyle);
-  },
-  methods: {
-    collapse: function collapse() {
-      console.log('collapse', this.tree.name, this.isRoot);
-      if (this.isRoot) { return; }
-      this.open = !this.open;
-    }
-  }
-};
-
-var Tree = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-tree-container"},[_c('ol',[_c('item',{attrs:{"tree":_vm.$store.state.tree.tree}})],1)])},staticRenderFns: [],
-  name: 'Tree',
-  components: { Item: Item },
-  data: function data() {
-    return {
-      text: this.$store.state.text
-    };
-  }
-};
-
-var AppBody = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-body"},[_c('tree',[_c('div',{staticClass:"fb-thumb-container"},[_c('ul',{staticClass:"fb-thumb",attrs:{"id":"fb-thumb"}}),_c('div',{staticClass:"js-fileapi-wrapper"},[_c('input',{staticClass:"input-file",attrs:{"id":"upload-input","name":"files","type":"file","multiple":"multiple"}})]),_c('ul',{staticClass:"fb-upload-thumb",attrs:{"id":"upload-thumb","data-label":"\n      lang.preview\n    "}})])])],1)},staticRenderFns: [],
-  name: 'Body',
-  components: { MyButton: MyButton, Tree: Tree }
-};
-
-var AppFooter = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('footer',{staticClass:"fb-footer"})},staticRenderFns: [],
-  name: 'Footer'
-};
-
-var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"filebrowser-container"}},[_c('div',{staticClass:"filebrowser-wrapper"},[_c('app-header'),_c('app-body'),_c('app-footer')],1)])},staticRenderFns: [],
-  name: 'App',
-  components: { AppHeader: AppHeader, AppBody: AppBody, AppFooter: AppFooter }
-};
+const ROOT_ID = 'root';
 
 const LANG = {
   EN: 'en',
@@ -324,6 +273,79 @@ const ROUTES = {
     EDIT: '/folder/:id',
     REMOVE: '/folder/:id'
   }
+};
+
+var Folder$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{class:_vm.classObj,style:(_vm.folderStyle),on:{"click":function($event){$event.stopPropagation();_vm.select($event);}}},[_c('a',[_c('i',{staticClass:"material-icons"},[_vm._v("folder")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.tree.name))])]),(Object.keys(_vm.tree.folders))?_c('ol',_vm._l((_vm.tree.folders),function(folder,key){return _c('folder',{attrs:{"id":key,"tree":folder}})})):_vm._e()])},staticRenderFns: [],
+  name: 'Folder',
+  props: {
+    tree: Object,
+    id: String,
+    collapsed: { type: Boolean, default: true }
+  },
+  computed: {
+    classObj: function () {
+      return {
+        collapse: this.open,
+        active: this.id === this.$store.state.tree.selected.id
+      };
+    }
+  },
+  data: function data() {
+    return {
+      isRoot: this.id === ROOT_ID,
+      open: this.collapsed,
+      folderStyle: {
+        height: (Object.keys(this.tree.folders).length + 1) * 28 + 'px'
+      }
+    };
+  },
+  mounted: function mounted() {
+    console.log('tree', this.tree);
+  },
+  methods: {
+    select: function select() {
+
+      // console.log(this.$store.state.tree.tree);
+
+      if (!this.isRoot) {
+        this.open = !this.open;
+      }
+
+      // console.log('select', this.tree, this.id);
+
+      this.$store.dispatch('tree/select', {
+        id: this.id,
+        parents: this.tree.parents
+      }).then(function (files) {
+        console.log('res files', files);
+      }).catch(console.error);
+    }
+  }
+};
+
+var Tree = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-tree-container"},[_c('ol',[(_vm.$store.state.tree.ready)?_c('folder',{attrs:{"id":_vm.root,"collapsed":false,"tree":_vm.$store.state.tree.tree}}):_vm._e()],1)])},staticRenderFns: [],
+  name: 'Tree',
+  components: { Folder: Folder$1 },
+  data: function data() {
+    return {
+      text: this.$store.state.text,
+      root: ROOT_ID
+    };
+  }
+};
+
+var AppBody = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-body"},[_c('tree',[_c('div',{staticClass:"fb-thumb-container"},[_c('ul',{staticClass:"fb-thumb",attrs:{"id":"fb-thumb"}}),_c('div',{staticClass:"js-fileapi-wrapper"},[_c('input',{staticClass:"input-file",attrs:{"id":"upload-input","name":"files","type":"file","multiple":"multiple"}})]),_c('ul',{staticClass:"fb-upload-thumb",attrs:{"id":"upload-thumb","data-label":"\n      lang.preview\n    "}})])])],1)},staticRenderFns: [],
+  name: 'Body',
+  components: { MyButton: MyButton, Tree: Tree }
+};
+
+var AppFooter = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('footer',{staticClass:"fb-footer"})},staticRenderFns: [],
+  name: 'Footer'
+};
+
+var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{attrs:{"id":"filebrowser-container"}},[_c('div',{staticClass:"filebrowser-wrapper"},[_c('app-header'),_c('app-body'),_c('app-footer')],1)])},staticRenderFns: [],
+  name: 'App',
+  components: { AppHeader: AppHeader, AppBody: AppBody, AppFooter: AppFooter }
 };
 
 const text = Object.assign({}, TEXT);
@@ -446,6 +468,8 @@ var folder = {
 var tree = {
   namespaced: true,
   state: {
+    ready: false,
+    selected: { id: '', parents: [] },
     tree: { name: '', files: [], folders: [] }
   },
   actions: {
@@ -454,21 +478,53 @@ var tree = {
       var state = ref.state;
       var rootState = ref.rootState;
 
-      return new Promise(function (resolve, reject) {
-        request(rootState.options.server + ROUTES.FILES.ALL)
-          .then(function (tree) {
-            tree.name = rootState.text.ROOT_FOLDER;
-            console.log('getTree', tree);
-            commit('update', tree);
-            resolve();
-          })
-          .catch(reject);
-      });
+      request(rootState.options.server + ROUTES.FILES.ALL).then(function (tree) {
+        tree.name = rootState.text.ROOT_FOLDER;
+        console.log('getTree', tree);
+        commit('update', tree);
+      }).catch(console.error);
+    },
+    select: function select(ref, ref$1) {
+      var commit = ref.commit;
+      var state = ref.state;
+      var rootState = ref.rootState;
+      var id = ref$1.id;
+      var parents = ref$1.parents;
+
+      commit('select', { id: id, parents: parents });
+
+      console.log(id, parents, state.tree);
+
+      let files;
+
+      if (id === ROOT_ID) {
+        files = state.tree.files;
+      } else if (parents.length === 0) {
+        files = state.tree.folders[id].files;
+      } else {
+        files = parents.reduce(function (acc, curr, idx) {
+          acc = idx === parents.length - 1
+            ? acc[curr].folders[id].files
+            : acc[curr].folders;
+          return acc;
+        }, state.tree.folders);
+      }
+
+      return files;
     }
   },
   mutations: {
     update: function update(state, tree) {
       state.tree = tree;
+      state.ready = true;
+    },
+    select: function select(state, ref) {
+      var id = ref.id;
+      var parents = ref.parents;
+
+      state.selected.id = id;
+      state.selected.parents = parents;
+      console.log('mutations tree select', state.selected);
     }
   }
 };

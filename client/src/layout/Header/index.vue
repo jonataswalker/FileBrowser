@@ -48,7 +48,6 @@ export default {
   components: { MyButton, Folder },
   computed: {
     messageClasses: function () {
-      console.log(this.$store.state.message.class);
       return {
         'fb-message': true,
         'show': this.$store.state.message.show,

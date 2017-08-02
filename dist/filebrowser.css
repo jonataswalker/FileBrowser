@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Sat Jul 29 2017 09:17:34 GMT-0300 (-03)
+ * Built: Wed Aug 02 2017 16:47:38 GMT-0300 (-03)
  */
 /*
   Precomputed linear color channel values, for use in contrast calculations.
@@ -392,15 +392,20 @@
       margin: 0;
       padding: 0; }
       .filebrowser-wrapper .fb-tree-container ol li {
-        height: 34px;
+        height: 28px;
         padding-left: 1rem;
         -webkit-transition: height 200ms ease-in;
         transition: height 200ms ease-in; }
         .filebrowser-wrapper .fb-tree-container ol li.collapse {
           overflow: hidden;
-          height: 34px !important;
+          height: 28px !important;
           -webkit-transition: height 200ms ease-out;
           transition: height 200ms ease-out; }
+        .filebrowser-wrapper .fb-tree-container ol li.active > a {
+          color: white;
+          cursor: pointer;
+          background-color: black;
+          text-shadow: 0 0 6px rgba(255, 255, 255, 0.8); }
         .filebrowser-wrapper .fb-tree-container ol li span {
           margin-left: 3px; }
         .filebrowser-wrapper .fb-tree-container ol li a {
@@ -412,10 +417,26 @@
           -webkit-box-align: center;
               -ms-flex-align: center;
                   align-items: center;
-          padding: 5px;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          margin-bottom: 1px;
+          padding: 2px 5px;
           color: #acacac;
           text-shadow: 0 1px 0 black;
-          font-size: .9em; }
+          font-size: .875rem;
+          width: -webkit-fit-content;
+          width: -moz-fit-content;
+          width: fit-content; }
+          .filebrowser-wrapper .fb-tree-container ol li a:hover {
+            color: white;
+            cursor: pointer;
+            background-color: black;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.8); }
+    .filebrowser-wrapper .fb-tree-container > ol > li {
+      padding-left: 0; }
   .filebrowser-wrapper .fb-folder-path span {
     color: #333;
     margin: 0 5px;

@@ -19,27 +19,36 @@
     padding: 0;
 
     li {
-      height: 34px;
+      height: $folder-height;
       padding-left: 1rem;
       transition: height 200ms ease-in;
 
       &.collapse {
         overflow: hidden;
-        height: 34px !important;
+        height: $folder-height !important;
         transition: height 200ms ease-out;
       }
+
+      &.active > a { @include folder-selected }
 
       span { margin-left: 3px }
 
       a {
         @include flex-center;
-        padding: 5px;
+        @include unselectable;
+        margin-bottom: 1px;
+        padding: 2px 5px;
         color: #acacac;
         text-shadow: 0 1px 0 black;
-        font-size: .9em;
+        font-size: .875rem;
+        width: fit-content;
+
+        &:hover { @include folder-selected }
       }
     }
   }
+
+  > ol > li { padding-left: 0 }
 }
 
 

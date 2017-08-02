@@ -1,3 +1,5 @@
+export const ROOT_ID = 'root';
+
 export const LANG = {
   EN: 'en',
   BR: 'pt-br'

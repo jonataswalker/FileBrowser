@@ -49,7 +49,7 @@ export default {
       };
     },
     errMsgClasses: function () {
-      console.log('errMsgClasses', this.hasError);
+      // console.log('errMsgClasses', this.hasError);
       return {
         'fb-error-msg': true,
         'mdc-textfield-helptext': true,

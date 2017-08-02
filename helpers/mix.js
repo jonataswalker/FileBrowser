@@ -12,3 +12,7 @@ export function guid() {
   };
   return _p8() + _p8(true) + _p8(true) + _p8();
 }
+
+export function ID() {
+  return '_' + Math.random().toString(36).substr(2, 9);
+}

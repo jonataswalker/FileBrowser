@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Sat Jul 29 2017 09:17:35 GMT-0300 (-03)
+ * Built: Wed Aug 02 2017 16:47:40 GMT-0300 (-03)
  */
 
 'use strict';
@@ -88,6 +88,19 @@ const ROUTES = {
   }
 };
 
+/**
+ * Generates a GUID string.
+ * @returns {String} The generated GUID.
+ * @example af8a8416-6e18-a307-bd9c-f2c947bbb3aa
+ * @author Slavik Meltser (slavik@meltser.info).
+ * @link http://slavik.meltser.info/?p=142
+ */
+
+
+function ID() {
+  return '_' + Math.random().toString(36).substr(2, 9);
+}
+
 function createFolder(dir) {
   return new Promise((resolve, reject) => {
     if (fs.existsSync(dir)) {
@@ -100,13 +113,15 @@ function createFolder(dir) {
   });
 }
 
-async function directoryTree(dir, options, done) {
-  const results = {
-    files: [],
-    folders: []
-  };
-
+async function directoryTree(
+  dir, options = {}, parents = [], parentId
+) {
+  const results = { files: [], folders: {}, parents: [] };
   const files = safeReadDirSync(dir);
+
+  if (parentId) {
+    parents = parents.concat(parentId);
+  }
 
   if (!files) return { error: `Directory '${dir}' not found.` };
 
@@ -117,12 +132,15 @@ async function directoryTree(dir, options, done) {
     if (!file) break;
 
     if (stat && stat.isDirectory()) {
-      const recursive = await directoryTree(file);
-      results.folders.push({
+      const id = ID();
+      const recursive = await directoryTree(file, options, parents, id);
+
+      results.folders[id] = {
         name: path.basename(file),
         files: recursive.files,
-        folders: recursive.folders
-      });
+        folders: recursive.folders,
+        parents: parents
+      };
     } else if (stat && stat.isFile()) {
       const ext = path.extname(file).toLowerCase();
       const fileObj = {
@@ -135,7 +153,6 @@ async function directoryTree(dir, options, done) {
         if (options.extensions.includes(ext)) {
           results.files.push(fileObj);
         }
-
       } else {
         results.files.push(fileObj);
       }
@@ -159,8 +176,6 @@ function safeReadDirSync(dir) {
   return data;
 }
 
-// import crypto from 'crypto';
-// import multer from 'multer';
 const router = express.Router();
 const resolve$1 = file => path.resolve(__dirname, file);
 const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
