@@ -5,10 +5,14 @@ import commonjs from 'rollup-plugin-commonjs';
 import eslint from 'rollup-plugin-eslint';
 import bundleSize from 'rollup-plugin-bundle-size';
 import uglify from 'rollup-plugin-uglify';
+// import vue from '../rollup-plugin-vue/dist/rollup-plugin-vue.common.js';
 import vue from 'rollup-plugin-vue';
 import includePaths from 'rollup-plugin-includepaths';
 import { minify } from 'uglify-es';
 import colors from 'colors';
+import autoprefixer from 'autoprefixer';
+import postcss from 'postcss';
+
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const external = Object.keys(pkg.dependencies);
@@ -41,7 +45,7 @@ const extensions = ['.js', '.vue'];
 const lintOpts = {
   extensions,
   cache: true,
-  throwOnError: true
+  throwOnError: false
 };
 
 const includePathOptions = {
@@ -58,7 +62,14 @@ const plugins = [
   bundleSize(),
   nodeResolve({ extensions, browser: true }),
   commonjs(),
-  vue({ compileTemplate: true }),
+  vue({
+    cssModules: {
+      generateScopedName: 'fb-[hash:base64:5]'
+    },
+    css(style, styles, compiler) {
+      // return compiler();
+    }
+  }),
   buble({ target: { ie: 11 }}),
   !dev && uglify({ output: { comments: /^!/ }}, minify)
 ];
@@ -83,6 +94,5 @@ export default {
   plugins,
   format: 'iife',
   moduleName: 'FileBrowser',
-  entry: 'client/src/entry.js',
-  watch: { exclude: 'node_modules/**' }
+  entry: 'client/src/entry.js'
 };

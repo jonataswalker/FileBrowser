@@ -6,18 +6,19 @@ import { ID } from './mix';
 export function createFolder(dir) {
   return new Promise((resolve, reject) => {
     if (fs.existsSync(dir)) {
-      reject(TEXT.API.MESSAGES.FOLDER.EXISTS);
+      reject({ message: TEXT.API.MESSAGES.FOLDER.EXISTS });
     } else {
       fs.mkdir(dir, err => {
-        err ? reject(err) : resolve(TEXT.API.MESSAGES.FOLDER.CREATED);
+        err ? reject({ message: err }) : resolve();
       });
     }
   });
 }
 
-export async function directoryTree(
-  dir, options = {}, parents = [], parentId
-) {
+export async function getTree(dir, options = {}, parents = [], parentId) {
+  const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
+  const staticPath = process.env.npm_package_config_STATIC_PATH || '/static';
+
   const results = { files: [], folders: {}, parents: [] };
   const files = safeReadDirSync(dir);
 
@@ -35,7 +36,7 @@ export async function directoryTree(
 
     if (stat && stat.isDirectory()) {
       const id = ID();
-      const recursive = await directoryTree(file, options, parents, id);
+      const recursive = await getTree(file, options, parents, id);
 
       results.folders[id] = {
         name: path.basename(file),
@@ -44,11 +45,13 @@ export async function directoryTree(
         parents: parents
       };
     } else if (stat && stat.isFile()) {
+      const relativeDir = dir.replace(root, '').split(path.sep).join('/');
       const ext = path.extname(file).toLowerCase();
       const fileObj = {
         size: stat.size,
         name: path.basename(file),
-        extension: ext
+        extension: ext,
+        path: staticPath + relativeDir
       };
 
       if (options.extensions || options.exclude) {
@@ -76,4 +79,16 @@ function safeReadDirSync(dir) {
     }
   }
   return data;
+}
+
+export function removeFiles(folder, files) {
+  return new Promise((resolve, reject) => {
+    files.forEach((file, idx) => {
+      file = path.join(folder, file);
+      fs.unlink(file, err => {
+        err && reject({ message: err });
+        idx === files.length - 1 && resolve();
+      });
+    });
+  });
 }

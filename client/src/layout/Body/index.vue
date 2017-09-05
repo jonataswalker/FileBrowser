@@ -1,26 +1,23 @@
 <template>
-<div class="fb-body">
-  <tree />
-  <div class="fb-thumb-container">
-    <ul id="fb-thumb" class="fb-thumb"></ul>
-    <!-- "js-fileapi-wrapper" -- required class -->
-    <div class="js-fileapi-wrapper">
-      <input id="upload-input" class="input-file" name="files"
-        type="file" multiple />
+  <div class="fb-body">
+    <div class="fb-tree-container">
+      <tree></tree>
     </div>
-    <ul id="upload-thumb" class="fb-upload-thumb" data-label="
-      lang.preview
-    "></ul>
+    <div class="fb-thumb-container">
+      <upload v-if="$store.state.upload.pending"></upload>
+      <thumb v-else></thumb>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
 import MyButton from 'Button';
 import Tree from 'Tree';
+import Thumb from 'Thumb';
+import Upload from 'Upload';
 
 export default {
   name: 'Body',
-  components: { MyButton, Tree }
+  components: { MyButton, Tree, Thumb, Upload }
 };
 </script>

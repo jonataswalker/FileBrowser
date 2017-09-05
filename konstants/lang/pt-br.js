@@ -5,9 +5,9 @@ const text = Object.assign({}, TEXT);
 text.TITLE = 'Image Browser';
 text.ROOT_FOLDER = 'Root Folder';
 text.PREVIEW = 'Sending Preview';
-text.SEND_TO_EDITOR = 'Send to Editor';
-text.TOOLBAR.BTN_CHOOSE = 'Escolha';
-text.TOOLBAR.BTN_SEND = 'Envie';
+text.BUTTON.SEND_EDITOR = 'Send to Editor';
+text.BUTTON.CHOOSE = 'Escolha';
+text.BUTTON.SEND = 'Envie';
 
 export { text as default };
 

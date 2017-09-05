@@ -2,20 +2,18 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Wed Aug 02 2017 16:47:40 GMT-0300 (-03)
+ * Built: Fri Aug 18 2017 10:17:35 GMT-0300 (-03)
  */
 
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var express = _interopDefault(require('express'));
 var path = _interopDefault(require('path'));
-var bodyParser = _interopDefault(require('body-parser'));
-var cors = _interopDefault(require('cors'));
-var mime = _interopDefault(require('mime-types'));
-var url = _interopDefault(require('url'));
-var util = _interopDefault(require('util'));
+var Hapi = _interopDefault(require('hapi'));
+var Good = _interopDefault(require('good'));
+var Inert = _interopDefault(require('inert'));
+var BrowserSync = _interopDefault(require('browser-sync'));
 var fs = _interopDefault(require('fs'));
 
 const TEXT = {
@@ -24,13 +22,16 @@ const TEXT = {
   PREVIEW: 'Sending Preview',
   SEND_TO_EDITOR: 'Send to Editor',
   REQUIRED: 'Field is required',
-  TOOLBAR: {
-    BTN_CHOOSE: 'Choose',
-    BTN_SEND: 'Send',
-    BTN_DEL_FILE: 'Delete File',
-    BTN_NEW_FOLDER: 'New Folder',
-    BTN_DEL_FOLDER: 'Delete Folder',
-    BTN_SEND_EDITOR: 'Send to Editor'
+  BUTTON: {
+    CHOOSE: 'Choose',
+    SEND: 'Send',
+    DELETE_FILE: 'Delete File',
+    DELETE_FOLDER: 'Delete Folder',
+    NEW_FOLDER: 'New Folder',
+    SEND_EDITOR: 'Send to Editor',
+    SUBMIT: 'Submit',
+    CONFIRM: 'Confirm',
+    CANCEL: 'Cancel'
   },
   FILE: {
     TOTAL: 'Total Files:',
@@ -53,8 +54,6 @@ const TEXT = {
     ].join('')
   },
   ALERT: {
-    BTN_OK: 'OK',
-    BTN_CANCEL: 'Cancel',
     IMAGE: {
       NOT_MIN_SIZE: 'Only images with minimum %1 x %2!'
     },
@@ -70,6 +69,9 @@ const TEXT = {
         CREATED: 'Folder created!',
         RENAMED: 'Folder renamed!',
         EXISTS: 'This folder already exists!'
+      },
+      FILE: {
+        REMOVED: 'File(s) removed!'
       }
     }
   }
@@ -79,7 +81,7 @@ const ROUTES = {
   FILES: {
     ALL: '/files',
     CREATE: '/files',
-    REMOVE: '/files/:id'
+    REMOVE: '/files'
   },
   FOLDER: {
     CREATE: '/folder',
@@ -101,21 +103,26 @@ function ID() {
   return '_' + Math.random().toString(36).substr(2, 9);
 }
 
+
+
+// from https://github.com/jprichardson/string.js/blob/master/lib/string.js
+
 function createFolder(dir) {
   return new Promise((resolve, reject) => {
     if (fs.existsSync(dir)) {
-      reject(TEXT.API.MESSAGES.FOLDER.EXISTS);
+      reject({ message: TEXT.API.MESSAGES.FOLDER.EXISTS });
     } else {
       fs.mkdir(dir, err => {
-        err ? reject(err) : resolve(TEXT.API.MESSAGES.FOLDER.CREATED);
+        err ? reject({ message: err }) : resolve();
       });
     }
   });
 }
 
-async function directoryTree(
-  dir, options = {}, parents = [], parentId
-) {
+async function getTree(dir, options = {}, parents = [], parentId) {
+  const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
+  const staticPath = process.env.npm_package_config_STATIC_PATH || '/static';
+
   const results = { files: [], folders: {}, parents: [] };
   const files = safeReadDirSync(dir);
 
@@ -133,7 +140,7 @@ async function directoryTree(
 
     if (stat && stat.isDirectory()) {
       const id = ID();
-      const recursive = await directoryTree(file, options, parents, id);
+      const recursive = await getTree(file, options, parents, id);
 
       results.folders[id] = {
         name: path.basename(file),
@@ -142,11 +149,13 @@ async function directoryTree(
         parents: parents
       };
     } else if (stat && stat.isFile()) {
+      const relativeDir = dir.replace(root, '').split(path.sep).join('/');
       const ext = path.extname(file).toLowerCase();
       const fileObj = {
         size: stat.size,
         name: path.basename(file),
-        extension: ext
+        extension: ext,
+        path: staticPath + relativeDir
       };
 
       if (options.extensions || options.exclude) {
@@ -176,102 +185,125 @@ function safeReadDirSync(dir) {
   return data;
 }
 
-const router = express.Router();
-const resolve$1 = file => path.resolve(__dirname, file);
+function removeFiles(folder, files) {
+  return new Promise((resolve, reject) => {
+    files.forEach((file, idx) => {
+      file = path.join(folder, file);
+      fs.unlink(file, err => {
+        err && reject({ message: err });
+        idx === files.length - 1 && resolve();
+      });
+    });
+  });
+}
+
+const resolve = file => path.resolve(__dirname, file);
 const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
+const staticPath = process.env.npm_package_config_STATIC_PATH || '/static';
 
-// const uploadRoot = UPLOAD.ROOT.replace('{root}', resolve('../'));
+const routes = [
+  {
+    method: 'GET',
+    path: ROUTES.FILES.ALL,
+    handler: (request, reply) => {
+      getTree(root).then(reply);
+    }
+  },
+  {
+    method: 'PATCH',
+    path: ROUTES.FILES.REMOVE,
+    handler: (request, reply) => {
+      const message = TEXT.API.MESSAGES.FILE.REMOVED;
+      const folder = path.join(root, request.payload.folder);
 
-// const storageFotos = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, `${uploadRoot}/${UPLOAD.FOTOS}/`);
-//   },
-//   filename: (req, file, cb) => {
-//     crypto.pseudoRandomBytes(16, (err, raw) => {
-//       const ext = mime.extension(file.mimetype);
-//       cb(null, `${raw.toString('hex')}-${Date.now()}.${ext}`);
-//     });
-//   }
-// });
+      removeFiles(folder, request.payload.files)
+        .then(() => getTree(root))
+        .then(tree => reply({ tree, message }));
+    }
+  },
+  {
+    method: 'POST',
+    path: ROUTES.FOLDER.CREATE,
+    handler: (request, reply) => {
+      const dir = path.join(root, '.' + request.payload.path);
+      const message = TEXT.API.MESSAGES.FOLDER.CREATED;
+      createFolder(dir)
+        .then(() => getTree(root))
+        .then(tree => reply({ tree, message }));
+    }
+  },
+  {
+    method: 'GET',
+    path: '/',
+    handler: (request, reply) => {
+      reply.file(resolve('../examples/index.html'));
+    }
+  },
+  {
+    method: 'GET',
+    path: `${staticPath}/{p*}`,
+    handler: {
+      directory: {
+        path: [
+          resolve('../examples'),
+          resolve('../examples/_uploads'),
+          resolve('../dist')
+        ]
+      }
+    }
+  }
+];
 
-// const imageFilter = (req, file, cb) => {
-//   // accept image only
-//   console.log(file);
-//   const ext = mime.extension(file.mimetype);
-//   ['jpg', 'jpeg', 'png', 'gif'].includes(ext)
-//     ? cb(null, true)
-//     : cb(new Error('Only image files are allowed!'), false);
-// };
+const router = {
+  register: (server, options, next) => {
+    server.route(routes);
+    next();
+  }
+};
 
-// const uploadFotos = multer({
-//   storage: storageFotos,
-//   fileFilter: imageFilter
-// }).array('test');
-// router.put(ROUTES.FOTOS.UPLOAD, handleUploadFotos);
+router.register.attributes = { name: 'routes' };
 
-router.get(ROUTES.FILES.ALL, (req, res, next) => {
-  directoryTree(root)
-    .then(tree => res.json(tree))
-    .catch(e => res.status(500).send({ message: e }));
-});
-
-router.post(ROUTES.FOLDER.CREATE, (req, res, next) => {
-  const dir = path.join(root, '.' + req.body.path);
-  const response = {};
-  createFolder(dir)
-    .then(msg => {
-      response.message = msg;
-      return directoryTree(root);
-    })
-    .then(tree => {
-      response.tree = tree;
-      res.json(response);
-    })
-    .catch(e => res.status(500).send({ message: e }));
-});
-
-
-// Always return the main index.html
-// so router render the route in the client
-router.all('*', (req, res) => {
-  const file = path.basename(url.parse(req.url).pathname);
-  const mime_ = mime.lookup(file);
-  mime_ && res.setHeader('Content-Type', mime_);
-  res.sendFile(resolve$1('../examples/index.html'));
-});
-
-const server = express();
-const bs = require('browser-sync').create();
+const server = new Hapi.Server();
 
 const isProd = process.env.NODE_ENV === 'production';
 const port = process.env.npm_package_config_PORT || process.env.PORT || 3000;
 
-const resolve = file => path.resolve(__dirname, file);
-const serve = (path_, cache) => express.static(resolve(path_), {
-  maxAge: cache && isProd ? 1000 * 60 * 60 * 24 * 30 : 0
-});
+const host = 'localhost';
+const options = {
+  ops: { interval: 10000 },
+  reporters: {
+    console: [
+      {
+        module: 'good-squeeze',
+        name: 'Squeeze',
+        args: [{ log: '*', response: '*', request: '*' }]
+      },
+      { module: 'good-console' },
+      'stdout'
+    ]
+  }
+};
 
-server.use('/static', serve('../examples', true));
-server.use('/static', serve('../dist', true));
+server.connection({ host, port, routes: { cors: true }});
+server.register([
+  { register: Inert },
+  { register: router },
+  { register: Good, options }
+], (err) => {
+  if (err) return console.error(err);
 
-// support parsing of application/json type post data
-server.use(bodyParser.json());
+  server.start(() => {
+    console.info(`Server started at ${ server.info.uri }`);
 
-// support parsing of application/x-www-form-urlencoded post data
-server.use(bodyParser.urlencoded({ extended: false }));
-server.use(cors());
-
-server.use('/', router);
-
-server.listen(port, listening);
-console.log(`Express running - localhost:${port}`);
-
-function listening() {
-  bs.init({
-    ui: false,
-    notify: false,
-    logLevel: 'info',
-    proxy: 'localhost:' + port,
-    files: ['examples/index.html', 'dist/**/*.js', 'dist/**/*.css']
+    if (!isProd) {
+      const bs = BrowserSync.create();
+      bs.init({
+        ui: false,
+        notify: false,
+        logLevel: 'info',
+        proxy: 'localhost:' + port,
+        files: ['examples/index.html', 'dist/**/*.js', 'dist/**/*.css']
+      });
+    }
   });
-}
+});

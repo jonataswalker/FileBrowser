@@ -1,17 +1,17 @@
 <template>
   <li
     :style="folderStyle"
-    :class="classObj"
-    @click.stop="select">
-    <a>
+    :class="classObj">
+    <a class="fb-tree-folder-link" @click="select">
       <i class="material-icons">folder</i>
       <span>{{ tree.name }}</span>
     </a>
     <ol v-if="Object.keys(tree.folders)">
       <folder
         v-for="(folder, key) in tree.folders"
+        :key="key"
         :id="key"
-        :tree="folder" />
+        :tree="folder"></folder>
     </ol>
   </li>
 </template>
@@ -29,8 +29,10 @@ export default {
   computed: {
     classObj: function () {
       return {
-        collapse: this.open,
-        active: this.id === this.$store.state.tree.selected.id
+        'fb-tree-folder': true,
+        'fb-tree-root-folder': this.isRoot,
+        'fb-tree-folder-collapsed': this.open,
+        'fb-tree-folder-active': this.id === this.$store.state.tree.selected.id
       };
     }
   },
@@ -43,26 +45,14 @@ export default {
       }
     };
   },
-  mounted() {
-    console.log('tree', this.tree);
-  },
   methods: {
     select() {
-
-      // console.log(this.$store.state.tree.tree);
-
-      if (!this.isRoot) {
-        this.open = !this.open;
-      }
-
-      // console.log('select', this.tree, this.id);
+      if (!this.isRoot) this.open = !this.open;
 
       this.$store.dispatch('tree/select', {
         id: this.id,
         parents: this.tree.parents
-      }).then(files => {
-        console.log('res files', files);
-      }).catch(console.error);
+      });
     }
   }
 };

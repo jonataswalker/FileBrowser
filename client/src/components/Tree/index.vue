@@ -1,13 +1,11 @@
 <template>
-  <div class="fb-tree-container">
-    <ol>
-      <folder
-        v-if="$store.state.tree.ready"
-        :id="root"
-        :collapsed="false"
-        :tree="$store.state.tree.tree" />
-    </ol>
-  </div>
+  <ol>
+    <folder
+      v-if="$store.state.tree.ready"
+      :id="root"
+      :collapsed="false"
+      :tree="$store.state.tree.tree"></folder>
+  </ol>
 </template>
 
 <script>

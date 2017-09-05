@@ -15,13 +15,16 @@ export const TEXT = {
   PREVIEW: 'Sending Preview',
   SEND_TO_EDITOR: 'Send to Editor',
   REQUIRED: 'Field is required',
-  TOOLBAR: {
-    BTN_CHOOSE: 'Choose',
-    BTN_SEND: 'Send',
-    BTN_DEL_FILE: 'Delete File',
-    BTN_NEW_FOLDER: 'New Folder',
-    BTN_DEL_FOLDER: 'Delete Folder',
-    BTN_SEND_EDITOR: 'Send to Editor'
+  BUTTON: {
+    CHOOSE: 'Choose',
+    SEND: 'Send',
+    DELETE_FILE: 'Delete File',
+    DELETE_FOLDER: 'Delete Folder',
+    NEW_FOLDER: 'New Folder',
+    SEND_EDITOR: 'Send to Editor',
+    SUBMIT: 'Submit',
+    CONFIRM: 'Confirm',
+    CANCEL: 'Cancel'
   },
   FILE: {
     TOTAL: 'Total Files:',
@@ -44,8 +47,6 @@ export const TEXT = {
     ].join('')
   },
   ALERT: {
-    BTN_OK: 'OK',
-    BTN_CANCEL: 'Cancel',
     IMAGE: {
       NOT_MIN_SIZE: 'Only images with minimum %1 x %2!'
     },
@@ -61,6 +62,9 @@ export const TEXT = {
         CREATED: 'Folder created!',
         RENAMED: 'Folder renamed!',
         EXISTS: 'This folder already exists!'
+      },
+      FILE: {
+        REMOVED: 'File(s) removed!'
       }
     }
   }
@@ -70,7 +74,7 @@ export const ROUTES = {
   FILES: {
     ALL: '/files',
     CREATE: '/files',
-    REMOVE: '/files/:id'
+    REMOVE: '/files'
   },
   FOLDER: {
     CREATE: '/folder',

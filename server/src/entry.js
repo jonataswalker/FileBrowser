@@ -1,41 +1,51 @@
-import express from 'express';
-import path from 'path';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import router from './routes';
+import Path from 'path';
+import Hapi from 'hapi';
+import Good from 'good';
+import Inert from 'inert';
+import BrowserSync from 'browser-sync';
+import Router from './routes';
 
-const server = express();
-const bs = require('browser-sync').create();
+const server = new Hapi.Server();
 
 const isProd = process.env.NODE_ENV === 'production';
 const port = process.env.npm_package_config_PORT || process.env.PORT || 3000;
 
-const resolve = file => path.resolve(__dirname, file);
-const serve = (path_, cache) => express.static(resolve(path_), {
-  maxAge: cache && isProd ? 1000 * 60 * 60 * 24 * 30 : 0
-});
+const host = 'localhost';
+const options = {
+  ops: { interval: 10000 },
+  reporters: {
+    console: [
+      {
+        module: 'good-squeeze',
+        name: 'Squeeze',
+        args: [{ log: '*', response: '*', request: '*' }]
+      },
+      { module: 'good-console' },
+      'stdout'
+    ]
+  }
+};
 
-server.use('/static', serve('../examples', true));
-server.use('/static', serve('../dist', true));
+server.connection({ host, port, routes: { cors: true }});
+server.register([
+  { register: Inert },
+  { register: Router },
+  { register: Good, options }
+], (err) => {
+  if (err) return console.error(err);
 
-// support parsing of application/json type post data
-server.use(bodyParser.json());
+  server.start(() => {
+    console.info(`Server started at ${ server.info.uri }`);
 
-// support parsing of application/x-www-form-urlencoded post data
-server.use(bodyParser.urlencoded({ extended: false }));
-server.use(cors());
-
-server.use('/', router);
-
-server.listen(port, listening);
-console.log(`Express running - localhost:${port}`);
-
-function listening() {
-  bs.init({
-    ui: false,
-    notify: false,
-    logLevel: 'info',
-    proxy: 'localhost:' + port,
-    files: ['examples/index.html', 'dist/**/*.js', 'dist/**/*.css']
+    if (!isProd) {
+      const bs = BrowserSync.create();
+      bs.init({
+        ui: false,
+        notify: false,
+        logLevel: 'info',
+        proxy: 'localhost:' + port,
+        files: ['examples/index.html', 'dist/**/*.js', 'dist/**/*.css']
+      });
+    }
   });
-}
+});

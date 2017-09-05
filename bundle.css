@@ -1,0 +1,11 @@
+.filebrowser-index-container1 {
+  position: relative;
+  overflow: hidden; }
+  .filebrowser-index-container1 [type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 15rem;
+    opacity: 0;
+    cursor: pointer; }
+

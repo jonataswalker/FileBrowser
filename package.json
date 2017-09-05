@@ -23,15 +23,16 @@
   ],
   "config": {
     "PORT": 3190,
-    "ROOT_DIR": "./examples/_uploads"
+    "ROOT_DIR": "./examples/_uploads",
+    "STATIC_PATH": "/static"
   },
   "scripts": {
     "start": "",
     "dev": "run-p build:dev server:dev",
     "rollup": "rollup -c",
     "rollup:dev": "cross-env DEV=true rollup -c -w",
-    "build": "run-p bundleDeps css rollup",
-    "build:dev": "run-p bundleDeps:dev css:dev rollup:dev",
+    "build": "npm run bundleDeps:dev && run-p css rollup",
+    "build:dev": "npm run bundleDeps:dev && run-p css:dev rollup:dev",
     "bundleDeps": "node scripts/write",
     "bundleDeps:dev": "cross-env DEV=true node scripts/write",
     "css": "node scripts/css",
@@ -40,13 +41,12 @@
     "server:dev": "cross-env DEV=true supervisor -w dist/filebrowser-server.js dist/filebrowser-server.js"
   },
   "dependencies": {
-    "body-parser": "^1.17.2",
-    "cors": "^2.8.4",
-    "directory-tree": "^2.0.0",
-    "express": "^4.15.3",
-    "material-components-web": "^0.16.0",
-    "mime-types": "^2.1.16",
-    "multer": "^1.3.0",
+    "good": "^7.2.0",
+    "good-console": "^6.4.0",
+    "good-squeeze": "^5.0.2",
+    "hapi": "^16.5.2",
+    "inert": "^4.2.1",
+    "material-components-web": "^0.17.0",
     "vue": "^2.4.2",
     "vuex": "^2.3.1"
   },
@@ -54,40 +54,40 @@
     "autoprefixer": "^7.1.2",
     "browser-sync": "^2.18.13",
     "colors": "^1.1.2",
-    "cross-env": "^5.0.1",
+    "cross-env": "^5.0.5",
     "csso": "^3.1.1",
     "eslint-config-jwalker": "^3.0.0",
-    "eslint-plugin-html": "^3.1.1",
-    "fs-jetpack": "^1.1.0",
+    "eslint-plugin-html": "^3.2.0",
+    "eslint-plugin-vue": "^3.11.0",
+    "fs-jetpack": "^1.2.0",
     "maxmin": "^2.1.0",
     "node-sass": "^4.5.3",
     "node-sass-json-importer": "^3.0.2",
     "node-sass-watcher": "^0.5.1",
     "npm-run-all": "^4.0.2",
-    "postcss": "^6.0.8",
-    "rollup": "^0.45.2",
+    "postcss": "^6.0.9",
+    "rollup": "^0.47.6",
     "rollup-plugin-buble": "^0.15.0",
     "rollup-plugin-bundle-size": "^1.0.1",
-    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-commonjs": "^8.1.0",
     "rollup-plugin-eslint": "^4.0.0",
     "rollup-plugin-includepaths": "^0.2.2",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-uglify": "^2.0.1",
     "rollup-plugin-vue": "^2.4.1",
-    "rollup-watch": "^4.3.1",
     "supervisor": "^0.12.0",
-    "uglify-es": "^3.0.27",
-    "vue-template-compiler": "^2.4.2"
+    "uglify-es": "^3.0.27"
   },
   "eslintConfig": {
-    "extends": "jwalker",
-    "plugins": [
-      "html"
+    "extends": [
+      "plugin:vue/recommended",
+      "jwalker"
     ],
     "rules": {
       "no-console": 0,
       "no-unused-vars": 1,
-      "eol-last": 1
+      "eol-last": 1,
+      "vue/require-v-for-key": 1
     }
   }
 }

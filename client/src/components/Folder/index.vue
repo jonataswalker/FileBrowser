@@ -14,7 +14,7 @@
         :maxlength="20"
         :hasError="creatingHasError"
         :errorMsg="creatingError"
-        @input="onInputNew" />
+        @input="onInputNew"></input-text>
     </div>
     <div slot="footer">
       <my-button
@@ -33,20 +33,26 @@ import InputText from 'InputText';
 
 export default {
   name: 'Folder',
-  props: ['openCreate'],
+  props: ['openFolder'],
   components: { MyButton, Modal, InputText },
+  computed: {
+    hierarchy: function () {
+      return this.$store.state.tree.hierarchy.map(each => {
+        return `<span>${each}</span>`;
+      }).join('→');
+    }
+  },
   data() {
     return {
       text: this.$store.state.text,
       modalActive: false,
       creatingHasError: false,
       creatingError: '',
-      creatingName: '',
-      hierarchy: ''
+      creatingName: ''
     };
   },
   watch: {
-    openCreate: function (val, oldVal) {
+    openFolder: function (val, oldVal) {
       if (val) this.modalActive = true;
     }
   },
@@ -65,7 +71,6 @@ export default {
     },
     onOpenModal() {
       this.creatingName = '';
-      this.hierarchy = `<span>${this.text.ROOT_FOLDER}</span>`;
     },
     closeModal() {
       this.modalActive = false;

@@ -34,6 +34,8 @@ $folder-height: 28px;
   *:before,
   *:after { box-sizing: inherit }
 
+  h1, h2, h3, h4, h5, h6 { margin: 0 }
+
   button {
     font-family: inherit;
 
@@ -47,11 +49,13 @@ $folder-height: 28px;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-
-  @import "./header";
-  @import "./tree";
-  @import "./dialog";
-  @import "./footer";
 }
+
+@import "./header";
+@import "./tree";
+@import "./thumb";
+@import "./preview";
+@import "./dialog";
+@import "./footer";
 
 @import "./override";
