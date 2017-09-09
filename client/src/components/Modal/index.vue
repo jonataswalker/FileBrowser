@@ -1,3 +1,11 @@
+<style lang="scss" module>
+  .footer {
+    button:not(:last-of-type) {
+      margin-right: 2px;
+    }
+  }
+</style>
+
 <template>
 <aside
   class="mdc-dialog"
@@ -15,7 +23,7 @@
       class="mdc-dialog__body mdc-dialog__body--scrollable">
       <slot name="body"></slot>
     </section>
-    <footer class="fb-dialog-footer mdc-dialog__footer">
+    <footer class="footer mdc-dialog__footer">
       <slot name="footer"></slot>
     </footer>
   </div>

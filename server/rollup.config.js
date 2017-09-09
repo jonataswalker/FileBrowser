@@ -1,6 +1,5 @@
 import { readFileSync } from 'fs';
 import nodeResolve from 'rollup-plugin-node-resolve';
-import bundleSize from 'rollup-plugin-bundle-size';
 import commonjs from 'rollup-plugin-commonjs';
 import eslint from 'rollup-plugin-eslint';
 import includePaths from 'rollup-plugin-includepaths';
@@ -19,7 +18,6 @@ const lintOpts = {
 const plugins = [
   includePaths({ paths: [''] }),
   eslint(Object.assign(lintOpts, pkg.eslintConfig)),
-  bundleSize(),
   nodeResolve(),
   commonjs()
 ];
@@ -38,10 +36,9 @@ const banner = readFileSync('./banner.js', 'utf-8')
   .replace('${time}', new Date());
 
 export default {
-  banner,
   external,
+  banner,
   plugins,
-  format: 'cjs',
-  entry: './server/src/entry.js',
-  dest: './dist/filebrowser-server.js'
+  input: './server/src/entry.js',
+  output: { file: './dist/filebrowser-server.js', format: 'cjs' }
 };

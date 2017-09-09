@@ -1,8 +1,45 @@
+<style lang="scss" module>
+  @import "helpers";
+
+  .folder {
+    height: $folder-height;
+    padding-left: 1rem;
+    transition: height 200ms ease-in;
+
+    span { margin-left: 3px }
+  }
+  .root {
+    padding-left: 0;
+  }
+  .collapsed {
+    overflow: hidden;
+    height: $folder-height !important;
+    transition: height 200ms ease-out;
+  }
+  .active {
+    > a {
+      @include folder-selected;
+    }
+  }
+  .link {
+    @include flex-center;
+    @include unselectable;
+    margin-bottom: 1px;
+    padding: 2px 5px;
+    color: #acacac;
+    text-shadow: 0 1px 0 black;
+    font-size: .875rem;
+    width: fit-content;
+
+    &:hover { @include folder-selected }
+  }
+</style>
+
 <template>
   <li
     :style="folderStyle"
     :class="classObj">
-    <a class="fb-tree-folder-link" @click="select">
+    <a class="link" @click="select">
       <i class="material-icons">folder</i>
       <span>{{ tree.name }}</span>
     </a>
@@ -27,12 +64,13 @@ export default {
     collapsed: { type: Boolean, default: true }
   },
   computed: {
-    classObj: function () {
+    $style() { return this.$options.cssModules },
+    classObj() {
       return {
-        'fb-tree-folder': true,
-        'fb-tree-root-folder': this.isRoot,
-        'fb-tree-folder-collapsed': this.open,
-        'fb-tree-folder-active': this.id === this.$store.state.tree.selected.id
+        [this.$style.folder]: true,
+        [this.$style.root]: this.isRoot,
+        [this.$style.collapsed]: this.open,
+        [this.$style.active]: this.id === this.$store.state.tree.selected.id
       };
     }
   },

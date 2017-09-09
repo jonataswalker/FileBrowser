@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Fri Aug 18 2017 10:17:35 GMT-0300 (-03)
+ * Built: Sat Sep 09 2017 11:30:28 GMT-0300 (-03)
  */
 
 'use strict';

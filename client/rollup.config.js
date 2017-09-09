@@ -3,15 +3,12 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 import buble from 'rollup-plugin-buble';
 import commonjs from 'rollup-plugin-commonjs';
 import eslint from 'rollup-plugin-eslint';
-import bundleSize from 'rollup-plugin-bundle-size';
+import bundleSize from 'rollup-plugin-filesize';
 import uglify from 'rollup-plugin-uglify';
-// import vue from '../rollup-plugin-vue/dist/rollup-plugin-vue.common.js';
 import vue from 'rollup-plugin-vue';
 import includePaths from 'rollup-plugin-includepaths';
 import { minify } from 'uglify-es';
 import colors from 'colors';
-import autoprefixer from 'autoprefixer';
-import postcss from 'postcss';
 
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
@@ -50,10 +47,7 @@ const lintOpts = {
 
 const includePathOptions = {
   extensions,
-  paths: [
-    '', // to include konstants
-    './client/src/components'
-  ]
+  paths: ['', './client/src/components']
 };
 
 const plugins = [
@@ -63,12 +57,9 @@ const plugins = [
   nodeResolve({ extensions, browser: true }),
   commonjs(),
   vue({
-    cssModules: {
-      generateScopedName: 'fb-[hash:base64:5]'
-    },
-    css(style, styles, compiler) {
-      // return compiler();
-    }
+    css: true,
+    cssModules: { generateScopedName: 'fb-[hash:base64:5]' },
+    scss: { includePaths: ['./node_modules', './client/src/sass'] }
   }),
   buble({ target: { ie: 11 }}),
   !dev && uglify({ output: { comments: /^!/ }}, minify)
@@ -89,10 +80,10 @@ console.log(colors.green.bold(
 export default {
   external,
   banner,
-  dest,
   globals,
   plugins,
-  format: 'iife',
-  moduleName: 'FileBrowser',
-  entry: 'client/src/entry.js'
+  name: 'FileBrowser',
+  input: './client/src/entry.js',
+  output: { file: dest, format: 'iife' }
 };
+

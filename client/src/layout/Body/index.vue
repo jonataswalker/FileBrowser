@@ -1,9 +1,36 @@
+<style lang="scss" module>
+  .body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    color: #333;
+    background-color: #f5f5f5;
+  }
+  .tree-container {
+    flex: 0 0 230px;
+    order: -1;
+    border: 1px solid #333;
+    overflow: auto;
+    background-color: #1d1f20;
+
+    ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+  .thumb-container {
+    flex: 1;
+    overflow-y: auto;
+  }
+</style>
+
 <template>
-  <div class="fb-body">
-    <div class="fb-tree-container">
+  <div class="body">
+    <div class="tree-container">
       <tree></tree>
     </div>
-    <div class="fb-thumb-container">
+    <div class="thumb-container">
       <upload v-if="$store.state.upload.pending"></upload>
       <thumb v-else></thumb>
     </div>
