@@ -34,6 +34,8 @@
 
       i, span { vertical-align: middle }
     }
+
+    &.modal { overflow: visible }
   }
 
   .wrapper {
@@ -47,7 +49,9 @@
 </style>
 
 <template>
-  <div class="container">
+  <div
+    class="container"
+    :class="{ [$style.modal]: $store.state.modal.active }">
     <div class="wrapper">
       <app-header></app-header>
       <app-body></app-body>
@@ -63,6 +67,10 @@ import AppFooter from './layout/Footer';
 
 export default {
   name: 'App',
-  components: { AppHeader, AppBody, AppFooter }
+  components: { AppHeader, AppBody, AppFooter },
+  computed: {
+    $style() { return this.$options.cssModules }
+  }
+
 };
 </script>

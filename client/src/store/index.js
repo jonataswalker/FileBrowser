@@ -6,9 +6,10 @@ import tree from './modules/tree';
 import file from './modules/file';
 import upload from './modules/upload';
 import message from './modules/message';
+import modal from './modules/modal';
 
 export default new Vuex.Store({
-  modules: { folder, tree, file, message, upload },
+  modules: { folder, tree, file, message, upload, modal },
   state: {
     text: {},
     options: OPTIONS

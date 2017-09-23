@@ -1,23 +1,24 @@
 import { ROUTES } from 'konstants';
-import request from 'helpers/fetch';
+import axios from 'axios';
 
 export default {
   namespaced: true,
-  state: { selected: '/' },
   actions: {
-    create({ commit, state, dispatch }, name) {
-      const path = state.selected + name;
-      const config = { method: 'POST', body: { path }};
-      console.log('store folder/create', path);
+    create({ commit, rootState, dispatch }, name) {
+
+      let hierarchy = rootState.tree.hierarchy.slice(1);
+      hierarchy.push(name);
+
+      const path = hierarchy.join('/');
 
       return new Promise((resolve, reject) => {
-        request(ROUTES.FOLDER.CREATE, config).then(res => {
+        axios.post(ROUTES.FOLDER.CREATE, { path }).then(res => {
           console.log('store folder/create res', res);
-          commit('tree/update', res.tree, { root: true });
-          resolve(res.message);
-        }).catch(res => reject(res.message));
+          const obj = { id: res.data.id, name };
+          commit('tree/update', obj, { root: true });
+          resolve(res.data.message);
+        }).catch(reject);
       });
     }
-  },
-  mutations: {}
+  }
 };

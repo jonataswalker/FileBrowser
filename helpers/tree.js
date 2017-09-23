@@ -1,15 +1,17 @@
 import fs from 'fs';
 import path from 'path';
-import { TEXT } from 'konstants';
+import { TEXT, ROOT_ID } from 'konstants';
 import { ID } from './mix';
 
 export function createFolder(dir) {
   return new Promise((resolve, reject) => {
+    let error = true;
     if (fs.existsSync(dir)) {
-      reject({ message: TEXT.API.MESSAGES.FOLDER.EXISTS });
+      reject({ error, message: TEXT.API.MESSAGES.FOLDER.EXISTS });
     } else {
       fs.mkdir(dir, err => {
-        err ? reject({ message: err }) : resolve();
+        const id = ID();
+        err ? reject({ error, message: err }) : resolve({ id });
       });
     }
   });
@@ -19,11 +21,13 @@ export async function getTree(dir, options = {}, parents = [], parentId) {
   const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
   const staticPath = process.env.npm_package_config_STATIC_PATH || '/static';
 
-  const results = { files: [], folders: {}, parents: [] };
+  const results = { files: [], folders: {}};
   const files = safeReadDirSync(dir);
 
   if (parentId) {
     parents = parents.concat(parentId);
+  } else {
+    parents.push(ROOT_ID);
   }
 
   if (!files) return { error: `Directory '${dir}' not found.` };
@@ -41,9 +45,11 @@ export async function getTree(dir, options = {}, parents = [], parentId) {
       results.folders[id] = {
         name: path.basename(file),
         files: recursive.files,
-        folders: recursive.folders,
-        parents: parents
+        folders: recursive.folders
       };
+
+      if (parents.length) results.folders[id].parents = parents;
+
     } else if (stat && stat.isFile()) {
       const relativeDir = dir.replace(root, '').split(path.sep).join('/');
       const ext = path.extname(file).toLowerCase();

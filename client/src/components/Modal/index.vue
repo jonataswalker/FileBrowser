@@ -44,9 +44,11 @@ export default {
     active: function (val) {
       if (val) {
         this.$emit('open');
+        this.$store.commit('modal/opened');
         this.dialog.show();
       } else {
         this.$emit('close');
+        this.$store.commit('modal/closed');
         this.dialog.close();
       }
     }

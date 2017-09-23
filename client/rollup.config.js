@@ -13,6 +13,12 @@ import colors from 'colors';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const external = Object.keys(pkg.dependencies);
+let includeExternal = ['file-type'];
+
+includeExternal.forEach(e => {
+  const idx = external.indexOf(e);
+  if (idx !== -1) external.splice(idx, 1);
+});
 
 const dev = !!process.env.DEV;
 
@@ -25,10 +31,12 @@ const mdc = [
 ];
 
 const globals = {
-  'vue': 'Vue',
-  'vuex': 'Vuex',
-  'vue-router': 'VueRouter',
-  'vuelidate': 'vuelidate'
+  vue: 'Vue',
+  vuex: 'Vuex',
+  pica: 'pica',
+  axios: 'axios',
+  deepmerge: 'deepmerge',
+  'es6-object-assign': 'ObjectAssign'
 };
 
 mdc.forEach(each => {
@@ -61,7 +69,11 @@ const plugins = [
     cssModules: { generateScopedName: 'fb-[hash:base64:5]' },
     scss: { includePaths: ['./node_modules', './client/src/sass'] }
   }),
-  buble({ target: { ie: 11 }}),
+  buble({
+    target: { chrome: 52 },
+    // objectAssign: 'Object.assign',
+    exclude: ['node_modules/**']
+  }),
   !dev && uglify({ output: { comments: /^!/ }}, minify)
 ];
 
@@ -84,6 +96,9 @@ export default {
   plugins,
   name: 'FileBrowser',
   input: './client/src/entry.js',
-  output: { file: dest, format: 'iife' }
+  output: {
+    file: dest,
+    format: 'iife'
+  }
 };
 

@@ -10,7 +10,7 @@ const server = new Hapi.Server();
 const isProd = process.env.NODE_ENV === 'production';
 const port = process.env.npm_package_config_PORT || process.env.PORT || 3000;
 
-const host = 'localhost';
+// const host = 'localhost';
 const options = {
   ops: { interval: 10000 },
   reporters: {
@@ -26,7 +26,7 @@ const options = {
   }
 };
 
-server.connection({ host, port, routes: { cors: true }});
+server.connection({ port, routes: { cors: true }});
 server.register([
   { register: Inert },
   { register: Router },

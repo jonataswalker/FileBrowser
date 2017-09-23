@@ -1,5 +1,7 @@
 export const ROOT_ID = 'root';
 
+export const FILE_TYPES = ['jpg', 'png', 'gif'];
+
 export const LANG = {
   EN: 'en',
   BR: 'pt-br'
@@ -73,7 +75,7 @@ export const TEXT = {
 export const ROUTES = {
   FILES: {
     ALL: '/files',
-    CREATE: '/files',
+    UPLOAD: '/files',
     REMOVE: '/files'
   },
   FOLDER: {

@@ -27,12 +27,19 @@ const materialCSS = [
 
 const depsDev = [
   resolve('../node_modules/vue/dist/vue.runtime.js'),
-  resolve('../node_modules/vuex/dist/vuex.js')
+  resolve('../node_modules/vuex/dist/vuex.js'),
+  resolve('../node_modules/pica/dist/pica.min.js'),
+  resolve('../node_modules/es6-object-assign/dist/object-assign.min.js'),
+  resolve('../node_modules/deepmerge/dist/umd.js'),
+  resolve('../node_modules/axios/dist/axios.min.js')
 ].concat(materialJS);
 
 const depsProd = [
   resolve('../node_modules/vue/dist/vue.runtime.min.js'),
-  resolve('../node_modules/vuex/dist/vuex.min.js')
+  resolve('../node_modules/vuex/dist/vuex.min.js'),
+  resolve('../node_modules/pica/dist/pica.min.js'),
+  resolve('../node_modules/es6-object-assign/dist/object-assign.min.js'),
+  resolve('../node_modules/axios/dist/axios.min.js')
 ].concat(materialJS);
 
 const css = [].concat(materialCSS);

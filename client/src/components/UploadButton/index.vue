@@ -32,8 +32,10 @@
 </template>
 
 <script>
+import FileType from 'file-type';
 import MyButton from 'Button';
-import { safeFilename } from 'helpers/mix';
+import { ID, safeFilename } from 'helpers/mix';
+import { FILE_TYPES } from 'konstants';
 
 export default {
   name: 'UploadButton',
@@ -52,19 +54,38 @@ export default {
   methods: {
     filesChange(evt) {
       console.log('filesChange', evt.target.files);
-      const files = evt.target.files;
+      const targets = evt.target.files;
 
       this.$store.commit('upload/selected');
 
-      Object.keys(files).forEach(key => {
+      Object.keys(targets).forEach(key => {
         const reader = new FileReader();
+        reader.readAsArrayBuffer(targets[key]);
+
         reader.onload = (e) => {
-          this.$store.commit('upload/preview', {
-            name: safeFilename(files[key].name),
-            image: e.target.result
-          });
+          const buffer = e.target.result;
+          const type = FileType(new Uint8Array(buffer, 0, 4100));
+
+          if (FILE_TYPES.includes(type.ext)) {
+            this.$store.commit('upload/preview', {
+              id: ID(),
+              type: type.ext,
+              mime: type.mime,
+              blob: new Blob([buffer], { type: type.mime }),
+              name: safeFilename(targets[key].name)
+            });
+          }
         };
-        reader.readAsDataURL(files[key]);
+
+
+        // img.onload = (e) => {
+        //   console.log('onload', ID());
+        //   this.$store.commit('upload/preview', {
+        //     id: ID(),
+        //     image: img,
+        //     name: safeFilename(targets[key].name)
+        //   });
+        // };
       });
     },
     attach() {

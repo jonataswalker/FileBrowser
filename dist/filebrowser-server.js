@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Sat Sep 09 2017 11:30:28 GMT-0300 (-03)
+ * Built: Sat Sep 23 2017 10:40:37 GMT-0300 (-03)
  */
 
 'use strict';
@@ -15,6 +15,15 @@ var Good = _interopDefault(require('good'));
 var Inert = _interopDefault(require('inert'));
 var BrowserSync = _interopDefault(require('browser-sync'));
 var fs = _interopDefault(require('fs'));
+var Boom = _interopDefault(require('boom'));
+
+const ROOT_ID = 'root';
+
+
+
+
+
+
 
 const TEXT = {
   TITLE: 'Image Browser',
@@ -80,7 +89,7 @@ const TEXT = {
 const ROUTES = {
   FILES: {
     ALL: '/files',
-    CREATE: '/files',
+    UPLOAD: '/files',
     REMOVE: '/files'
   },
   FOLDER: {
@@ -89,6 +98,46 @@ const ROUTES = {
     REMOVE: '/folder/:id'
   }
 };
+
+/**
+ * Get the first item that pass the test
+ * by second argument function
+ *
+ * @param {Array} list
+ * @param {Function} f
+ * @return {*}
+ */
+/**
+ * Deep copy the given object considering circular structure.
+ * This function caches all nested objects and its copies.
+ * If it detects circular structure, use cached copy to avoid infinite loop.
+ *
+ * @param {*} obj
+ * @param {Array<Object>} cache
+ * @return {*}
+ */
+
+
+
+/**
+ * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
+ * images to fit into a certain area.
+ *
+ * @param {Number} w width of source image
+ * @param {Number} h height of source image
+ * @param {Number} maxWidth maximum available width
+ * @param {Number} maxHeight maximum available height
+ * @return {Object} { width, height }
+*/
+
+
+
+
+
+
+
+
+
 
 /**
  * Generates a GUID string.
@@ -109,11 +158,13 @@ function ID() {
 
 function createFolder(dir) {
   return new Promise((resolve, reject) => {
+    let error = true;
     if (fs.existsSync(dir)) {
-      reject({ message: TEXT.API.MESSAGES.FOLDER.EXISTS });
+      reject({ error, message: TEXT.API.MESSAGES.FOLDER.EXISTS });
     } else {
       fs.mkdir(dir, err => {
-        err ? reject({ message: err }) : resolve();
+        const id = ID();
+        err ? reject({ error, message: err }) : resolve({ id });
       });
     }
   });
@@ -123,11 +174,13 @@ async function getTree(dir, options = {}, parents = [], parentId) {
   const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
   const staticPath = process.env.npm_package_config_STATIC_PATH || '/static';
 
-  const results = { files: [], folders: {}, parents: [] };
+  const results = { files: [], folders: {}};
   const files = safeReadDirSync(dir);
 
   if (parentId) {
     parents = parents.concat(parentId);
+  } else {
+    parents.push(ROOT_ID);
   }
 
   if (!files) return { error: `Directory '${dir}' not found.` };
@@ -145,9 +198,11 @@ async function getTree(dir, options = {}, parents = [], parentId) {
       results.folders[id] = {
         name: path.basename(file),
         files: recursive.files,
-        folders: recursive.folders,
-        parents: parents
+        folders: recursive.folders
       };
+
+      if (parents.length) results.folders[id].parents = parents;
+
     } else if (stat && stat.isFile()) {
       const relativeDir = dir.replace(root, '').split(path.sep).join('/');
       const ext = path.extname(file).toLowerCase();
@@ -210,6 +265,31 @@ const routes = [
     }
   },
   {
+    method: 'POST',
+    path: ROUTES.FILES.UPLOAD,
+    config: {
+      payload: {
+        maxBytes: 10 * 1024 * 1024,
+        output: 'stream',
+        allow: 'multipart/form-data',
+        parse: true
+      }
+    },
+    handler: (request, reply) => {
+      const { id, name, file, directory } = request.payload;
+      if (file) {
+        const path$$1 = `${root}/${directory}/${name}`;
+        const fileStream = fs.createWriteStream(path$$1);
+
+        file.pipe(fileStream);
+        file.on('error', err => console.error);
+        file.on('end', err => {
+          reply({ id, name });
+        });
+      }
+    }
+  },
+  {
     method: 'PATCH',
     path: ROUTES.FILES.REMOVE,
     handler: (request, reply) => {
@@ -225,11 +305,11 @@ const routes = [
     method: 'POST',
     path: ROUTES.FOLDER.CREATE,
     handler: (request, reply) => {
-      const dir = path.join(root, '.' + request.payload.path);
+      const dir = path.join(root, request.payload.path);
       const message = TEXT.API.MESSAGES.FOLDER.CREATED;
-      createFolder(dir)
-        .then(() => getTree(root))
-        .then(tree => reply({ tree, message }));
+      return createFolder(dir)
+        .then(res => reply({ id: res.id, message }))
+        .catch(err => reply(Boom.notAcceptable(err.message)));
     }
   },
   {
@@ -268,7 +348,7 @@ const server = new Hapi.Server();
 const isProd = process.env.NODE_ENV === 'production';
 const port = process.env.npm_package_config_PORT || process.env.PORT || 3000;
 
-const host = 'localhost';
+// const host = 'localhost';
 const options = {
   ops: { interval: 10000 },
   reporters: {
@@ -284,7 +364,7 @@ const options = {
   }
 };
 
-server.connection({ host, port, routes: { cors: true }});
+server.connection({ port, routes: { cors: true }});
 server.register([
   { register: Inert },
   { register: router },

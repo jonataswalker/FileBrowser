@@ -21,19 +21,21 @@
       <h5>{{ text.FOLDER.CREATION }}</h5>
       <p class="path" v-html="hierarchy"></p>
       <input-text
+        :value="value"
         :label="text.FOLDER.NEW"
         :required="true"
         :minlength="1"
         :maxlength="20"
         :hasError="creatingHasError"
         :errorMsg="creatingError"
+        @enter="submit"
         @input="onInputNew"></input-text>
     </div>
     <div slot="footer">
       <my-button
         classes="is-dark"
         type="submit"
-        @click.native="onSubmit">Submit</my-button>
+        @click.native="submit">Submit</my-button>
       <my-button @click.native="closeModal">Cancel</my-button>
     </div>
   </modal>
@@ -61,7 +63,8 @@ export default {
       modalActive: false,
       creatingHasError: false,
       creatingError: '',
-      creatingName: ''
+      creatingName: '',
+      value: ''
     };
   },
   watch: {
@@ -80,17 +83,17 @@ export default {
         this.creatingHasError = !/^[a-zA-Z0-9\-_]{1,20}$/.test(value);
         this.creatingError = this.text.FOLDER.VALIDATION;
       }
-      console.log('onInputNew', value, this.creatingHasError);
     },
     onOpenModal() {
       this.creatingName = '';
+      this.value = '';
     },
     closeModal() {
       this.modalActive = false;
       this.$emit('closeModal');
     },
-    onSubmit() {
-      console.log('onSubmit', this.creatingName);
+    submit() {
+      this.value = this.creatingName;
       this.$store.dispatch('folder/create', this.creatingName).then(res => {
         this.closeModal();
         this.$store.dispatch('message/show', {
@@ -98,6 +101,7 @@ export default {
           type: 'success'
         });
       }).catch(res => {
+        console.log('catch submit Folder', res);
         this.closeModal();
         this.$store.dispatch('message/show', {
           message: res,

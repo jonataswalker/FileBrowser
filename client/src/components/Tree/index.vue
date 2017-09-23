@@ -4,7 +4,7 @@
       v-if="$store.state.tree.ready"
       :id="root"
       :collapsed="false"
-      :tree="$store.state.tree.tree"></folder>
+      :tree="$store.state.tree.tree[root]"></folder>
   </ol>
 </template>
 

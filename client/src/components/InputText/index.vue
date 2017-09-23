@@ -1,3 +1,10 @@
+<style lang="scss" module>
+  .invalid + label,
+  .error {
+    color: #e74c3c;
+  }
+</style>
+
 <template>
   <div class="fl-input-container">
     <div class="mdc-textfield" ref="textfield">
@@ -11,6 +18,7 @@
         :required="required"
         :minlength="minlength"
         :maxlength="maxlength"
+        @keyup.enter="$emit('enter')"
         @blur="$emit('blur')"
         @input="onInput">
       <label :for="id" class="mdc-textfield__label">{{ label }}</label>
@@ -40,18 +48,22 @@ export default {
   data() {
     return { hasValue: false, inputValue: this.value };
   },
+  watch: {
+    value: function (val, oldVal) {
+      if (val) this.inputValue = '';
+    }
+  },
   computed: {
+    $style() { return this.$options.cssModules },
     inputClasses: function () {
       return {
-        'fb-input': true,
-        'fb-valid': this.hasValue && !this.hasError,
-        'fb-invalid': this.hasError
+        [this.$style.valid]: this.hasValue && !this.hasError,
+        [this.$style.invalid]: this.hasError
       };
     },
     errMsgClasses: function () {
-      // console.log('errMsgClasses', this.hasError);
       return {
-        'fb-error-msg': true,
+        [this.$style.error]: true,
         'mdc-textfield-helptext': true,
         'mdc-textfield-helptext--validation-msg': true,
         'mdc-textfield-helptext--persistent': this.hasError

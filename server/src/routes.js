@@ -1,4 +1,6 @@
+import fs from 'fs';
 import Path from 'path';
+import Boom from 'boom';
 import { getTree, createFolder, removeFiles } from 'helpers/tree';
 import { ROUTES, TEXT } from 'konstants';
 
@@ -12,6 +14,31 @@ const routes = [
     path: ROUTES.FILES.ALL,
     handler: (request, reply) => {
       getTree(root).then(reply);
+    }
+  },
+  {
+    method: 'POST',
+    path: ROUTES.FILES.UPLOAD,
+    config: {
+      payload: {
+        maxBytes: 10 * 1024 * 1024,
+        output: 'stream',
+        allow: 'multipart/form-data',
+        parse: true
+      }
+    },
+    handler: (request, reply) => {
+      const { id, name, file, directory } = request.payload;
+      if (file) {
+        const path = `${root}/${directory}/${name}`;
+        const fileStream = fs.createWriteStream(path);
+
+        file.pipe(fileStream);
+        file.on('error', err => console.error);
+        file.on('end', err => {
+          reply({ id, name });
+        });
+      }
     }
   },
   {
@@ -30,11 +57,11 @@ const routes = [
     method: 'POST',
     path: ROUTES.FOLDER.CREATE,
     handler: (request, reply) => {
-      const dir = Path.join(root, '.' + request.payload.path);
+      const dir = Path.join(root, request.payload.path);
       const message = TEXT.API.MESSAGES.FOLDER.CREATED;
-      createFolder(dir)
-        .then(() => getTree(root))
-        .then(tree => reply({ tree, message }));
+      return createFolder(dir)
+        .then(res => reply({ id: res.id, message }))
+        .catch(err => reply(Boom.notAcceptable(err.message)));
     }
   },
   {

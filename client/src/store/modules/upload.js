@@ -1,18 +1,36 @@
+import Vue from 'vue';
+
 export default {
   namespaced: true,
   state: {
     pending: false,
-    previews: []
+    files: {}
   },
   mutations: {
     selected(state) {
       state.pending = true;
     },
     preview(state, obj) {
-      console.log('mutations preview', obj);
       if (state.pending) {
-        state.previews.push(obj);
+        Vue.set(state.files, obj.id, {
+          name: obj.name,
+          blob: obj.blob,
+          type: obj.type,
+          mime: obj.mime,
+          uploaded: false
+        });
       }
+    },
+    addThumb(state, obj) {
+      Vue.set(state.files[obj.id], 'thumb', obj.thumb);
+    },
+    done(state, id) {
+      setTimeout(() => {
+        Vue.delete(state.files, id);
+        if (!Object.keys(state.files).length) {
+          state.pending = false;
+        }
+      }, 1200);
     }
   }
 };
