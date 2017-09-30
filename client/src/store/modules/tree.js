@@ -1,8 +1,7 @@
-import Vue from 'vue';
 import axios from 'axios';
-import deepmerge from 'deepmerge';
+import Vue from 'vue';
+// import deepmerge from 'deepmerge';
 import { ROUTES, ROOT_ID } from 'konstants';
-import { deepCopy } from 'helpers/mix';
 
 export default {
   namespaced: true,
@@ -12,6 +11,33 @@ export default {
     selected: { id: ROOT_ID, parents: [], files: [] },
     tree: {}
   },
+  getters: {
+    path: (state) => {
+      return state.hierarchy.slice(1).join('/');
+    },
+    folder: (state) => (id, parents) => {
+      const parents_ = parents.slice(1);
+      let hierarchy = [state.tree[ROOT_ID].name];
+      let folder;
+
+      if (id === ROOT_ID) {
+        return { folder: state.tree[ROOT_ID], hierarchy };
+      } else if (parents_.length) {
+        parents_.reduce((acc, curr, idx) => {
+          if (idx === parents_.length - 1) {
+            folder = acc[curr].folders[id];
+          }
+          hierarchy.push(acc[curr].name);
+          return acc[curr].folders;
+        }, state.tree[ROOT_ID].folders);
+      } else {
+        folder = state.tree[ROOT_ID].folders[id];
+      }
+
+      hierarchy.push(folder.name);
+      return { folder, hierarchy };
+    }
+  },
   actions: {
     get({ dispatch, rootState }) {
       axios(rootState.options.server + ROUTES.FILES.ALL)
@@ -19,114 +45,67 @@ export default {
         .catch(console.error);
     },
     load({ commit, dispatch, state, rootState }, tree) {
-      tree.name = rootState.text.ROOT_FOLDER;
-
-      commit('load', tree);
-
       const { id, parents } = state.selected;
-
-      console.log('tree/load', tree, state.tree);
-
+      tree.name = rootState.text.ROOT_FOLDER;
+      commit('load', tree);
       dispatch('select', { id, parents });
     },
-    select({ commit, state }, { id, parents = [] }) {
-      let files;
-      let hierarchy = [];
-      const rootTree = state.tree[ROOT_ID];
+    select({ commit, state, getters }, { id, parents = [] }) {
+      const { folder, hierarchy } = getters.folder(id, parents);
+      console.log('tree/select folder', folder);
 
-      if (id === ROOT_ID) {
-        files = rootTree.files;
-        hierarchy = [rootTree.name];
-      // } else if (parents.length === 0) {
-        // files = state.tree.folders[id].files;
-        // hierarchy = [state.tree.name, state.tree.folders[id].name];
-      } else {
-        files = parents.reduce((acc, curr, idx) => {
-          console.log('select/reduce', acc, curr, idx, id);
-          hierarchy.push(acc[curr].name);
-
-          if (idx === parents.length - 1) {
-            hierarchy.push(acc[curr].folders[id].name);
-            acc = acc[curr].folders[id].files;
-          } else {
-            acc = acc[curr].folders;
-          }
-
-          return acc;
-        }, state.tree);
-      }
-
-      console.log('tree/actions/select', parents);
-      console.log('tree/actions/select', files);
-      console.log('tree/actions/select', hierarchy);
-
-      commit('select', { id, parents, files, hierarchy });
+      commit('select', {
+        id,
+        parents,
+        files: folder.files,
+        hierarchy: hierarchy
+      });
       commit('file/removeSelected', null, { root: true });
+    },
+    addFolder({ commit, getters, state }, { id, name }) {
+      const parentId = state.selected.id;
+      const { parents } = state.selected;
+      const { folder } = getters.folder(parentId, parents);
+      commit('addFolder', { id, name, parentFolder: folder });
+    },
+    addFile({ commit, getters, state }, file) {
+      const { id, parents } = state.selected;
+      const { folder } = getters.folder(id, parents);
+      commit('addFile', { folder, file });
+    },
+    removeFiles({ commit, getters, state }, files) {
+      const { id, parents } = state.selected;
+      const { folder } = getters.folder(id, parents);
+      commit('removeFiles', { folder, files });
     }
   },
   mutations: {
     load(state, tree) {
-      state.tree[ROOT_ID] = tree;
+      Vue.set(state.tree, ROOT_ID, tree);
       state.ready = true;
+      console.log('tree/mutations load', state.tree);
     },
-    update(state, { id, name }) {
-      console.log('tree/mutations/update',
-        id, name, state.selected, state.tree);
-
-      const { parents } = state.selected;
+    addFolder(state, { id, name, parentFolder }) {
       const parentId = state.selected.id;
-
-      let partialObj = {};
-      let newTree = {};
-      const newFolder = { name, folders: {}, files: [], parents: [] };
-
-      if (parents.length === 0) {
-        newTree = deepCopy(state.tree);
-        newTree.root.folders[id] = newFolder;
-      } else {
-        parents.reduce((acc, curr, idx) => {
-          acc = acc[curr].folders;
-
-          if (idx === parents.length - 1) {
-            newFolder.parents = parents.concat(parentId);
-
-            let tmpObj = { folders: {}};
-            tmpObj.folders = deepCopy(acc);
-            tmpObj.folders[parentId].folders[id] = newFolder;
-            partialObj = deepmerge(partialObj, tmpObj);
-
-            console.log('last', partialObj, curr, parentId, tmpObj);
-          } else {
-            partialObj = deepmerge(partialObj, acc[parents[idx + 1]]);
-          }
-
-
-          console.log('reduce', acc, curr, parents[idx + 1], parentId);
-          return acc;
-        }, state.tree);
-
-        newTree[parents[0]] = {
-          folders: { [parents[1]]: deepCopy(partialObj) }
-        };
-      }
-
-      state.tree = deepmerge(state.tree, newTree);
-
-      console.log('tree/mutations/update newTree', newTree);
-      console.log('tree/mutations/update trees', state.tree);
-
+      const folder = {
+        name,
+        files: [],
+        folders: {},
+        parents: state.selected.parents.concat(parentId)
+      };
+      Vue.set(parentFolder.folders, id, folder);
+    },
+    addFile(state, { folder, file }) {
+      folder.files.push(file);
+    },
+    removeFiles(state, { folder, files }) {
+      state.selected.files = folder.files = folder.files.filter((e, i) => {
+        return !files.includes(i);
+      });
     },
     select(state, { id, parents, files, hierarchy }) {
-      console.log('tree/mutations/select', id, parents);
-
       state.hierarchy = hierarchy;
       state.selected = { id, parents, files };
-      // console.log('select', hierarchy);
-      // console.log('mutations tree select', state.selected);
-    },
-    removeSelectedFiles(state, files) {
-      const result = state.selected.files.filter((f, i) => !files.includes(i));
-      state.selected.files = result;
     }
   }
 };

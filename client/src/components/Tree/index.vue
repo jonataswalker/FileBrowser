@@ -16,10 +16,7 @@ export default {
   name: 'Tree',
   components: { Folder },
   data() {
-    return {
-      text: this.$store.state.text,
-      root: ROOT_ID
-    };
+    return { root: ROOT_ID };
   }
 };
 </script>

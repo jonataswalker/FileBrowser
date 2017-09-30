@@ -65,6 +65,7 @@
     position: absolute;
     top: 0;
     left: 0;
+    color: #ddd;
   }
 </style>
 
@@ -73,6 +74,7 @@
     <figure
       class="figure"
       v-for="(file, key) in $store.state.tree.selected.files"
+      :key="key"
       :class="{ [$style.selected]: isSelected(key) }"
       @click="toggleSelect(key)">
       <i
@@ -88,7 +90,7 @@
 </template>
 
 <script>
-import { bytesToSize } from 'helpers/mix';
+import { bytesToSize } from 'helpers/file';
 
 export default {
   name: 'Thumb',

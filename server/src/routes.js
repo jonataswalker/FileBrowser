@@ -1,7 +1,8 @@
 import fs from 'fs';
 import Path from 'path';
 import Boom from 'boom';
-import { getTree, createFolder, removeFiles } from 'helpers/tree';
+import { getTree, createFolder } from './tree';
+import { removeFiles } from './file';
 import { ROUTES, TEXT } from 'konstants';
 
 const resolve = file => Path.resolve(__dirname, file);
@@ -13,7 +14,9 @@ const routes = [
     method: 'GET',
     path: ROUTES.FILES.ALL,
     handler: (request, reply) => {
-      getTree(root).then(reply);
+      return getTree(root)
+        .then(reply)
+        .catch(console.error);
     }
   },
   {
@@ -35,8 +38,16 @@ const routes = [
 
         file.pipe(fileStream);
         file.on('error', err => console.error);
-        file.on('end', err => {
-          reply({ id, name });
+        file.on('end', () => {
+          const stat = fs.statSync(path);
+          const fileObj = {
+            id,
+            name,
+            size: stat.size,
+            extension: Path.extname(path).toLowerCase(),
+            path: Path.join(staticPath, directory)
+          };
+          reply(fileObj);
         });
       }
     }
@@ -47,10 +58,9 @@ const routes = [
     handler: (request, reply) => {
       const message = TEXT.API.MESSAGES.FILE.REMOVED;
       const folder = Path.join(root, request.payload.folder);
-
-      removeFiles(folder, request.payload.files)
-        .then(() => getTree(root))
-        .then(tree => reply({ tree, message }));
+      return removeFiles(folder, request.payload.files)
+        .then(() => reply({ message }))
+        .catch(err => reply(Boom.notAcceptable(err.message)));
     }
   },
   {
@@ -60,7 +70,7 @@ const routes = [
       const dir = Path.join(root, request.payload.path);
       const message = TEXT.API.MESSAGES.FOLDER.CREATED;
       return createFolder(dir)
-        .then(res => reply({ id: res.id, message }))
+        .then(id => reply({ id, message }))
         .catch(err => reply(Boom.notAcceptable(err.message)));
     }
   },

@@ -14,13 +14,6 @@ export default new Vuex.Store({
     text: {},
     options: OPTIONS
   },
-  actions: {
-    reset({ state, commit }) {
-      // console.log('reset', state.tree.selected.files[state.file.selected]);
-      commit('tree/removeSelectedFiles', state.file.selected);
-      commit('file/removeSelected');
-    }
-  },
   mutations: {
     mergeOptions(state, opts) {
       state.options = Object.assign(state.options, opts);

@@ -2,19 +2,19 @@
  * FileBrowser - v1.3.0
  * A multi-purpose filebrowser.
  * https://github.com/jonataswalker/FileBrowser
- * Built: Sat Sep 23 2017 10:40:37 GMT-0300 (-03)
+ * Built: Sat Sep 30 2017 08:46:24 GMT-0300 (-03)
  */
 
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var path = _interopDefault(require('path'));
 var Hapi = _interopDefault(require('hapi'));
 var Good = _interopDefault(require('good'));
 var Inert = _interopDefault(require('inert'));
 var BrowserSync = _interopDefault(require('browser-sync'));
-var fs = _interopDefault(require('fs'));
+var Fs = _interopDefault(require('fs'));
+var Path = _interopDefault(require('path'));
 var Boom = _interopDefault(require('boom'));
 
 const ROOT_ID = 'root';
@@ -100,46 +100,6 @@ const ROUTES = {
 };
 
 /**
- * Get the first item that pass the test
- * by second argument function
- *
- * @param {Array} list
- * @param {Function} f
- * @return {*}
- */
-/**
- * Deep copy the given object considering circular structure.
- * This function caches all nested objects and its copies.
- * If it detects circular structure, use cached copy to avoid infinite loop.
- *
- * @param {*} obj
- * @param {Array<Object>} cache
- * @return {*}
- */
-
-
-
-/**
- * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
- * images to fit into a certain area.
- *
- * @param {Number} w width of source image
- * @param {Number} h height of source image
- * @param {Number} maxWidth maximum available width
- * @param {Number} maxHeight maximum available height
- * @return {Object} { width, height }
-*/
-
-
-
-
-
-
-
-
-
-
-/**
  * Generates a GUID string.
  * @returns {String} The generated GUID.
  * @example af8a8416-6e18-a307-bd9c-f2c947bbb3aa
@@ -149,29 +109,25 @@ const ROUTES = {
 
 
 function ID() {
-  return '_' + Math.random().toString(36).substr(2, 9);
+  return Math.random().toString(36).substr(2, 9);
 }
-
-
-
-// from https://github.com/jprichardson/string.js/blob/master/lib/string.js
 
 function createFolder(dir) {
   return new Promise((resolve, reject) => {
     let error = true;
-    if (fs.existsSync(dir)) {
+    if (Fs.existsSync(dir)) {
       reject({ error, message: TEXT.API.MESSAGES.FOLDER.EXISTS });
     } else {
-      fs.mkdir(dir, err => {
-        const id = ID();
-        err ? reject({ error, message: err }) : resolve({ id });
+      Fs.mkdir(dir, err => {
+        const id = stringToCharCode(Path.basename(dir));
+        err ? reject({ error, message: err }) : resolve(id);
       });
     }
   });
 }
 
 async function getTree(dir, options = {}, parents = [], parentId) {
-  const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
+  const root = Path.resolve(process.env.npm_package_config_ROOT_DIR);
   const staticPath = process.env.npm_package_config_STATIC_PATH || '/static';
 
   const results = { files: [], folders: {}};
@@ -187,8 +143,8 @@ async function getTree(dir, options = {}, parents = [], parentId) {
 
   while (files.length > 0) {
     const f = files.pop();
-    const file = path.resolve(dir, f);
-    const stat = fs.statSync(file);
+    const file = Path.resolve(dir, f);
+    const stat = Fs.statSync(file);
     if (!file) break;
 
     if (stat && stat.isDirectory()) {
@@ -196,19 +152,18 @@ async function getTree(dir, options = {}, parents = [], parentId) {
       const recursive = await getTree(file, options, parents, id);
 
       results.folders[id] = {
-        name: path.basename(file),
+        parents,
+        name: Path.basename(file),
         files: recursive.files,
         folders: recursive.folders
       };
 
-      if (parents.length) results.folders[id].parents = parents;
-
     } else if (stat && stat.isFile()) {
-      const relativeDir = dir.replace(root, '').split(path.sep).join('/');
-      const ext = path.extname(file).toLowerCase();
+      const relativeDir = dir.replace(root, '').split(Path.sep).join('/');
+      const ext = Path.extname(file).toLowerCase();
       const fileObj = {
         size: stat.size,
-        name: path.basename(file),
+        name: Path.basename(file),
         extension: ext,
         path: staticPath + relativeDir
       };
@@ -227,9 +182,10 @@ async function getTree(dir, options = {}, parents = [], parentId) {
 
 function safeReadDirSync(dir) {
   let data;
-  if (fs.existsSync(dir)) {
+  if (Fs.existsSync(dir)) {
     try {
-      data = fs.readdirSync(dir);
+      data = Fs.readdirSync(dir);
+      // data.sort((a, b) => a.toUpperCase() > b.toUpperCase() ? -1 : 1);
     } catch (ex) {
       if (ex.code === 'EACCES') {
         //User does not have permissions, ignore directory
@@ -240,20 +196,69 @@ function safeReadDirSync(dir) {
   return data;
 }
 
+function stringToCharCode(str) {
+  const len = str.length;
+  let pos = len;
+  let out = 0;
+  while ((pos -= 1) > -1) {
+    out += (fixedCharCodeAt(str, pos) - 64) * Math.pow(26, len - 1 - pos);
+  }
+  return out;
+}
+
+function fixedCharCodeAt(str, idx = 0) {
+  // ex. fixedCharCodeAt('\uD800\uDC00', 0); // 65536
+  // ex. fixedCharCodeAt('\uD800\uDC00', 1); // false
+  const code = str.charCodeAt(idx);
+  let hi, low;
+
+  // High surrogate (could change last hex to 0xDB7F
+  // to treat high private surrogates
+  // as single characters)
+  if (0xD800 <= code && code <= 0xDBFF) {
+    hi = code;
+    low = str.charCodeAt(idx + 1);
+    if (isNaN(low)) {
+      throw 'High surrogate not followed by ' +
+        'low surrogate in fixedCharCodeAt()';
+    }
+    return ((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
+  }
+  if (0xDC00 <= code && code <= 0xDFFF) { // Low surrogate
+    // We return false to allow loops to skip
+    // this iteration since should have already handled
+    // high surrogate above in the previous iteration
+    return false;
+    // hi = str.charCodeAt(idx - 1);
+    // low = code;
+    // return ((hi - 0xD800) * 0x400) +
+    //   (low - 0xDC00) + 0x10000;
+  }
+  return code;
+}
+
 function removeFiles(folder, files) {
+  const path = (f) => Path.join(folder, f);
+  const first = files.pop();
+
+  if (!files.length) {
+    return unlink(path(first));
+  }
+
+  return files.reduce((promise, file) => {
+    return promise.then(unlink(path(file)), console.error);
+  }, unlink(path(first)));
+}
+
+
+function unlink(file) {
   return new Promise((resolve, reject) => {
-    files.forEach((file, idx) => {
-      file = path.join(folder, file);
-      fs.unlink(file, err => {
-        err && reject({ message: err });
-        idx === files.length - 1 && resolve();
-      });
-    });
+    Fs.unlink(file, (err) => err ? reject(err) : resolve());
   });
 }
 
-const resolve = file => path.resolve(__dirname, file);
-const root = path.resolve(process.env.npm_package_config_ROOT_DIR);
+const resolve = file => Path.resolve(__dirname, file);
+const root = Path.resolve(process.env.npm_package_config_ROOT_DIR);
 const staticPath = process.env.npm_package_config_STATIC_PATH || '/static';
 
 const routes = [
@@ -261,7 +266,9 @@ const routes = [
     method: 'GET',
     path: ROUTES.FILES.ALL,
     handler: (request, reply) => {
-      getTree(root).then(reply);
+      return getTree(root)
+        .then(reply)
+        .catch(console.error);
     }
   },
   {
@@ -278,13 +285,21 @@ const routes = [
     handler: (request, reply) => {
       const { id, name, file, directory } = request.payload;
       if (file) {
-        const path$$1 = `${root}/${directory}/${name}`;
-        const fileStream = fs.createWriteStream(path$$1);
+        const path = `${root}/${directory}/${name}`;
+        const fileStream = Fs.createWriteStream(path);
 
         file.pipe(fileStream);
         file.on('error', err => console.error);
-        file.on('end', err => {
-          reply({ id, name });
+        file.on('end', () => {
+          const stat = Fs.statSync(path);
+          const fileObj = {
+            id,
+            name,
+            size: stat.size,
+            extension: Path.extname(path).toLowerCase(),
+            path: Path.join(staticPath, directory)
+          };
+          reply(fileObj);
         });
       }
     }
@@ -294,21 +309,20 @@ const routes = [
     path: ROUTES.FILES.REMOVE,
     handler: (request, reply) => {
       const message = TEXT.API.MESSAGES.FILE.REMOVED;
-      const folder = path.join(root, request.payload.folder);
-
-      removeFiles(folder, request.payload.files)
-        .then(() => getTree(root))
-        .then(tree => reply({ tree, message }));
+      const folder = Path.join(root, request.payload.folder);
+      return removeFiles(folder, request.payload.files)
+        .then(() => reply({ message }))
+        .catch(err => reply(Boom.notAcceptable(err.message)));
     }
   },
   {
     method: 'POST',
     path: ROUTES.FOLDER.CREATE,
     handler: (request, reply) => {
-      const dir = path.join(root, request.payload.path);
+      const dir = Path.join(root, request.payload.path);
       const message = TEXT.API.MESSAGES.FOLDER.CREATED;
       return createFolder(dir)
-        .then(res => reply({ id: res.id, message }))
+        .then(id => reply({ id, message }))
         .catch(err => reply(Boom.notAcceptable(err.message)));
     }
   },
@@ -382,7 +396,7 @@ server.register([
         notify: false,
         logLevel: 'info',
         proxy: 'localhost:' + port,
-        files: ['examples/index.html', 'dist/**/*.js', 'dist/**/*.css']
+        files: ['examples/index.html', 'dist/filebrowser.js']
       });
     }
   });

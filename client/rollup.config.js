@@ -36,6 +36,7 @@ const globals = {
   pica: 'pica',
   axios: 'axios',
   deepmerge: 'deepmerge',
+  'fast-sort': 'sort.js',
   'es6-object-assign': 'ObjectAssign'
 };
 

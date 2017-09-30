@@ -4,7 +4,7 @@
 
 <script>
 import Pica from 'pica';
-import { calcAspectRatio, isImage } from 'helpers/mix';
+import { calcAspectRatio, isImage } from 'helpers/file';
 
 export default {
   name: 'Thumb',

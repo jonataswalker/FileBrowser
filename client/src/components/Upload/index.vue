@@ -31,7 +31,8 @@
   <div class="container">
     <figure
       class="figure"
-      v-for="(file, key) in $store.state.upload.files">
+      v-for="(file, key) in $store.state.upload.files"
+      :key="key">
       <upload-thumb
         :file="file"
         :id="key"
@@ -39,29 +40,27 @@
       <figcaption class="info">
         <h5>{{ file.name}}</h5>
       </figcaption>
-      <progress-bar :width="progressWidth[key]"></progress-bar>
+      <progress-bar
+        :width="$store.getters['upload/progress'](key)"></progress-bar>
     </figure>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
 import Pica from 'pica';
 import UploadThumb from './components/Thumb';
 import ProgressBar from './components/ProgressBar';
-import { ROUTES } from 'konstants';
-import { isImage, calcAspectRatio } from 'helpers/mix';
+import { isImage, calcAspectRatio } from 'helpers/file';
 
 export default {
   name: 'Upload',
   components: { UploadThumb, ProgressBar },
   data() {
-    return { pica: Pica(), progressWidth: [] };
+    return { pica: Pica() };
   },
   methods: {
     prepareUpload(file, key) {
       file.id = key;
-
       if (isImage(file.type)) {
         const img = new Image();
         img.src = URL.createObjectURL(file.blob);
@@ -76,34 +75,12 @@ export default {
             .then(res => this.pica.toBlob(res, file.mime, 90))
             .then(_blob_ => {
               file.blob = _blob_;
-              this.upload(file);
+              this.$store.dispatch('upload/send', file);
             });
         };
       } else {
-        this.upload(file);
+        this.$store.dispatch('upload/send', file);
       }
-    },
-    upload(file) {
-      const dir = this.$store.state.tree.hierarchy.slice(1).join('/');
-      const data = new FormData();
-      data.append('id', file.id);
-      data.append('name', file.name);
-      data.append('file', file.blob);
-      data.append('directory', dir);
-
-      const config = {
-        onUploadProgress: (e) => {
-          const progress = Math.round((e.loaded * 100) / e.total);
-          this.$set(this.progressWidth, file.id, progress);
-        }
-      };
-
-      axios.post(ROUTES.FILES.UPLOAD, data, config)
-        .then(res => {
-          console.log('uploaded', res.data);
-          this.$store.commit('upload/done', file.id);
-        })
-        .catch(console.error);
     }
   }
 };

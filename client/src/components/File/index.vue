@@ -6,7 +6,7 @@
     @close="closeModal">
     <div slot="body">
       <h5>{{ text.FILE.DEL }}</h5>
-      <p class="fb-folder-path" v-html="hierarchy"></p>
+      <my-path></my-path>
       <ul>
         <li v-for="idx in $store.state.file.selected" :key="idx">
           {{ $store.state.tree.selected.files[idx].name }}
@@ -26,20 +26,14 @@
 </template>
 
 <script>
+import MyPath from 'Path';
 import MyButton from 'Button';
 import Modal from 'Modal';
 
 export default {
   name: 'Folder',
   props: ['openFile'],
-  components: { MyButton, Modal },
-  computed: {
-    hierarchy: function () {
-      return this.$store.state.tree.hierarchy.map(each => {
-        return `<span>${each}</span>`;
-      }).join('→');
-    }
-  },
+  components: { MyButton, Modal, MyPath },
   data() {
     return {
       text: this.$store.state.text,
@@ -52,8 +46,7 @@ export default {
     }
   },
   methods: {
-    onOpenModal() {
-    },
+    onOpenModal() {},
     closeModal() {
       this.modalActive = false;
       this.$emit('closeModal');

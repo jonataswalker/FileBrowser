@@ -1,4 +1,3 @@
-import Path from 'path';
 import Hapi from 'hapi';
 import Good from 'good';
 import Inert from 'inert';
@@ -44,7 +43,7 @@ server.register([
         notify: false,
         logLevel: 'info',
         proxy: 'localhost:' + port,
-        files: ['examples/index.html', 'dist/**/*.js', 'dist/**/*.css']
+        files: ['examples/index.html', 'dist/filebrowser.js']
       });
     }
   });

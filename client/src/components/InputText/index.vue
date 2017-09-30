@@ -13,14 +13,14 @@
         :type="type"
         :id="id"
         :class="inputClasses"
-        :value="inputValue"
+        :value="value"
         :disabled="disabled"
         :required="required"
         :minlength="minlength"
         :maxlength="maxlength"
         @keyup.enter="$emit('enter')"
         @blur="$emit('blur')"
-        @input="onInput">
+        @input="onInput($event.target.value)">
       <label :for="id" class="mdc-textfield__label">{{ label }}</label>
     </div>
     <p :class="errMsgClasses" v-html="errorMsg"></p>
@@ -36,7 +36,7 @@ export default {
   props: {
     type: { type: String, default: 'text' },
     id: { type: String, default: `i-${guid()}` },
-    value: { type: String, default: '' },
+    value: [String, Number],
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
     minlength: Number,
@@ -46,12 +46,7 @@ export default {
     hasError: { type: Boolean, default: false }
   },
   data() {
-    return { hasValue: false, inputValue: this.value };
-  },
-  watch: {
-    value: function (val, oldVal) {
-      if (val) this.inputValue = '';
-    }
+    return { hasValue: false };
   },
   computed: {
     $style() { return this.$options.cssModules },
@@ -74,10 +69,9 @@ export default {
     new MDCTextfield(this.$refs.textfield);
   },
   methods: {
-    onInput(evt) {
-      this.hasValue = Boolean(evt.target.value);
-      this.inputValue = evt.target.value;
-      this.$emit('input', evt.target.value);
+    onInput(value) {
+      this.$emit('input', value);
+      this.hasValue = Boolean(value);
     }
   }
 };

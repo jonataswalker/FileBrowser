@@ -4,18 +4,12 @@ import axios from 'axios';
 export default {
   namespaced: true,
   actions: {
-    create({ commit, rootState, dispatch }, name) {
-
-      let hierarchy = rootState.tree.hierarchy.slice(1);
-      hierarchy.push(name);
-
-      const path = hierarchy.join('/');
-
+    create({ commit, rootGetters, dispatch }, name) {
+      const path = `${rootGetters.tree.path}/${name}`;
       return new Promise((resolve, reject) => {
         axios.post(ROUTES.FOLDER.CREATE, { path }).then(res => {
-          console.log('store folder/create res', res);
-          const obj = { id: res.data.id, name };
-          commit('tree/update', obj, { root: true });
+          const { id } = res.data;
+          dispatch('tree/addFolder', { id, name }, { root: true });
           resolve(res.data.message);
         }).catch(reject);
       });

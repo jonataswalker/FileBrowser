@@ -2,10 +2,7 @@
   @import "helpers";
 
   .folder {
-    // height: $folder-height;
     padding-left: 1rem;
-    transition: height 200ms ease-in;
-
     span { margin-left: 3px }
   }
   .root {
@@ -14,7 +11,6 @@
   .collapsed {
     overflow: hidden;
     max-height: $folder-height !important;
-    transition: height 200ms ease-out;
   }
   .active {
     > a {
@@ -46,27 +42,36 @@
     </a>
     <ol v-if="hasChildren">
       <folder
-        v-for="(folder, key) in tree.folders"
-        :key="key"
-        :id="key"
-        :tree="folder"></folder>
+        v-for="folder in folders"
+        :key="folder[0]"
+        :id="folder[0]"
+        :tree="tree.folders[folder[0]]"></folder>
     </ol>
   </li>
 </template>
 
 <script>
 import { ROOT_ID } from 'konstants';
-// import { keys } from 'helpers/mix';
 
 export default {
   name: 'Folder',
   props: {
     tree: Object,
-    id: String,
+    id: [Number, String],
     collapsed: { type: Boolean, default: true }
   },
   computed: {
     $style() { return this.$options.cssModules },
+    hasChildren() { return Object.keys(this.tree.folders).length },
+    folders() {
+      return Object.keys(this.tree.folders)
+        .map(id => [id, this.tree.folders[id].name])
+        .sort((a, b) => {
+          const v1 = a[1].toUpperCase();
+          const v2 = b[1].toUpperCase();
+          return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+        });
+    },
     classObj() {
       return {
         [this.$style.folder]: true,
@@ -79,15 +84,12 @@ export default {
   data() {
     return {
       isRoot: this.id === ROOT_ID,
-      open: !this.collapsed,
-      hasChildren: Object.keys(this.tree.folders).length
+      open: !this.collapsed
     };
   },
   methods: {
     select() {
       if (!this.isRoot) this.open = !this.open;
-
-      console.log('Tree/Folder/select ', this.id, this.tree);
 
       this.$store.dispatch('tree/select', {
         id: this.id,

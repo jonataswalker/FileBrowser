@@ -34,7 +34,8 @@
 <script>
 import FileType from 'file-type';
 import MyButton from 'Button';
-import { ID, safeFilename } from 'helpers/mix';
+import { safeFilename } from 'helpers/file';
+import { ID } from 'helpers/mix';
 import { FILE_TYPES } from 'konstants';
 
 export default {
@@ -53,7 +54,6 @@ export default {
   },
   methods: {
     filesChange(evt) {
-      console.log('filesChange', evt.target.files);
       const targets = evt.target.files;
 
       this.$store.commit('upload/selected');
@@ -76,21 +76,7 @@ export default {
             });
           }
         };
-
-
-        // img.onload = (e) => {
-        //   console.log('onload', ID());
-        //   this.$store.commit('upload/preview', {
-        //     id: ID(),
-        //     image: img,
-        //     name: safeFilename(targets[key].name)
-        //   });
-        // };
       });
-    },
-    attach() {
-      console.log(this.$refs.input);
-      // this.$refs.input.focus();
     }
   }
 };

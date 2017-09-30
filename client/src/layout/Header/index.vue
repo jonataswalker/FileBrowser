@@ -15,9 +15,7 @@
     border-bottom: 1px solid #c9c9c9;
     background: linear-gradient(#f0f0f0, #b0b0b0);
 
-    span:first-child {
-      font-weight: 700;
-    }
+    span:first-child { font-weight: 700 }
   }
   .toolbar {
     display: flex;
@@ -29,7 +27,6 @@
     border-right: 0;
     border-left: 0;
   }
-
   .toolbar-items {
     display: flex;
 
@@ -37,22 +34,14 @@
       margin-right: 2px;
     }
   }
-
   .message {
     height: 0;
     overflow: hidden;
     color: #444;
     transition: all 200ms cubic-bezier(0, 0, 1, 1);
   }
-
-  .alert {
-    background-color: rgba(237, 212, 0, 0.95);
-  }
-
-  .success {
-    background-color: #8ae234;
-  }
-
+  .alert { background-color: rgba(237, 212, 0, 0.95) }
+  .success { background-color: #8ae234 }
   .show {
     border: 1px solid transparent;
     padding: 5px;
@@ -72,10 +61,6 @@
     <div class="toolbar">
       <div class="toolbar-items">
         <upload-button></upload-button>
-        <my-button>
-          <i class="material-icons">send</i>
-          <span>{{ text.BUTTON.SEND }}</span>
-        </my-button>
         <my-button @click.native="openFolder = true">
           <i class="material-icons">create_new_folder</i>
           <span>{{ text.BUTTON.NEW_FOLDER }}</span>

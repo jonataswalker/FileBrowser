@@ -1,5 +1,5 @@
 import { ROUTES } from 'konstants';
-import request from 'helpers/fetch';
+import axios from 'axios';
 
 export default {
   namespaced: true,
@@ -7,29 +7,18 @@ export default {
     selected: []
   },
   actions: {
-    remove({ state, rootState, commit, dispatch }) {
-      console.log('remove', rootState.tree, rootState.tree.selected);
-
-      const files = state.selected.map(k => {
-        return rootState.tree.selected.files[k].name;
-      });
-
-      const hierarchy =
-        rootState.tree.hierarchy.slice(1, rootState.tree.hierarchy.length);
-      const folder = hierarchy.join('/');
-
-      const config = { method: 'PATCH', body: { files, folder }};
-      console.log('store file/remove', files);
+    remove({ state, rootState, rootGetters, dispatch, commit }) {
+      const folder = rootGetters['tree/path'];
+      const files =
+        state.selected.map(k => rootState.tree.selected.files[k].name);
 
       return new Promise((resolve, reject) => {
-        request(ROUTES.FILES.REMOVE, config).then(res => {
-          console.log('store folder/create res', res);
-
-          dispatch('reset', null, { root: true });
-          dispatch('tree/load', res.tree, { root: true });
-
-          resolve(res.message);
-        }).catch(res => reject(res.message));
+        axios.patch(ROUTES.FILES.REMOVE, { files, folder }).then(res => {
+          const selected = state.selected.slice();
+          resolve(res.data.message);
+          commit('removeSelected');
+          dispatch('tree/removeFiles', selected, { root: true });
+        }).catch(res => reject(res.data.message));
       });
     }
   },
