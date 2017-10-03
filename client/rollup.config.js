@@ -66,12 +66,14 @@ const plugins = [
   nodeResolve({ extensions, browser: true }),
   commonjs(),
   vue({
+    compileTemplate: true,
+    compileOptions: { preserveWhitespace: false },
     css: true,
     cssModules: { generateScopedName: 'fb-[hash:base64:5]' },
     scss: { includePaths: ['./node_modules', './client/src/sass'] }
   }),
   buble({
-    target: { chrome: 52 },
+    target: { ie: 11 },
     // objectAssign: 'Object.assign',
     exclude: ['node_modules/**']
   }),

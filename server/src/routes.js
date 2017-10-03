@@ -1,8 +1,9 @@
 import fs from 'fs';
 import Path from 'path';
 import Boom from 'boom';
-import { getTree, createFolder } from './tree';
+import { getTree } from './tree';
 import { removeFiles } from './file';
+import { createFolder, removeFolder } from './folder';
 import { ROUTES, TEXT } from 'konstants';
 
 const resolve = file => Path.resolve(__dirname, file);
@@ -64,13 +65,32 @@ const routes = [
     }
   },
   {
+    method: 'PATCH',
+    path: ROUTES.FOLDER.REMOVE,
+    handler: (request, reply) => {
+      const message = TEXT.API.MESSAGES.FOLDER.REMOVED;
+      const path = Path.join(root, request.payload.path);
+      console.log('folder remove', path);
+      return removeFolder(path)
+        .then(() => {
+
+          console.log('then handler ...... ', message);
+          reply({ message });
+        })
+        .catch(err => {
+          console.log('catch handler ...... ', err);
+          reply(Boom.notAcceptable(err.message));
+        });
+    }
+  },
+  {
     method: 'POST',
     path: ROUTES.FOLDER.CREATE,
     handler: (request, reply) => {
       const dir = Path.join(root, request.payload.path);
       const message = TEXT.API.MESSAGES.FOLDER.CREATED;
       return createFolder(dir)
-        .then(id => reply({ id, message }))
+        .then(() => reply({ message }))
         .catch(err => reply(Boom.notAcceptable(err.message)));
     }
   },

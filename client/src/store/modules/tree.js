@@ -2,13 +2,14 @@ import axios from 'axios';
 import Vue from 'vue';
 // import deepmerge from 'deepmerge';
 import { ROUTES, ROOT_ID } from 'konstants';
+import { ID } from 'helpers/mix';
 
 export default {
   namespaced: true,
   state: {
     ready: false,
     hierarchy: [],
-    selected: { id: ROOT_ID, parents: [], files: [] },
+    selected: { id: ROOT_ID, name:'', parents: [], files: [] },
     tree: {}
   },
   getters: {
@@ -36,6 +37,30 @@ export default {
 
       hierarchy.push(folder.name);
       return { folder, hierarchy };
+    },
+    selectedFolder: (state, getters) => {
+      const { id, parents } = state.selected;
+      return getters.folder(id, parents);
+    },
+    parentSelectedFolder: (state) => {
+      const { id, parents } = state.selected;
+      const parents_ = parents.slice(1);
+      let folder;
+
+      if (id === ROOT_ID) {
+        return state.tree[ROOT_ID];
+      } else if (parents_.length) {
+        parents_.reduce((acc, curr, idx) => {
+          if (idx === parents_.length - 1) {
+            folder = acc[curr];
+          }
+          return acc[curr].folders;
+        }, state.tree[ROOT_ID].folders);
+      } else {
+        folder = state.tree[ROOT_ID];
+      }
+
+      return folder;
     }
   },
   actions: {
@@ -52,17 +77,17 @@ export default {
     },
     select({ commit, state, getters }, { id, parents = [] }) {
       const { folder, hierarchy } = getters.folder(id, parents);
-      console.log('tree/select folder', folder);
-
       commit('select', {
         id,
         parents,
+        name: folder.name,
         files: folder.files,
         hierarchy: hierarchy
       });
       commit('file/removeSelected', null, { root: true });
     },
-    addFolder({ commit, getters, state }, { id, name }) {
+    addFolder({ commit, getters, state }, name) {
+      const id = ID();
       const parentId = state.selected.id;
       const { parents } = state.selected;
       const { folder } = getters.folder(parentId, parents);
@@ -72,6 +97,14 @@ export default {
       const { id, parents } = state.selected;
       const { folder } = getters.folder(id, parents);
       commit('addFile', { folder, file });
+    },
+    removeFolder({ dispatch, commit, getters, state }) {
+      const parentFolder = getters.parentSelectedFolder;
+      const { parents } = parentFolder;
+      const selectedParents = state.selected.parents;
+      const parentId = selectedParents[selectedParents.length - 1];
+      commit('removeFolder', parentFolder);
+      dispatch('select', { id: parentId, parents });
     },
     removeFiles({ commit, getters, state }, files) {
       const { id, parents } = state.selected;
@@ -103,9 +136,12 @@ export default {
         return !files.includes(i);
       });
     },
-    select(state, { id, parents, files, hierarchy }) {
+    removeFolder(state, parent) {
+      Vue.delete(parent.folders, state.selected.id);
+    },
+    select(state, { id, name, parents, files, hierarchy }) {
       state.hierarchy = hierarchy;
-      state.selected = { id, parents, files };
+      state.selected = { id, name, parents, files };
     }
   }
 };

@@ -7,7 +7,7 @@
       padding: 3px 6px;
       border-radius: 4px;
       box-shadow: 2px 2px 2px #999;
-      background-color: #eee;
+      background-color: #ddd;
     }
   }
 </style>

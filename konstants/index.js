@@ -42,10 +42,10 @@ export const TEXT = {
       ' and the following characters: <span class="highlight">- _</span>'
     ].join(''),
     DELETION: [
-      '<p class="folder-path">This folder <span>%1</span>',
+      '<p>This folder <span>%1</span>',
       ' will be removed with all its contents: </p>',
-      '<p>Total Files: <span class="destaque">%2</span>',
-      ' &mdash; Total Subfolders: <span class="destaque">%3</span></p>'
+      '<p>Total Files: <span>%2</span>',
+      ' &mdash; Total Subfolders: <span>%3</span></p>'
     ].join('')
   },
   ALERT: {
@@ -63,6 +63,7 @@ export const TEXT = {
       FOLDER: {
         CREATED: 'Folder created!',
         RENAMED: 'Folder renamed!',
+        REMOVED: 'Folder removed!',
         EXISTS: 'This folder already exists!'
       },
       FILE: {
@@ -80,7 +81,7 @@ export const ROUTES = {
   },
   FOLDER: {
     CREATE: '/folder',
-    EDIT: '/folder/:id',
-    REMOVE: '/folder/:id'
+    EDIT: '/folder',
+    REMOVE: '/folder'
   }
 };

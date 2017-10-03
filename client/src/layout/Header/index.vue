@@ -61,11 +61,13 @@
     <div class="toolbar">
       <div class="toolbar-items">
         <upload-button></upload-button>
-        <my-button @click.native="openFolder = true">
+        <my-button @click.native="createFolder = true">
           <i class="material-icons">create_new_folder</i>
           <span>{{ text.BUTTON.NEW_FOLDER }}</span>
         </my-button>
-        <my-button v-if="$store.state.tree.selected.id !== rootFolder">
+        <my-button
+          v-if="$store.state.tree.selected.id !== rootFolder"
+          @click.native="removeFolder = true">
           <i class="material-icons">delete_forever</i>
           <span>{{ text.BUTTON.DELETE_FOLDER }}</span>
         </my-button>
@@ -85,8 +87,9 @@
       </div>
     </div>
     <folder
-      :open-folder="openFolder"
-      @closeModal="openFolder = false"></folder>
+      :creating="createFolder"
+      :removing="removeFolder"
+      @closeModal="createFolder = removeFolder = false"></folder>
     <file
       :open-file="openFile"
       @closeModal="openFile = false"></file>
@@ -115,16 +118,12 @@ export default {
   },
   data() {
     return {
-      openFolder: false,
+      createFolder: false,
+      removeFolder: false,
       openFile: false,
       rootFolder: ROOT_ID,
       text: this.$store.state.text
     };
-  },
-  methods: {
-    removeFile() {
-      this.$store.dispatch('file/remove');
-    }
   }
 };
 </script>
