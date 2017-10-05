@@ -24,6 +24,7 @@ export function arrayBufferToBase64(buffer) {
 }
 
 export function isImage(ext) {
+  ext = ext.replace('.', '');
   return ['jpg', 'png', 'gif'].includes(ext);
 }
 

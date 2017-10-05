@@ -51,7 +51,7 @@
 
 <template>
   <header class="header">
-    <div class="title">
+    <div class="title" v-draggable>
       <span>{{ text.TITLE }}</span>
       <span class="close"></span>
     </div>
@@ -80,7 +80,9 @@
             ({{ $store.state.file.selected.length }})
           </span>
         </my-button>
-        <my-button v-if="$store.state.file.selected.length">
+        <my-button
+          v-if="$store.state.file.selected.length"
+          @click.native="sendEditor">
           <i class="material-icons">publish</i>
           <span>{{ text.BUTTON.SEND_EDITOR }}</span>
         </my-button>
@@ -102,6 +104,7 @@ import UploadButton from 'UploadButton';
 import Folder from 'Folder';
 import File from 'File';
 import { ROOT_ID } from 'konstants';
+import { isImage } from 'helpers/file';
 
 export default {
   name: 'Header',
@@ -124,6 +127,21 @@ export default {
       rootFolder: ROOT_ID,
       text: this.$store.state.text
     };
+  },
+  methods: {
+    sendEditor() {
+      const { editor } = this.$store.state.options;
+
+      this.$store.state.file.selected.forEach(idx => {
+        const file = this.$store.state.tree.selected.files[idx];
+        console.log('sendEditor', idx, file);
+
+        if (isImage(file.extension)) {
+          const img = `<img src="${file.path}/${file.name}">`;
+          editor.insertHtml(img);
+        }
+      });
+    }
   }
 };
 </script>

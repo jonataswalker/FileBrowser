@@ -2,10 +2,10 @@ export default {
   namespaced: true,
   state: { active: false },
   mutations: {
-    opened(state) {
+    open(state) {
       state.active = true;
     },
-    closed(state) {
+    close(state) {
       state.active = false;
     }
   }

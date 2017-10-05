@@ -2,7 +2,7 @@
  * FileBrowser - v1.3.0
  * ${description}
  * ${homepage}
- * Built: Tue Oct 03 2017 17:09:04 GMT-0300 (-03)
+ * Built: Thu Oct 05 2017 16:09:01 GMT-0300 (-03)
  */
 
 var FileBrowser = (function (Vue,ripple,dialog,textfield,Pica,Vuex,axios) {
@@ -661,6 +661,7 @@ function calcAspectRatio(w, h, maxWidth, maxHeight) {
 
 
 function isImage(ext) {
+  ext = ext.replace('.', '');
   return ['jpg', 'png', 'gif'].includes(ext);
 }
 
@@ -1344,7 +1345,9 @@ var File = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
 
 
 
-var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('header',{staticClass:"fb-LXfzh"},[_c('div',{staticClass:"fb-193Yk"},[_c('span',[_vm._v(_vm._s(_vm.text.TITLE))]),_c('span',{staticClass:"close"})]),_c('div',{staticClass:"fb-1ts0M",class:_vm.messageClasses},[_vm._v(" "+_vm._s(_vm.$store.state.message.message)+" ")]),_c('div',{staticClass:"fb-2Amtu"},[_c('div',{staticClass:"fb-GlSRm"},[_c('upload-button'),_c('my-button',{nativeOn:{"click":function($event){_vm.createFolder = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("create_new_folder")]),_c('span',[_vm._v(_vm._s(_vm.text.BUTTON.NEW_FOLDER))])]),(_vm.$store.state.tree.selected.id !== _vm.rootFolder)?_c('my-button',{nativeOn:{"click":function($event){_vm.removeFolder = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_c('span',[_vm._v(_vm._s(_vm.text.BUTTON.DELETE_FOLDER))])]):_vm._e(),(_vm.$store.state.file.selected.length)?_c('my-button',{nativeOn:{"click":function($event){_vm.openFile = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_c('span',[_vm._v(" "+_vm._s(_vm.text.BUTTON.DELETE_FILE)+" ("+_vm._s(_vm.$store.state.file.selected.length)+") ")])]):_vm._e(),(_vm.$store.state.file.selected.length)?_c('my-button',[_c('i',{staticClass:"material-icons"},[_vm._v("publish")]),_c('span',[_vm._v(_vm._s(_vm.text.BUTTON.SEND_EDITOR))])]):_vm._e()],1)]),_c('folder',{attrs:{"creating":_vm.createFolder,"removing":_vm.removeFolder},on:{"closeModal":function($event){_vm.createFolder = _vm.removeFolder = false;}}}),_c('file',{attrs:{"open-file":_vm.openFile},on:{"closeModal":function($event){_vm.openFile = false;}}})],1)},staticRenderFns: [],cssModules: {"header":"fb-LXfzh","title":"fb-193Yk","toolbar":"fb-2Amtu","toolbarItems":"fb-GlSRm","toolbar-items":"fb-GlSRm","message":"fb-1ts0M","alert":"fb-2MYaL","success":"fb-1NYdd","show":"fb-Z439J"},
+
+
+var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('header',{staticClass:"fb-LXfzh"},[_c('div',{directives:[{name:"draggable",rawName:"v-draggable"}],staticClass:"fb-193Yk"},[_c('span',[_vm._v(_vm._s(_vm.text.TITLE))]),_c('span',{staticClass:"close"})]),_c('div',{staticClass:"fb-1ts0M",class:_vm.messageClasses},[_vm._v(" "+_vm._s(_vm.$store.state.message.message)+" ")]),_c('div',{staticClass:"fb-2Amtu"},[_c('div',{staticClass:"fb-GlSRm"},[_c('upload-button'),_c('my-button',{nativeOn:{"click":function($event){_vm.createFolder = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("create_new_folder")]),_c('span',[_vm._v(_vm._s(_vm.text.BUTTON.NEW_FOLDER))])]),(_vm.$store.state.tree.selected.id !== _vm.rootFolder)?_c('my-button',{nativeOn:{"click":function($event){_vm.removeFolder = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_c('span',[_vm._v(_vm._s(_vm.text.BUTTON.DELETE_FOLDER))])]):_vm._e(),(_vm.$store.state.file.selected.length)?_c('my-button',{nativeOn:{"click":function($event){_vm.openFile = true;}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete_forever")]),_c('span',[_vm._v(" "+_vm._s(_vm.text.BUTTON.DELETE_FILE)+" ("+_vm._s(_vm.$store.state.file.selected.length)+") ")])]):_vm._e(),(_vm.$store.state.file.selected.length)?_c('my-button',{nativeOn:{"click":function($event){_vm.sendEditor($event);}}},[_c('i',{staticClass:"material-icons"},[_vm._v("publish")]),_c('span',[_vm._v(_vm._s(_vm.text.BUTTON.SEND_EDITOR))])]):_vm._e()],1)]),_c('folder',{attrs:{"creating":_vm.createFolder,"removing":_vm.removeFolder},on:{"closeModal":function($event){_vm.createFolder = _vm.removeFolder = false;}}}),_c('file',{attrs:{"open-file":_vm.openFile},on:{"closeModal":function($event){_vm.openFile = false;}}})],1)},staticRenderFns: [],cssModules: {"header":"fb-LXfzh","title":"fb-193Yk","toolbar":"fb-2Amtu","toolbarItems":"fb-GlSRm","toolbar-items":"fb-GlSRm","message":"fb-1ts0M","alert":"fb-2MYaL","success":"fb-1NYdd","show":"fb-Z439J"},
   name: 'Header',
   components: { MyButton: MyButton, UploadButton: UploadButton, Folder: Folder, File: File },
   computed: {
@@ -1362,6 +1365,24 @@ var AppHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       rootFolder: ROOT_ID,
       text: this.$store.state.text
     };
+  },
+  methods: {
+    sendEditor: function sendEditor() {
+      var this$1 = this;
+
+      var ref = this.$store.state.options;
+      var editor = ref.editor;
+
+      this.$store.state.file.selected.forEach(function (idx) {
+        const file = this$1.$store.state.tree.selected.files[idx];
+        console.log('sendEditor', idx, file);
+
+        if (isImage(file.extension)) {
+          const img = "<img src=\"" + (file.path) + "/" + (file.name) + "\">";
+          editor.insertHtml(img);
+        }
+      });
+    }
   }
 };
 
@@ -1892,12 +1913,19 @@ var AppFooter = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
 
 
 
-var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"fb-_GXWp",class:( obj = {}, obj[_vm.$style.modal] = _vm.$store.state.modal.active, obj )},[_c('div',{staticClass:"fb-zPpTt"},[_c('app-header'),_c('app-body'),_c('app-footer')],1)])
+
+
+var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.visible),expression:"visible"}],ref:"container",staticClass:"fb-_GXWp",class:( obj = {}, obj[_vm.$style.modal] = _vm.$store.state.modal.active, obj )},[_c('div',{staticClass:"fb-zPpTt"},[_c('app-header'),_c('app-body'),_c('app-footer')],1)])
 var obj;},staticRenderFns: [],cssModules: {"mdcThemeBackground":"fb-2l65Q","mdc-theme--background":"fb-2l65Q","mdcThemePrimary":"fb-3H_iA","mdc-theme--primary":"fb-3H_iA","mdcThemePrimaryLight":"fb-2q0NX","mdc-theme--primary-light":"fb-2q0NX","mdcThemePrimaryDark":"fb-2DK6j","mdc-theme--primary-dark":"fb-2DK6j","mdcThemeSecondary":"fb-2u5MI","mdc-theme--secondary":"fb-2u5MI","mdcThemeSecondaryLight":"fb-2jzh3","mdc-theme--secondary-light":"fb-2jzh3","mdcThemeSecondaryDark":"fb-1MuW-","mdc-theme--secondary-dark":"fb-1MuW-","mdcThemeTextPrimaryOnPrimary":"fb-oSOPi","mdc-theme--text-primary-on-primary":"fb-oSOPi","mdcThemeTextSecondaryOnPrimary":"fb-2oZsk","mdc-theme--text-secondary-on-primary":"fb-2oZsk","mdcThemeTextHintOnPrimary":"fb-3Xjtc","mdc-theme--text-hint-on-primary":"fb-3Xjtc","mdcThemeTextDisabledOnPrimary":"fb-gMvEa","mdc-theme--text-disabled-on-primary":"fb-gMvEa","mdcThemeTextIconOnPrimary":"fb-2l6kC","mdc-theme--text-icon-on-primary":"fb-2l6kC","mdcThemeTextPrimaryOnPrimaryLight":"fb-1HL_k","mdc-theme--text-primary-on-primary-light":"fb-1HL_k","mdcThemeTextSecondaryOnPrimaryLight":"fb-MuiNb","mdc-theme--text-secondary-on-primary-light":"fb-MuiNb","mdcThemeTextHintOnPrimaryLight":"fb-xH63v","mdc-theme--text-hint-on-primary-light":"fb-xH63v","mdcThemeTextDisabledOnPrimaryLight":"fb-2O3Hh","mdc-theme--text-disabled-on-primary-light":"fb-2O3Hh","mdcThemeTextIconOnPrimaryLight":"fb-yPq_y","mdc-theme--text-icon-on-primary-light":"fb-yPq_y","mdcThemeTextPrimaryOnPrimaryDark":"fb-4ZRFU","mdc-theme--text-primary-on-primary-dark":"fb-4ZRFU","mdcThemeTextSecondaryOnPrimaryDark":"fb-2NGTU","mdc-theme--text-secondary-on-primary-dark":"fb-2NGTU","mdcThemeTextHintOnPrimaryDark":"fb-qDKtR","mdc-theme--text-hint-on-primary-dark":"fb-qDKtR","mdcThemeTextDisabledOnPrimaryDark":"fb-3vAWW","mdc-theme--text-disabled-on-primary-dark":"fb-3vAWW","mdcThemeTextIconOnPrimaryDark":"fb-_YHMP","mdc-theme--text-icon-on-primary-dark":"fb-_YHMP","mdcThemeTextPrimaryOnSecondary":"fb-2zDI0","mdc-theme--text-primary-on-secondary":"fb-2zDI0","mdcThemeTextSecondaryOnSecondary":"fb-1NGz2","mdc-theme--text-secondary-on-secondary":"fb-1NGz2","mdcThemeTextHintOnSecondary":"fb-B7sCF","mdc-theme--text-hint-on-secondary":"fb-B7sCF","mdcThemeTextDisabledOnSecondary":"fb-3Nb5K","mdc-theme--text-disabled-on-secondary":"fb-3Nb5K","mdcThemeTextIconOnSecondary":"fb-2auAo","mdc-theme--text-icon-on-secondary":"fb-2auAo","mdcThemeTextPrimaryOnSecondaryLight":"fb-3eodE","mdc-theme--text-primary-on-secondary-light":"fb-3eodE","mdcThemeTextSecondaryOnSecondaryLight":"fb-3DFag","mdc-theme--text-secondary-on-secondary-light":"fb-3DFag","mdcThemeTextHintOnSecondaryLight":"fb-iErYm","mdc-theme--text-hint-on-secondary-light":"fb-iErYm","mdcThemeTextDisabledOnSecondaryLight":"fb-1NdBa","mdc-theme--text-disabled-on-secondary-light":"fb-1NdBa","mdcThemeTextIconOnSecondaryLight":"fb-sqadP","mdc-theme--text-icon-on-secondary-light":"fb-sqadP","mdcThemeTextPrimaryOnSecondaryDark":"fb-1MML_","mdc-theme--text-primary-on-secondary-dark":"fb-1MML_","mdcThemeTextSecondaryOnSecondaryDark":"fb-30vKs","mdc-theme--text-secondary-on-secondary-dark":"fb-30vKs","mdcThemeTextHintOnSecondaryDark":"fb-3YlXN","mdc-theme--text-hint-on-secondary-dark":"fb-3YlXN","mdcThemeTextDisabledOnSecondaryDark":"fb-2qKSf","mdc-theme--text-disabled-on-secondary-dark":"fb-2qKSf","mdcThemeTextIconOnSecondaryDark":"fb-3Xiy6","mdc-theme--text-icon-on-secondary-dark":"fb-3Xiy6","mdcThemeTextPrimaryOnBackground":"fb-vquGu","mdc-theme--text-primary-on-background":"fb-vquGu","mdcThemeTextSecondaryOnBackground":"fb-14428","mdc-theme--text-secondary-on-background":"fb-14428","mdcThemeTextHintOnBackground":"fb-3pLBx","mdc-theme--text-hint-on-background":"fb-3pLBx","mdcThemeTextDisabledOnBackground":"fb-3fhfj","mdc-theme--text-disabled-on-background":"fb-3fhfj","mdcThemeTextIconOnBackground":"fb-3fME0","mdc-theme--text-icon-on-background":"fb-3fME0","mdcThemeTextPrimaryOnLight":"fb-3bOr8","mdc-theme--text-primary-on-light":"fb-3bOr8","mdcThemeTextSecondaryOnLight":"fb-3jvWV","mdc-theme--text-secondary-on-light":"fb-3jvWV","mdcThemeTextHintOnLight":"fb-24VMm","mdc-theme--text-hint-on-light":"fb-24VMm","mdcThemeTextDisabledOnLight":"fb-cIcvD","mdc-theme--text-disabled-on-light":"fb-cIcvD","mdcThemeTextIconOnLight":"fb-1NA-f","mdc-theme--text-icon-on-light":"fb-1NA-f","mdcThemeTextPrimaryOnDark":"fb-Hp9Sx","mdc-theme--text-primary-on-dark":"fb-Hp9Sx","mdcThemeTextSecondaryOnDark":"fb-3K7HT","mdc-theme--text-secondary-on-dark":"fb-3K7HT","mdcThemeTextHintOnDark":"fb-Xar6F","mdc-theme--text-hint-on-dark":"fb-Xar6F","mdcThemeTextDisabledOnDark":"fb-1-9td","mdc-theme--text-disabled-on-dark":"fb-1-9td","mdcThemeTextIconOnDark":"fb-1Seo4","mdc-theme--text-icon-on-dark":"fb-1Seo4","mdcThemePrimaryBg":"fb-2qNQ5","mdc-theme--primary-bg":"fb-2qNQ5","mdcThemePrimaryLightBg":"fb-1G91K","mdc-theme--primary-light-bg":"fb-1G91K","mdcThemePrimaryDarkBg":"fb-1Yvic","mdc-theme--primary-dark-bg":"fb-1Yvic","mdcThemeSecondaryBg":"fb-1_3y_","mdc-theme--secondary-bg":"fb-1_3y_","mdcThemeSecondaryLightBg":"fb-PZ3Nq","mdc-theme--secondary-light-bg":"fb-PZ3Nq","mdcThemeSecondaryDarkBg":"fb-Jl_Pn","mdc-theme--secondary-dark-bg":"fb-Jl_Pn","container":"fb-_GXWp","modal":"fb-2aTTm","wrapper":"fb-zPpTt"},
   name: 'App',
   components: { AppHeader: AppHeader, AppBody: AppBody, AppFooter: AppFooter },
   computed: {
-    $style: function $style() { return this.$options.cssModules }
+    $style: function $style() { return this.$options.cssModules },
+    visible: function visible() {
+      return this.$store.state.isModal
+        ? this.$store.state.modal.active
+        : true;
+    }
   }
 
 };
@@ -2015,7 +2043,6 @@ var folder = {
   }
 };
 
-// import deepmerge from 'deepmerge';
 var tree = {
   namespaced: true,
   state: {
@@ -2367,10 +2394,10 @@ var modal = {
   namespaced: true,
   state: { active: false },
   mutations: {
-    opened: function opened(state) {
+    open: function open(state) {
       state.active = true;
     },
-    closed: function closed(state) {
+    close: function close(state) {
       state.active = false;
     }
   }
@@ -2380,6 +2407,7 @@ var store = new Vuex.Store({
   modules: { folder: folder, tree: tree, file: file, message: message, upload: upload, modal: modal },
   state: {
     text: {},
+    isModal: true,
     options: OPTIONS
   },
   mutations: {
@@ -2396,17 +2424,89 @@ var store = new Vuex.Store({
   }
 });
 
+const draggable = {
+  bind: function bind(el, binding, vnode) {
+    let startX, startY, initialMouseX, initialMouseY;
+
+    el.addEventListener('mousedown', function (e) {
+      const container = app.$children[0].$refs.container;
+      startX = container.offsetLeft;
+      startY = container.offsetTop;
+      initialMouseX = e.clientX;
+      initialMouseY = e.clientY;
+      document.addEventListener('mousemove', mousemove);
+      document.addEventListener('mouseup', mouseup);
+      return false;
+    });
+
+    function mousemove(e) {
+      const container = app.$children[0].$refs.container;
+      const dx = e.clientX - initialMouseX;
+      const dy = e.clientY - initialMouseY;
+      container.style.top = startY + dy + 'px';
+      container.style.left = startX + dx + 'px';
+      return false;
+    }
+
+    function mouseup() {
+      document.removeEventListener('mousemove', mousemove);
+      document.removeEventListener('mouseup', mouseup);
+    }
+  }
+};
+
+Vue.directive('draggable', draggable);
+
 const app = new Vue({
   store: store,
+  mounted: function mounted() {
+    console.log('app mounted', this.$el);
+  },
   render: function (h) { return h(App); }
 });
+
+function isObject(item) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+
+
+/**
+ * Get the first item that pass the test
+ * by second argument function
+ *
+ * @param {Array} list
+ * @param {Function} f
+ * @return {*}
+ */
 
 var FileBrowser = function FileBrowser(el, options) {
   if ( options === void 0 ) options = {};
 
+
+  if (!(this instanceof FileBrowser)) {
+    return new FileBrowser(el, options);
+  }
+
+  if (isObject(el)) {
+    options = el;
+    el = document.createElement('div');
+    document.body.appendChild(el);
+  }
+
+  this.options = options;
+
   store.commit('mergeOptions', options);
   store.dispatch('tree/get');
   app.$mount(el);
+};
+
+FileBrowser.prototype.show = function show () {
+  store.commit('modal/open');
+};
+
+FileBrowser.prototype.hide = function hide () {
+  store.commit('modal/close');
 };
 
 return FileBrowser;

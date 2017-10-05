@@ -50,8 +50,10 @@
 
 <template>
   <div
+    ref="container"
     class="container"
-    :class="{ [$style.modal]: $store.state.modal.active }">
+    :class="{ [$style.modal]: $store.state.modal.active }"
+    v-show="visible">
     <div class="wrapper">
       <app-header></app-header>
       <app-body></app-body>
@@ -69,7 +71,12 @@ export default {
   name: 'App',
   components: { AppHeader, AppBody, AppFooter },
   computed: {
-    $style() { return this.$options.cssModules }
+    $style() { return this.$options.cssModules },
+    visible() {
+      return this.$store.state.isModal
+        ? this.$store.state.modal.active
+        : true;
+    }
   }
 
 };

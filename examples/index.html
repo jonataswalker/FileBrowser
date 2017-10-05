@@ -3,27 +3,51 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed"
-          rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet">
     <link href="/static/filebrowser-deps.css" rel="stylesheet">
-
     <style type="text/css">
       body {
-        font-family: 'Roboto Condensed', sans-serif;
+        font-family: BlinkMacSystemFont,-apple-system,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue","Helvetica","Arial",sans-serif;
       }
     </style>
   </head>
   <body>
-    <div id="browser"></div>
+    <textarea id="editor"></textarea>
+    <script src="https://cdn.ckeditor.com/4.7.3/standard/ckeditor.js"></script>
     <script src="/static/filebrowser-deps.js"></script>
     <script src="/static/filebrowser.js"></script>
     <script>
-      var filebrowser = new FileBrowser('#browser', {
+      var FBplugin = 'jwalker-filebrowser';
+      var pluginDir = '/static/ckeditor/plugins/' + FBplugin + '/';
+
+      CKEDITOR.plugins.addExternal(FBplugin, pluginDir);
+
+      var ckeditor = CKEDITOR.replace('editor', {
+        extraPlugins: FBplugin,
+        extraAllowedContent: 'img[src,alt,width,height]',
+        toolbarGroups: [
+          {
+            name: 'basicstyles',
+            groups: ['basicstyles', 'cleanup', 'colors']
+          },
+          { name: 'tools', groups: ['tools'] },
+          { name: 'upload', groups: ['filebrowser'] }
+        ]
+      });
+
+      var filebrowser = new FileBrowser({
+        editor: ckeditor,
         lang: 'pt-br',
+        extensions: ['images', 'doc', 'docx', 'ppt', 'pptx', 'pdf'],
         server: 'http://localhost:3190'
       });
+
+      window.showFileBrowser = function () {
+        console.log('showFileBrowser');
+        filebrowser.show();
+      };
+
     </script>
   </body>
 </html>

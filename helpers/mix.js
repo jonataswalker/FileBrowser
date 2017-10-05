@@ -21,3 +21,12 @@ export function guid() {
 export function ID() {
   return Math.random().toString(36).substr(2, 9);
 }
+
+export function assert(condition, message = 'Assertion failed') {
+  if (!condition) {
+    if (typeof Error !== 'undefined') {
+      throw new Error(message);
+    }
+    throw message; // Fallback
+  }
+}

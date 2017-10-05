@@ -12,6 +12,7 @@ export default new Vuex.Store({
   modules: { folder, tree, file, message, upload, modal },
   state: {
     text: {},
+    isModal: true,
     options: OPTIONS
   },
   mutations: {
